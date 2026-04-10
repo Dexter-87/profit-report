@@ -3,7 +3,6 @@ import streamlit as st
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
-# ===== ССЫЛКИ НА GOOGLE TABLES =====
 sales_url = "https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0/edit?gid=1240951053#gid=1240951053"
 expenses_url = "https://docs.google.com/spreadsheets/d/1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK0/edit?gid=1622934317#gid=1622934317"
 
@@ -19,49 +18,85 @@ def format_money(value):
 
 @st.cache_data(ttl=60)
 def load_data():
-    sales_csv = sales_url.replace("/edit?output=csv", "/export?format=csv")
-    expenses_csv = expenses_url.replace("/edit?output=csv", "/export?format=csv")
-
-    sales = pd.read_csv(sales_csv)
-    expenses = pd.read_csv(expenses_csv)
+    sales = pd.read_csv(sales_url)
+    expenses = pd.read_csv(expenses_url)
     return sales, expenses
 
 
+def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df.columns = (
+        df.columns.astype(str)
+        .str.replace("\ufeff", "", regex=False)
+        .str.replace("\xa0", " ", regex=False)
+        .str.strip()
+    )
+    return df
+
+
+def find_column(df: pd.DataFrame, variants: list[str]) -> str | None:
+    lower_map = {str(col).strip().lower(): col for col in df.columns}
+    for variant in variants:
+        found = lower_map.get(variant.lower())
+        if found is not None:
+            return found
+    return None
+
+
 def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
-    df = data.copy()
-    df.columns = df.columns.astype(str).str.strip()
+    df = normalize_columns(data)
 
-    if "Комментарий" not in df.columns:
-        df["Комментарий"] = ""
+    date_col = find_column(df, ["Дата", "дата"])
+    channel_col = find_column(df, ["Канал", "канал"])
+    name_col = find_column(df, ["Наименование", "наименование"])
+    comment_col = find_column(df, ["Комментарий", "комментарий"])
+    rrc_col = find_column(df, ["РРЦ", "ррц"])
+    cost_col = find_column(df, ["Себестоимость", "себестоимость"])
+    kaspi_col = find_column(df, ["Комиссия Kaspi", "комиссия kaspi", "Kaspi", "kaspi"])
+    profit_col = find_column(df, ["Чистая прибыль", "чистая прибыль"])
 
-    if "Канал" not in df.columns:
+    if date_col is None:
+        st.error("В таблице продаж не найден столбец 'Дата'.")
+        st.write("Найденные столбцы:", list(df.columns))
+        st.stop()
+
+    if channel_col is None:
         df["Канал"] = ""
+        channel_col = "Канал"
 
-    if "Наименование" not in df.columns:
+    if name_col is None:
         df["Наименование"] = ""
+        name_col = "Наименование"
 
-    if "РРЦ" not in df.columns:
+    if comment_col is None:
+        df["Комментарий"] = ""
+        comment_col = "Комментарий"
+
+    if rrc_col is None:
         df["РРЦ"] = 0
+        rrc_col = "РРЦ"
 
-    if "Себестоимость" not in df.columns:
+    if cost_col is None:
         df["Себестоимость"] = 0
+        cost_col = "Себестоимость"
 
-    if "Комиссия Kaspi" not in df.columns:
+    if kaspi_col is None:
         df["Комиссия Kaspi"] = 0
+        kaspi_col = "Комиссия Kaspi"
 
-    df["Дата"] = pd.to_datetime(df["Дата"], errors="coerce", dayfirst=False)
-    df["РРЦ"] = pd.to_numeric(df["РРЦ"], errors="coerce").fillna(0)
-    df["Себестоимость"] = pd.to_numeric(df["Себестоимость"], errors="coerce").fillna(0)
-    df["Комиссия Kaspi"] = pd.to_numeric(df["Комиссия Kaspi"], errors="coerce").fillna(0)
+    df["Дата"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=False)
+    df["Канал"] = df[channel_col].fillna("").astype(str).str.strip()
+    df["Наименование"] = df[name_col].fillna("").astype(str).str.strip()
+    df["Комментарий"] = df[comment_col].fillna("").astype(str).str.strip()
 
-    if "Чистая прибыль" in df.columns:
-        df["Прибыль"] = pd.to_numeric(df["Чистая прибыль"], errors="coerce").fillna(0)
+    df["РРЦ"] = pd.to_numeric(df[rrc_col], errors="coerce").fillna(0)
+    df["Себестоимость"] = pd.to_numeric(df[cost_col], errors="coerce").fillna(0)
+    df["Комиссия Kaspi"] = pd.to_numeric(df[kaspi_col], errors="coerce").fillna(0)
+
+    if profit_col is not None:
+        df["Прибыль"] = pd.to_numeric(df[profit_col], errors="coerce").fillna(0)
     else:
         df["Прибыль"] = df["РРЦ"] - df["Себестоимость"] - df["Комиссия Kaspi"]
-
-    df["Наименование"] = df["Наименование"].fillna("").astype(str).str.strip()
-    df["Канал"] = df["Канал"].fillna("").astype(str).str.strip()
-    df["Комментарий"] = df["Комментарий"].fillna("").astype(str).str.strip()
 
     df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
     df["Плюс"] = df["Комментарий"] == "+"
@@ -71,30 +106,36 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
-    exp = data.copy()
-    exp.columns = exp.columns.astype(str).str.strip()
+    exp = normalize_columns(data)
 
-    if "Дата" not in exp.columns:
+    date_col = find_column(exp, ["Дата", "дата"])
+    sum_col = find_column(exp, ["Сумма", "сумма"])
+    type_col = find_column(exp, ["Тип расхода", "тип расхода"])
+
+    if date_col is None:
         exp["Дата"] = pd.NaT
-    if "Сумма" not in exp.columns:
+    else:
+        exp["Дата"] = pd.to_datetime(exp[date_col], errors="coerce", dayfirst=False)
+
+    if sum_col is None:
         exp["Сумма"] = 0
-    if "Тип расхода" not in exp.columns:
+    else:
+        exp["Сумма"] = pd.to_numeric(exp[sum_col], errors="coerce").fillna(0)
+
+    if type_col is None:
         exp["Тип расхода"] = ""
+    else:
+        exp["Тип расхода"] = exp[type_col].fillna("").astype(str)
 
-    exp["Дата"] = pd.to_datetime(exp["Дата"], errors="coerce", dayfirst=False)
-    exp["Сумма"] = pd.to_numeric(exp["Сумма"], errors="coerce").fillna(0)
     exp["Дата_рус"] = exp["Дата"].dt.strftime("%d.%m.%Y")
-
     return exp
 
 
 left, right = st.columns([1, 1])
-
 with left:
     if st.button("Обновить данные"):
         st.cache_data.clear()
         st.rerun()
-
 with right:
     st.caption("Кэш обновляется примерно раз в 60 секунд")
 
@@ -104,7 +145,7 @@ exp = load_expenses_dataframe(expenses_df)
 
 valid_dates = df["Дата"].dropna()
 if valid_dates.empty:
-    st.error("В таблице продаж не распознаны даты.")
+    st.error("В продажах не распознаны даты.")
     st.stop()
 
 st.sidebar.header("Фильтры")
@@ -182,7 +223,6 @@ if mode == "Сводка":
     st.metric("Мой чистый", format_money(my_net))
     st.metric("Алексей чистый", format_money(alex_net))
     st.metric("Итого", format_money(total_net))
-
     st.subheader("Быстрый отчет")
     st.code(quick_report)
 
@@ -192,18 +232,6 @@ else:
     c2.metric("Мой", format_money(my_income))
     c3.metric("Алексей", format_money(alex_income))
     c4.metric("Расходы", format_money(expenses))
-
-    c5, c6, c7, c8 = st.columns(4)
-    c5.metric("Половина расходов", format_money(half_expenses))
-    c6.metric("Мой чистый", format_money(my_net))
-    c7.metric("Алексей чистый", format_money(alex_net))
-    c8.metric("Итого", format_money(total_net))
-
-    c9, c10, c11, c12 = st.columns(4)
-    c9.metric("Средний чек", format_money(avg_check))
-    c10.metric("Количество продаж", format_money(sales_count))
-    c11.metric("Выручка", format_money(revenue_sum))
-    c12.metric("Маржа %", f"{margin_percent:.2f}%")
 
     st.subheader("Прибыль по дням")
     if not df.empty:
@@ -220,24 +248,10 @@ else:
         )
         st.bar_chart(top_products)
 
-    with st.expander("Быстрый отчет"):
-        st.code(quick_report)
-
     with st.expander("Продажи"):
-        show_cols = [
-            "Дата_рус",
-            "Канал",
-            "Наименование",
-            "Комментарий",
-            "Прибыль",
-            "Это Ariston",
-            "Плюс",
-            "Мой",
-            "Алексей",
-        ]
-        show_cols = [col for col in show_cols if col in df.columns]
+        show_cols = [c for c in ["Дата_рус", "Канал", "Наименование", "Комментарий", "Прибыль", "Мой", "Алексей"] if c in df.columns]
         st.dataframe(df[show_cols], use_container_width=True)
 
     with st.expander("Расходы"):
-        exp_cols = [col for col in ["Дата_рус", "Тип расхода", "Сумма"] if col in exp.columns]
+        exp_cols = [c for c in ["Дата_рус", "Тип расхода", "Сумма"] if c in exp.columns]
         st.dataframe(exp[exp_cols], use_container_width=True)
