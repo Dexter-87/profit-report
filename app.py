@@ -99,7 +99,10 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
         df["Прибыль"] = df["РРЦ"] - df["Себестоимость"] - df["Комиссия Kaspi"]
 
     df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
-    df["Плюс"] = df["Комментарий"] == "+"
+    if "Комментарий" in df.colums:
+        df["Плюс"] = df["Комментарий"] == "+"
+    else:
+        df["Плюс"] = False
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
     return df
