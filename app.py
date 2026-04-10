@@ -12,8 +12,8 @@ expenses_url = "https://docs.google.com/spreadsheets/d/1N28HP0kI22xru71rBiHKpuo9
 # ===== ЗАГРУЗКА ДАННЫХ =====
 @st.cache_data
 def load_data():
-    sales = pd.read_excel(sales_url)
-    expenses = pd.read_excel(expenses_url)
+    sales = pd.read_cvs(sales_url)
+    expenses = pd.read_cvs(expenses_url)
     return sales, expenses
 
 sales, expenses = load_data()
