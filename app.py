@@ -4,7 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
 sales_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVCDzAu1DphzNCs2AzlpsjgJyRfzYWEAicdYbqMEFCcjjcxo4WyjVkcKa2-6G2BDyhM2GaBRx23DvO/pubhtml"
-expenses_url = sales_url
+expenses_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYEdrQn9FbW5xYzz_UuvUvOUYxbENvC1JnSE4z00YUTvtCxtnP4sU54J-Vs_40kEcuyQLRm-Ae6B_0/pubhtml"
 
 st.title("Отчет по прибыли")
 
