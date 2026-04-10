@@ -3,8 +3,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
-sales_url = "https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPF79h-UlFjlzQnvtB0/gviz/tq?tqx=out:csv&gid=1240951053"
 expenses_url = "https://docs.google.com/spreadsheets/d/ID_РАСХОДОВ/gviz/tq?tqx=out:csv&gid=GID_ЛИСТА"
+sales_url = "https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPF79h-UlFjlzQnvtB0/gviz/tq?tqx=out:csv&gid=1240951053"
+
 
 st.title("Отчет по прибыли")
 
