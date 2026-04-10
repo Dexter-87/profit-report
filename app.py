@@ -3,16 +3,10 @@ import streamlit as st
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
-# =========================
-# ССЫЛКИ НА GOOGLE ТАБЛИЦЫ
-# =========================
 sales_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVCDzAu1DphzNCs2AzlpsjgJyRfzYWEAicdYbqMEFCcjjcxo4WyjVkcKa2-6G2BDyhM2GaBRx23DvO/pub?gid=1240951053&single=true&output=csv"
 expenses_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYEdrQn9FbW5xYzz_UuvUvOUYxbENvC1JnSE4z00YUTvtCxtnP4sU54J-Vs_40kEcuyQLRm-Ae6B_0/pub?gid=1622934317&single=true&output=csv"
 
 
-# =========================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# =========================
 def format_money(value: float) -> str:
     try:
         return f"{float(value):,.0f}".replace(",", " ")
@@ -38,6 +32,27 @@ def find_column(df: pd.DataFrame, variants: list[str]) -> str | None:
         if found is not None:
             return found
     return None
+
+
+def parse_mixed_dates(series: pd.Series) -> pd.Series:
+    s = series.astype(str).str.strip()
+
+    # 1) сначала пробуем день.месяц.год
+    parsed_dayfirst = pd.to_datetime(s, errors="coerce", dayfirst=True)
+
+    # 2) всё, что не распарсилось — пробуем месяц/день/год
+    missing = parsed_dayfirst.isna()
+    if missing.any():
+        parsed_monthfirst = pd.to_datetime(s[missing], errors="coerce", dayfirst=False)
+        parsed_dayfirst.loc[missing] = parsed_monthfirst
+
+    # 3) отбрасываем явно бредовые даты
+    parsed_dayfirst = parsed_dayfirst.where(
+        (parsed_dayfirst >= pd.Timestamp("2020-01-01")) &
+        (parsed_dayfirst <= pd.Timestamp("2030-12-31"))
+    )
+
+    return parsed_dayfirst
 
 
 @st.cache_data(ttl=60)
@@ -69,7 +84,6 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
         st.write("Найденные столбцы:", list(df.columns))
         st.stop()
 
-    # Если каких-то колонок нет — создаем пустые
     if channel_col is None:
         df["Канал"] = ""
         channel_col = "Канал"
@@ -98,8 +112,7 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
         df["Комментарий"] = ""
         comment_col = "Комментарий"
 
-    # Приведение типов
-    df["Дата"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    df["Дата"] = parse_mixed_dates(df[date_col])
     df["Канал"] = df[channel_col].fillna("").astype(str).str.strip()
     df["Наименование"] = df[name_col].fillna("").astype(str).str.strip()
     df["Номер заказа"] = df[order_col].fillna("").astype(str).str.strip()
@@ -135,7 +148,7 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     if date_col is None:
         exp["Дата"] = pd.NaT
     else:
-        exp["Дата"] = pd.to_datetime(exp[date_col], errors="coerce", dayfirst=True)
+        exp["Дата"] = parse_mixed_dates(exp[date_col])
 
     if type_col is None:
         exp["Тип расхода"] = ""
@@ -151,9 +164,6 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     return exp
 
 
-# =========================
-# ЗАГРУЗКА ДАННЫХ
-# =========================
 st.title("Отчет по прибыли")
 
 top_left, top_right = st.columns([1, 1])
@@ -175,16 +185,17 @@ if valid_dates.empty:
     st.error("В продажах не распознаны даты.")
     st.stop()
 
-# =========================
-# ФИЛЬТРЫ
-# =========================
 st.sidebar.header("Фильтры")
 
 min_date = valid_dates.min().date()
 max_date = valid_dates.max().date()
 
-date_from = st.sidebar.date_input("С", min_date, format="DD.MM.YYYY")
-date_to = st.sidebar.date_input("По", max_date, format="DD.MM.YYYY")
+date_from = st.sidebar.date_input("С", value=min_date, min_value=min_date, max_value=max_date, format="DD.MM.YYYY")
+date_to = st.sidebar.date_input("По", value=max_date, min_value=min_date, max_value=max_date, format="DD.MM.YYYY")
+
+if date_from > date_to:
+    st.sidebar.error("Дата 'С' не может быть позже даты 'По'")
+    st.stop()
 
 channel_options = ["Все"] + sorted(
     [x for x in df["Канал"].dropna().unique().tolist() if str(x).strip() != ""]
@@ -193,9 +204,6 @@ selected_channel = st.sidebar.selectbox("Канал", channel_options)
 
 mode = st.radio("Режим", ["Сводка", "Аналитика"], horizontal=True)
 
-# =========================
-# ПРИМЕНЯЕМ ФИЛЬТРЫ
-# =========================
 if selected_channel != "Все":
     df = df[df["Канал"] == selected_channel].copy()
 
@@ -210,9 +218,6 @@ if "Дата" in exp.columns:
         (exp["Дата"].dt.date <= date_to)
     ].copy()
 
-# =========================
-# РАСЧЕТЫ
-# =========================
 df["Мой"] = 0.0
 df.loc[df["Это Ariston"], "Мой"] = df.loc[df["Это Ariston"], "Прибыль"] / 2
 df.loc[~df["Это Ariston"] & df["Плюс"], "Мой"] = (
@@ -252,9 +257,6 @@ quick_report = "\n".join([
     f"Итого: {format_money(total_net)}",
 ])
 
-# =========================
-# ВЫВОД
-# =========================
 if mode == "Сводка":
     st.metric("Общая прибыль", format_money(total_profit))
     st.metric("Мой заработок", format_money(my_income))
