@@ -3,8 +3,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
-sales_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVCDzAu1DphzNCs2AzlpsjgJyRfzYWEAicdYbqMEFCcjjcxo4WyjVkcKa2-6G2BDyhM2GaBRx23DvO/pubhtml"
-expenses_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYEdrQn9FbW5xYzz_UuvUvOUYxbENvC1JnSE4z00YUTvtCxtnP4sU54J-Vs_40kEcuyQLRm-Ae6B_0/pubhtml"
+sales_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVCDzAu1DphzNCs2AzlpsjgJyRfzYWEAicdYbqMEFCcjjcxo4WyjVkcKa2-6G2BDyhM2GaBRx23DvO/pub?gid=1240951053&single=true&output=csv"
+expenses_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYEdrQn9FbW5xYzz_UuvUvOUYxbENvC1JnSE4z00YUTvtCxtnP4sU54J-Vs_40kEcuyQLRm-Ae6B_0/pub?gid=1622934317&single=true&output=csv"
 
 st.title("Отчет по прибыли")
 
@@ -20,7 +20,13 @@ def format_money(value):
 def load_data():
     sales_df = pd.read_csv(sales_url)
     expenses_df = pd.read_csv(expenses_url)
+
+    # чистим названия колонок
+    sales_df.columns = sales_df.columns.str.strip()
+    expenses_df.columns = expenses_df.columns.str.strip()
+
     return sales_df, expenses_df
+
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
