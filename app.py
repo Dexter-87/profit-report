@@ -6,8 +6,8 @@ st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 st.title("Отчет по прибыли")
 
 # ===== ССЫЛКИ НА GOOGLE TABLES =====
-sales_url = "https://docs.google.com/spreadsheets/d/1G3uWX47NGYgEYWhV6yZkW-Aca_6wRz-e/export?format=csv"
-expenses_url = "https://docs.google.com/spreadsheets/d/1N28HP0kI22xru71rBiHKpuo9M1HRo8YC/export?format=csv"
+sales_url = https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0/edit?gid=1240951053#gid=1240951053
+expenses_url = https://docs.google.com/spreadsheets/d/1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK0/edit?gid=1622934317#gid=1622934317
 
 
 # ===== ЗАГРУЗКА ДАННЫХ =====
