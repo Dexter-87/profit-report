@@ -3,9 +3,7 @@ import streamlit as st
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
-expenses_url = "https://docs.google.com/spreadsheets/d/ID_РАСХОДОВ/gviz/tq?tqx=out:csv&gid=GID_ЛИСТА"
-sales_url = "https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPF79h-UlFjlzQnvtB0/gviz/tq?tqx=out:csv&gid=1240951053"
-
+expenses_url = sales_url
 
 st.title("Отчет по прибыли")
 
@@ -19,9 +17,9 @@ def format_money(value):
 
 @st.cache_data(ttl=60)
 def load_data():
-    sales = pd.read_csv(sales_url)
-    expenses = pd.read_csv(expenses_url)
-    return sales, expenses
+    sales_df = pd.read_csv(sales_url)
+    expenses_df = pd.read_csv(expenses_url)
+    return sales_df, expenses_df
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
