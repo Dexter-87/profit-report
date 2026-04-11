@@ -191,6 +191,26 @@ div[data-testid="stExpander"] details {
     box-shadow: none !important;
 }
 0
+div[data-testid="stDataFrame"] {
+    background: #171a21 !important;
+    border: 1px solid #2a2f3a !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+}
+
+div[data-testid="stDataFrame"] * {
+    color: #f3f4f6 !important;
+}
+
+div[data-testid="stDataFrame"] thead tr th {
+    background-color: #11151b !important;
+    color: #cbd5e1 !important;
+}
+
+div[data-testid="stDataFrame"] tbody tr td {
+    background-color: #171a21 !important;
+    color: #f3f4f6 !important;
+}
    
 </style>
 """, unsafe_allow_html=True)
