@@ -453,25 +453,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-else:
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Прибыль", format_money(total_profit))
-    c2.metric("Мой", format_money(my_income))
-    c3.metric("Алексей", format_money(alex_income))
-    c4.metric("Расходы", format_money(expenses))
-
-    c5, c6, c7, c8 = st.columns(4)
-    c5.metric("Половина расходов", format_money(half_expenses))
-    c6.metric("Мой чистый", format_money(my_net))
-    c7.metric("Алексей чистый", format_money(alex_net))
-    c8.metric("Итого", format_money(total_net))
-
-    c9, c10, c11, c12 = st.columns(4)
-    c9.metric("Средний чек", format_money(avg_check))
-    c10.metric("Количество продаж", format_money(sales_count))
-    c11.metric("Выручка", format_money(revenue_sum))
-    c12.metric("Маржа %", f"{margin_percent:.2f}%")
-
     st.subheader("Прибыль по дням")
     if not df.empty:
         daily = df.groupby("Дата_рус")["Прибыль"].sum()
