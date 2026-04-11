@@ -456,7 +456,15 @@ st.markdown(f"""
 st.subheader("Прибыль по дням")
 if not df.empty:
         daily = df.groupby("Дата_рус")["Прибыль"].sum()
-        st.line_chart(daily)
+        import altair as alt
+
+chart = alt.Chart(daily.reset_index()).mark_line().encode(
+    x="Дата_рус",
+    y="Прибыль"
+).interactive()
+
+st.altair_chart(chart, use_container_width=True)
+
 
 st.subheader("Топ-5 товаров по прибыли")
 if not df.empty:
