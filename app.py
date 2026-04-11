@@ -165,17 +165,32 @@ hr {
     color: #9ca3af;
 }
 
-.vega-embed,
-.vega-embed details,
-.vega-embed summary,
-.vega-actions,
-.vega-bindings,
-.vega-embed canvas,
-.vega-embed svg {
-    pointer-events: none !important;
-    touch-action: pan-y !important;
+details {
+    background: transparent !important;
 }
 
+details summary {
+    background: #171a21 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #2a2f3a !important;
+    border-radius: 14px !important;
+    padding: 12px 16px !important;
+}
+
+details[open] summary {
+    margin-bottom: 10px !important;
+}
+
+div[data-testid="stExpander"] {
+    background: transparent !important;
+    border: none !important;
+}
+
+div[data-testid="stExpander"] details {
+    border: none !important;
+    box-shadow: none !important;
+}
+0
    
 </style>
 """, unsafe_allow_html=True)
@@ -466,30 +481,61 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.subheader("Прибыль по дням")
-if not df.empty:
-        daily = df.groupby("Дата_рус")["Прибыль"].sum()
-        chart = alt.Chart(daily.reset_index()).mark_line().encode(
-    x="Дата_рус",
-    y="Прибыль"
-).configure_axis(
-    labelColor="white",
-    titleColor="white"
-)
+.subheader("Прибыль по дням")
 
-st.altair_chart(chart, use_container_width=True)
+if not df.empty:
+    daily_df = (
+        df.groupby("Дата_рус", as_index=False)["Прибыль"]
+        .sum()
+    )
+
+    line_chart = alt.Chart(daily_df).mark_line(point=True).encode(
+        x=alt.X("Дата_рус:N", title="Дата", axis=alt.Axis(labelAngle=-45)),
+        y=alt.Y("Прибыль:Q", title="Прибыль")
+    ).properties(
+        height=320
+    ).configure_view(
+        stroke=None
+    ).configure_axis(
+        labelColor="#cbd5e1",
+        titleColor="#cbd5e1",
+        gridColor="#2a2f3a"
+    ).configure_title(
+        color="#f3f4f6"
+    )
+
+    st.altair_chart(line_chart, use_container_width=True)
+
 
 
 
 st.subheader("Топ-5 товаров по прибыли")
+
 if not df.empty:
-        top_products = (
-            df.groupby("Наименование")["Прибыль"]
-            .sum()
-            .sort_values(ascending=False)
-            .head(5)
-        )
-        st.bar_chart(top_products)
+    top_df = (
+        df.groupby("Наименование", as_index=False)["Прибыль"]
+        .sum()
+        .sort_values("Прибыль", ascending=False)
+        .head(5)
+    )
+
+    bar_chart = alt.Chart(top_df).mark_bar().encode(
+        x=alt.X("Наименование:N", sort="-y", title="Товар", axis=alt.Axis(labelAngle=-45)),
+        y=alt.Y("Прибыль:Q", title="Прибыль")
+    ).properties(
+        height=380
+    ).configure_view(
+        stroke=None
+    ).configure_axis(
+        labelColor="#cbd5e1",
+        titleColor="#cbd5e1",
+        gridColor="#2a2f3a"
+    ).configure_title(
+        color="#f3f4f6"
+    )
+
+    st.altair_chart(bar_chart, use_container_width=True)
+
 
 with st.expander("Быстрый отчет"):
         st.code(quick_report)
