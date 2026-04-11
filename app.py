@@ -581,45 +581,52 @@ with st.expander("Быстрый отчет"):
         st.code(quick_report)
 
 with st.expander("Продажи"):
-    sales_cols = [col for col in [
-        "Дата_рус",
-        "Наименование",
-        "Прибыль"
-    ] if col in df.columns]
 
-    sales_view = df[sales_cols].copy()
-    sales_view["Наименование"] = sales_view["Наименование"].apply(
-    lambda x: x[:35] + "..." if isinstance(x, str) and len(x) > 35 else x
-)
+    sales_cols = [col for col in ["Дата_рус", "Наименование", "Прибыль"] if col in df.columns]
+    sales_view = df[sales_cols].copy().tail(15)
 
-    st.data_editor(
-        sales_view,
-        use_container_width=True,
-        height=300,
-        disabled=True,
-        hide_index=True
-    )
+    for _, row in sales_view.iterrows():
+        date_val = row["Дата_рус"] if "Дата_рус" in sales_view.columns else ""
+        name_val = row["Наименование"] if "Наименование" in sales_view.columns else ""
+        profit_val = row["Прибыль"] if "Прибыль" in sales_view.columns else ""
+
+        st.markdown(f"""
+        <div style="
+            background:#171a21;
+            border:1px solid #2a2f3a;
+            border-radius:14px;
+            padding:12px 14px;
+            margin-bottom:10px;
+        ">
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">{date_val}</div>
+            <div style="font-size:16px; color:#f3f4f6; margin-bottom:8px;">{name_val}</div>
+            <div style="font-size:18px; font-weight:700; color:#22c55e;">{profit_val} ₸</div>
+        </div>
+        """, unsafe_allow_html=True)
+
 
 
 with st.expander("Расходы"):
 
-    expense_cols = [col for col in [
-        "Дата_рус",
-        "Тип расхода",
-        "Сумма"
-    ] if col in exp.columns]
+    expense_cols = [col for col in ["Дата_рус", "Тип расхода", "Сумма"] if col in exp.columns]
+    expense_view = exp[expense_cols].copy().tail(15)
 
-    expense_view = exp[expense_cols].copy()
-    expense_view["Тип расхода"] = expense_view["Тип расхода"].apply(
-    lambda x: x[:20] + "..." if isinstance(x, str) and len(x) > 20 else x
-)
- 
-    st.data_editor(
-        expense_view,
-        use_container_width=True,
-        height=250,
-        disabled=True,
-        hide_index=True
-    )
+    for _, row in expense_view.iterrows():
+        date_val = row["Дата_рус"] if "Дата_рус" in expense_view.columns else ""
+        type_val = row["Тип расхода"] if "Тип расхода" in expense_view.columns else ""
+        amount_val = row["Сумма"] if "Сумма" in expense_view.columns else ""
 
+        st.markdown(f"""
+        <div style="
+            background:#171a21;
+            border:1px solid #2a2f3a;
+            border-radius:14px;
+            padding:12px 14px;
+            margin-bottom:10px;
+        ">
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">{date_val}</div>
+            <div style="font-size:16px; color:#f3f4f6; margin-bottom:8px;">{type_val}</div>
+            <div style="font-size:18px; font-weight:700; color:#ef4444;">{amount_val} ₸</div>
+        </div>
+        """, unsafe_allow_html=True)
 
