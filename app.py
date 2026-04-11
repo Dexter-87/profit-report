@@ -655,34 +655,34 @@ with st.expander("Продажи"):
     margin-top:10px;
 ">
 
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        margin-bottom:12px;
-        font-size:16px;
-    ">
-        <span style="color:#9ca3af;">Количество продаж</span>
-        <span style="color:#f3f4f6; font-weight:600;">{sales_count_value}</span>
-    </div>
+<div style="
+    display:flex;
+    justify-content:space-between;
+    argin-bottom:12px;
+    font-size:16px;
+">
+    <span style="color:#9ca3af;">Количество продаж</span>
+    <span style="color:#f3f4f6; font-weight:600;">{sales_count_value}</span>
+</div>
 
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        margin-bottom:12px;
-        font-size:16px;
-    ">
-        <span style="color:#9ca3af;">Средний чек</span>
-        <span style="color:#22c55e; font-weight:600;">{avg_check_value} ₸</span>
-    </div>
+<div style="
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    font-size:16px;
+">
+    <span style="color:#9ca3af;">Средний чек</span>
+    <span style="color:#22c55e; font-weight:600;">{avg_check_value} ₸</span>
+</div>
 
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        font-size:16px;
-    ">
-        <span style="color:#9ca3af;">Средняя маржа</span>
-        <span style="color:#60a5fa; font-weight:600;">{avg_margin_value}%</span>
-    </div>
+<div style="
+    display:flex;
+    justify-content:space-between;
+    font-size:16px;
+">
+    <span style="color:#9ca3af;">Средняя маржа</span>
+    <span style="color:#60a5fa; font-weight:600;">{avg_margin_value}%</span>
+</div>
 
 </div>
 """, unsafe_allow_html=True)
