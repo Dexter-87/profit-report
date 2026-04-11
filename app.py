@@ -562,9 +562,7 @@ if not df.empty:
 
     ax.set_xlabel("Товар", color="#cbd5e1")
     ax.set_ylabel("Прибыль", color="#cbd5e1")
-
     ax.tick_params(colors="#cbd5e1")
-
     ax.grid(True, axis="y", alpha=0.2, color="#2a2f3a")
 
     for spine in ax.spines.values():
