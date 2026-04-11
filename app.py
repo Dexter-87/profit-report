@@ -131,6 +131,21 @@ hr {
     background: #2a2f3a;
     margin: 16px 0;
 }
+
+.stButton > button {
+    background-color: #171a21;
+    color: #f3f4f6;
+    border: 1px solid #2a2f3a;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 600;
+}
+
+.stButton > button:hover {
+    border-color: #3b82f6;
+    color: #ffffff;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
