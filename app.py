@@ -169,6 +169,48 @@ hr {
     background: #31394a;
     margin: 16px 0;
 }
+/* выпадающий список */
+ul[role="listbox"] {
+    background-color: #202633 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #31394a !important;
+}
+
+/* элементы списка */
+ul[role="listbox"] li {
+    color: #f3f4f6 !important;
+}
+
+/* hover */
+ul[role="listbox"] li:hover {
+    background-color: #2a3242 !important;
+}
+
+
+/* выпадающий список */
+ul[role="listbox"] {
+    background-color: #202633 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #31394a !important;
+}
+
+/* элементы списка */
+ul[role="listbox"] li {
+    color: #f3f4f6 !important;
+}
+
+/* hover */
+ul[role="listbox"] li:hover {
+    background-color: #2a3242 !important;
+}
+
+
+/* фокус на полях */
+input:focus {
+    outline: none !important;
+    border-color: #60a5fa !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
