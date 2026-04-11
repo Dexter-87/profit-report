@@ -454,12 +454,12 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.subheader("Прибыль по дням")
-    if not df.empty:
+if not df.empty:
         daily = df.groupby("Дата_рус")["Прибыль"].sum()
         st.line_chart(daily)
 
-    st.subheader("Топ-5 товаров по прибыли")
-    if not df.empty:
+st.subheader("Топ-5 товаров по прибыли")
+if not df.empty:
         top_products = (
             df.groupby("Наименование")["Прибыль"]
             .sum()
