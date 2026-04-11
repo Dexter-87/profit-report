@@ -574,9 +574,6 @@ if not df.empty:
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)
 
-
-
-
 with st.expander("Быстрый отчет"):
         st.code(quick_report)
 
