@@ -578,7 +578,59 @@ st.pyplot(fig, use_container_width=True)
 
 
 with st.expander("Быстрый отчет"):
-        st.code(quick_report)
+        st.markdown(f"""
+<div style="
+    background:#171a21;
+    border:1px solid #2a2f3a;
+    border-radius:16px;
+    padding:16px;
+    margin-top:10px;
+">
+
+    <div style="font-size:14px; color:#9ca3af; margin-bottom:10px;">
+        Период: <span style="color:#22c55e;">{start_date} — {end_date}</span>
+    </div>
+
+    <div style="font-size:14px; color:#9ca3af; margin-bottom:12px;">
+        Канал: <span style="color:#f3f4f6;">Все</span>
+    </div>
+
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:10px;
+    ">
+        <span style="color:#9ca3af;">Мой чистый</span>
+        <span style="color:#22c55e; font-weight:600;">{my_profit} ₸</span>
+    </div>
+
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:10px;
+    ">
+        <span style="color:#9ca3af;">Алексей</span>
+        <span style="color:#22c55e; font-weight:600;">{alexey_profit} ₸</span>
+    </div>
+
+    <div style="
+        border-top:1px solid #2a2f3a;
+        margin:12px 0;
+    "></div>
+
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        font-size:18px;
+        font-weight:700;
+    ">
+        <span style="color:#f3f4f6;">Итого</span>
+        <span style="color:#22c55e;">{total_profit} ₸</span>
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
+
 
 with st.expander("Продажи"):
 
