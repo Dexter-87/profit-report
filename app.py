@@ -452,6 +452,7 @@ st.markdown(f"""
     <div class="metric-value metric-expense">{format_money(expenses)} ₸</div>
 </div>
 """, unsafe_allow_html=True)
+
     st.code(quick_report)
 
 else:
