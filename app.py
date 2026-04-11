@@ -583,7 +583,6 @@ with st.expander("Быстрый отчет"):
 with st.expander("Продажи"):
     sales_cols = [col for col in [
         "Дата_рус",
-        "Канал",
         "Наименование",
         "Прибыль"
     ] if col in df.columns]
