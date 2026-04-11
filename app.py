@@ -587,30 +587,30 @@ with st.expander("Быстрый отчет"):
     padding:16px;
     margin-top:10px;
 ">
-    <div style="font-size:14px; color:#aeb7c4; margin-bottom:10px;">
-        Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-    </div>
+<div style="font-size:14px; color:#aeb7c4; margin-bottom:10px;">
+    Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+</div>
 
-    <div style="font-size:14px; color:#aeb7c4; margin-bottom:12px;">
-        Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-    </div>
+<div style="font-size:14px; color:#aeb7c4; margin-bottom:12px;">
+    Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+</div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aeb7c4;">Мой чистый</span>
-        <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-    </div>
+<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+    <span style="color:#aeb7c4;">Мой чистый</span>
+    <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
+</div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aeb7c4;">Алексей чистый</span>
-        <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-    </div>
+<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+    <span style="color:#aeb7c4;">Алексей чистый</span>
+    <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+</div>
 
-    <div style="border-top:1px solid #31394a; margin:12px 0;"></div>
+<div style="border-top:1px solid #31394a; margin:12px 0;"></div>
 
-    <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-        <span style="color:#f3f4f6;">Итого</span>
-        <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-    </div>
+<div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+    <span style="color:#f3f4f6;">Итого</span>
+    <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -626,8 +626,8 @@ with st.expander("Расходы"):
     padding:14px;
     margin-bottom:12px;
 ">
-    <div style="font-size:14px; color:#aeb7c4;">Общие расходы</div>
-    <div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(total_exp)} ₸</div>
+<div style="font-size:14px; color:#aeb7c4;">Общие расходы</div>
+<div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(total_exp)} ₸</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -645,8 +645,8 @@ with st.expander("Расходы"):
     padding:10px 12px;
     margin-bottom:8px;
 ">
-    <div style="font-size:13px; color:#aeb7c4;">{row["Дата_рус"]}</div>
-    <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
-    <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
+<div style="font-size:13px; color:#aeb7c4;">{row["Дата_рус"]}</div>
+<div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
+<div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
 </div>
 """, unsafe_allow_html=True)
