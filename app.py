@@ -165,12 +165,17 @@ hr {
     color: #9ca3af;
 }
 
+.vega-embed,
+.vega-embed details,
 .vega-embed summary,
 .vega-actions,
 .vega-bindings,
-canvas {
-   pointer-events: none !important^;
-   }
+.vega-embed canvas,
+.vega-embed svg {
+    pointer-events: none !important;
+    touch-action: pan-y !important;
+}
+
    
 </style>
 """, unsafe_allow_html=True)
