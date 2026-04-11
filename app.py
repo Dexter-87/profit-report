@@ -583,7 +583,12 @@ with st.expander("Быстрый отчет"):
 with st.expander("Продажи"):
 
     sales_cols = [col for col in ["Дата_рус", "Наименование", "Прибыль"] if col in df.columns]
-    sales_view = df[sales_cols].copy().tail(15)
+    sales_view = df[sales_cols].copy()
+
+    # последние 10 записей
+    sales_view = sales_view.tail(8)
+
+    st.caption(f"Показано записей: {len(sales_view)}")
 
     for _, row in sales_view.iterrows():
         date_val = row["Дата_рус"] if "Дата_рус" in sales_view.columns else ""
@@ -606,10 +611,16 @@ with st.expander("Продажи"):
 
 
 
+
 with st.expander("Расходы"):
 
     expense_cols = [col for col in ["Дата_рус", "Тип расхода", "Сумма"] if col in exp.columns]
-    expense_view = exp[expense_cols].copy().tail(15)
+    expense_view = exp[expense_cols].copy()
+
+    # последние 10 записей
+    expense_view = expense_view.tail(5)
+
+    st.caption(f"Показано записей: {len(expense_view)}")
 
     for _, row in expense_view.iterrows():
         date_val = row["Дата_рус"] if "Дата_рус" in expense_view.columns else ""
@@ -629,4 +640,5 @@ with st.expander("Расходы"):
             <div style="font-size:18px; font-weight:700; color:#ef4444;">{amount_val} ₸</div>
         </div>
         """, unsafe_allow_html=True)
+
 
