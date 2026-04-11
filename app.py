@@ -491,17 +491,42 @@ if not df.empty:
     )
 
     fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(daily_df["Дата"], daily_df["Прибыль"], marker="o")
 
-    ax.set_title("")
-    ax.set_xlabel("Дата")
-    ax.set_ylabel("Прибыль")
-    ax.grid(True, alpha=0.3)
+    # фон
+    fig.patch.set_facecolor("#0f1115")
+    ax.set_facecolor("#0f1115")
 
-    plt.xticks(rotation=45)
+    # линия
+    ax.plot(
+        daily_df["Дата"],
+        daily_df["Прибыль"],
+        marker="o",
+        color="#22c55e"
+    )
+
+    # стиль текста
+    ax.set_xlabel("Дата", color="#cbd5e1")
+    ax.set_ylabel("Прибыль", color="#cbd5e1")
+
+    ax.tick_params(colors="#cbd5e1")
+
+    # сетка
+    ax.grid(True, alpha=0.2, color="#2a2f3a")
+
+    # убираем рамки
+    for spine in ax.spines.values():
+        spine.set_color("#2a2f3a")
+
+    # убираем время из дат
+    daily_df["Дата"] = daily_df["Дата"].dt.strftime("%d.%m")
+
+    ax.set_xticks(daily_df["Дата"])
+    ax.set_xticklabels(daily_df["Дата"], rotation=45)
+
     plt.tight_layout()
 
     st.pyplot(fig, use_container_width=True)
+
 
 
 
@@ -518,17 +543,28 @@ if not df.empty:
     )
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.bar(top_df["Наименование"], top_df["Прибыль"])
 
-    ax.set_title("")
-    ax.set_xlabel("Товар")
-    ax.set_ylabel("Прибыль")
-    ax.grid(True, axis="y", alpha=0.3)
+    fig.patch.set_facecolor("#0f1115")
+    ax.set_facecolor("#0f1115")
+
+    ax.bar(top_df["Наименование"], top_df["Прибыль"], color="#3b82f6")
+
+    ax.set_xlabel("Товар", color="#cbd5e1")
+    ax.set_ylabel("Прибыль", color="#cbd5e1")
+
+    ax.tick_params(colors="#cbd5e1")
+
+    ax.grid(True, axis="y", alpha=0.2, color="#2a2f3a")
+
+    for spine in ax.spines.values():
+        spine.set_color("#2a2f3a")
 
     plt.xticks(rotation=45, ha="right")
+
     plt.tight_layout()
 
     st.pyplot(fig, use_container_width=True)
+
 
 
 
