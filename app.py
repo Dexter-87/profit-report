@@ -535,7 +535,7 @@ ax.set_xticklabels(labels, rotation=45)
 
 plt.tight_layout()
 
-    st.pyplot(fig, use_container_width=True)
+st.pyplot(fig, use_container_width=True)
 
 
 
