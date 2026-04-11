@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-import altair as st
+import altair as alt
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
