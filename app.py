@@ -453,7 +453,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-    st.subheader("Прибыль по дням")
+st.subheader("Прибыль по дням")
     if not df.empty:
         daily = df.groupby("Дата_рус")["Прибыль"].sum()
         st.line_chart(daily)
