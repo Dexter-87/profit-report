@@ -502,78 +502,6 @@ with st.expander("Продажи", expanded=True):
 </div>
 """, unsafe_allow_html=True)
 
-# график прибыли по дням
-st.markdown('<div class="section-title">Прибыль по дням</div>', unsafe_allow_html=True)
-
-if not df.empty:
-    daily_df = (
-        df.groupby("Дата", as_index=False)["Прибыль"]
-        .sum()
-        .sort_values("Дата")
-    )
-
-    if not daily_df.empty:
-        labels = daily_df["Дата"].dt.strftime("%d.%m")
-
-        fig, ax = plt.subplots(figsize=(10, 4))
-        fig.patch.set_facecolor("#161a22")
-        ax.set_facecolor("#161a22")
-
-        ax.plot(daily_df["Дата"], daily_df["Прибыль"], marker="o", color="#34d399", linewidth=2)
-
-        ax.set_xlabel("Дата", color="#cbd5e1")
-        ax.set_ylabel("Прибыль", color="#cbd5e1")
-        ax.tick_params(colors="#cbd5e1")
-        ax.grid(True, alpha=0.2, color="#31394a")
-
-        for spine in ax.spines.values():
-            spine.set_color("#31394a")
-
-        ax.set_xticks(daily_df["Дата"])
-        ax.set_xticklabels(labels, rotation=45, ha="right")
-
-        plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
-    else:
-        st.info("Нет данных для графика.")
-else:
-    st.info("Нет данных для графика.")
-
-# топ товаров
-st.markdown('<div class="section-title">Топ-5 товаров по прибыли</div>', unsafe_allow_html=True)
-
-if not df.empty:
-    top_df = (
-        df.groupby("Наименование", as_index=False)["Прибыль"]
-        .sum()
-        .sort_values("Прибыль", ascending=False)
-        .head(5)
-    )
-
-    if not top_df.empty:
-        fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor("#161a22")
-        ax.set_facecolor("#161a22")
-
-        names = top_df["Наименование"].apply(lambda x: x[:28] + "..." if len(str(x)) > 28 else str(x))
-        ax.bar(names, top_df["Прибыль"], color="#60a5fa")
-
-        ax.set_xlabel("Товар", color="#cbd5e1")
-        ax.set_ylabel("Прибыль", color="#cbd5e1")
-        ax.tick_params(colors="#cbd5e1")
-        ax.grid(True, axis="y", alpha=0.2, color="#31394a")
-
-        for spine in ax.spines.values():
-            spine.set_color("#31394a")
-
-        plt.xticks(rotation=45, ha="right")
-        plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
-    else:
-        st.info("Нет данных по товарам.")
-else:
-    st.info("Нет данных по товарам.")
-
 # быстрый отчет
 start_date_text = date_from.strftime("%d.%m.%Y")
 end_date_text = date_to.strftime("%d.%m.%Y")
@@ -650,3 +578,76 @@ with st.expander("Расходы"):
 <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
 </div>
 """, unsafe_allow_html=True)
+            
+# график прибыли по дням
+st.markdown('<div class="section-title">Прибыль по дням</div>', unsafe_allow_html=True)
+
+if not df.empty:
+    daily_df = (
+        df.groupby("Дата", as_index=False)["Прибыль"]
+        .sum()
+        .sort_values("Дата")
+    )
+
+    if not daily_df.empty:
+        labels = daily_df["Дата"].dt.strftime("%d.%m")
+
+        fig, ax = plt.subplots(figsize=(10, 4))
+        fig.patch.set_facecolor("#161a22")
+        ax.set_facecolor("#161a22")
+
+        ax.plot(daily_df["Дата"], daily_df["Прибыль"], marker="o", color="#34d399", linewidth=2)
+
+        ax.set_xlabel("Дата", color="#cbd5e1")
+        ax.set_ylabel("Прибыль", color="#cbd5e1")
+        ax.tick_params(colors="#cbd5e1")
+        ax.grid(True, alpha=0.2, color="#31394a")
+
+        for spine in ax.spines.values():
+            spine.set_color("#31394a")
+
+        ax.set_xticks(daily_df["Дата"])
+        ax.set_xticklabels(labels, rotation=45, ha="right")
+
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=True)
+    else:
+        st.info("Нет данных для графика.")
+else:
+    st.info("Нет данных для графика.")
+
+# топ товаров
+st.markdown('<div class="section-title">Топ-5 товаров по прибыли</div>', unsafe_allow_html=True)
+
+if not df.empty:
+    top_df = (
+        df.groupby("Наименование", as_index=False)["Прибыль"]
+        .sum()
+        .sort_values("Прибыль", ascending=False)
+        .head(5)
+    )
+
+    if not top_df.empty:
+        fig, ax = plt.subplots(figsize=(10, 5))
+        fig.patch.set_facecolor("#161a22")
+        ax.set_facecolor("#161a22")
+
+        names = top_df["Наименование"].apply(lambda x: x[:28] + "..." if len(str(x)) > 28 else str(x))
+        ax.bar(names, top_df["Прибыль"], color="#60a5fa")
+
+        ax.set_xlabel("Товар", color="#cbd5e1")
+        ax.set_ylabel("Прибыль", color="#cbd5e1")
+        ax.tick_params(colors="#cbd5e1")
+        ax.grid(True, axis="y", alpha=0.2, color="#31394a")
+
+        for spine in ax.spines.values():
+            spine.set_color("#31394a")
+
+        plt.xticks(rotation=45, ha="right")
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=True)
+    else:
+        st.info("Нет данных по товарам.")
+else:
+    st.info("Нет данных по товарам.")
+
