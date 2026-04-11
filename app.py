@@ -588,10 +588,15 @@ with st.expander("Продажи"):
     ] if col in df.columns]
 
     sales_view = df[sales_cols].copy()
+    sales_view["Наименование"] = sales_view["Наименование"].apply(
+    lambda x: x[:35] + "..." if isinstance(x, str) and len(x) > 35 else x
+)
 
-    st.dataframe(
+    st.data_editor(
         sales_view,
         use_container_width=True,
+        height=300,
+        disabled=True,
         hide_index=True
     )
 
@@ -608,6 +613,8 @@ with st.expander("Расходы"):
     st.dataframe(
         expense_view,
         use_container_width=True,
+        height=300,
+        disabled=True,
         hide_index=True
     )
 
