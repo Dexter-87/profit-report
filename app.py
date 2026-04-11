@@ -520,8 +520,19 @@ if not df.empty:
     # убираем время из дат
     daily_df["Дата"] = daily_df["Дата"].dt.strftime("%d.%m")
 
-    ax.set_xticks(daily_df["Дата"])
-    ax.set_xticklabels(daily_df["Дата"], rotation=45)
+    # форматируем подписи
+labels = daily_df["Дата"].dt.strftime("%d.%m")
+
+ax.plot(
+    daily_df["Дата"],
+    daily_df["Прибыль"],
+    marker="o",
+    color="#22c55e"
+)
+
+ax.set_xticks(daily_df["Дата"])
+ax.set_xticklabels(labels, rotation=45)
+
 
     plt.tight_layout()
 
