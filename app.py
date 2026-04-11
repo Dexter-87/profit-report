@@ -581,22 +581,34 @@ with st.expander("Быстрый отчет"):
         st.code(quick_report)
 
 with st.expander("Продажи"):
-        show_cols = [
-            "Дата_рус",
-            "Канал",
-            "Наименование",
-            "Номер заказа",
-            "Себестоимость",
-            "РРЦ",
-            "Комиссия Kaspi",
-            "Прибыль",
-            "Комментарий",
-            "Мой",
-            "Алексей",
-        ]
-        show_cols = [col for col in show_cols if col in df.columns]
-        st.dataframe(df[show_cols], use_container_width=True)
+    sales_cols = [col for col in [
+        "Дата_рус",
+        "Канал",
+        "Наименование",
+        "Прибыль"
+    ] if col in df.columns]
+
+    sales_view = df[sales_cols].copy()
+
+    st.dataframe(
+        sales_view,
+        use_container_width=True,
+        hide_index=True
+    )
+
 
 with st.expander("Расходы"):
-        exp_cols = [col for col in ["Дата_рус", "Тип расхода", "Сумма"] if col in exp.columns]
-        st.dataframe(exp[exp_cols], use_container_width=True)
+    expense_cols = [col for col in [
+        "Дата_рус",
+        "Тип расхода",
+        "Сумма"
+    ] if col in exp.columns]
+
+    expense_view = exp[expense_cols].copy()
+
+    st.dataframe(
+        expense_view,
+        use_container_width=True,
+        hide_index=True
+    )
+
