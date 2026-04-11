@@ -401,25 +401,37 @@ st.sidebar.header("Фильтры")
 min_date = valid_dates.min().date()
 max_date = valid_dates.max().date()
 
-date_from = st.sidebar.date_input(
-    "С",
-    value=min_date,
-    min_value=min_date,
-    max_value=max_date,
-    format="DD.MM.YYYY",
-)
+st.markdown('<div class="section-title">Фильтры</div>', unsafe_allow_html=True)
 
-date_to = st.sidebar.date_input(
-    "По",
-    value=max_date,
-    min_value=min_date,
-    max_value=max_date,
-    format="DD.MM.YYYY",
-)
+f1, f2, f3 = st.columns(3)
 
-if date_from > date_to:
-    st.sidebar.error("Дата 'С' не может быть позже даты 'По'")
-    st.stop()
+with f1:
+    date_from = st.date_input(
+        "С",
+        value=min_date,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD.MM.YYYY",
+        key="date_from_main"
+    )
+
+with f2:
+    date_to = st.date_input(
+        "По",
+        value=max_date,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD.MM.YYYY",
+        key="date_to_main"
+    )
+
+with f3:
+    selected_channel = st.selectbox(
+        "Канал",
+        channel_options,
+        key="channel_main"
+    )
+
 
 channel_values = sorted(
     [
