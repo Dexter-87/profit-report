@@ -28,11 +28,33 @@ h1, h2, h3 {
 }
 
 .main-title {
-    font-size: 30px;
+    font-size: 42px;
     font-weight: 800;
     color: #f9fafb;
-    margin-bottom: 2px;
+    margin-top: 8px;
+    margin-bottom: 6px;
+    line-height: 1.05;
 }
+
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 28px;
+        margin-top: 18px;
+        line-height: 1.1;
+    }
+
+    .sub-title {
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+
+    .block-container {
+        padding-top: 2.8rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
 
 .sub-title {
     font-size: 14px;
