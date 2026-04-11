@@ -566,11 +566,12 @@ if not df.empty:
     ax.grid(True, axis="y", alpha=0.2, color="#2a2f3a")
 
     for spine in ax.spines.values():
-        spine.set_color("#2a2f3a")
+    spine.set_color("#2a2f3a")
 
-    plt.xticks(rotation=45, ha="right")
-    plt.tight_layout()
-    st.pyplot(fig, use_container_width=True)
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+st.pyplot(fig, use_container_width=True)
+
 
 with st.expander("Быстрый отчет"):
         st.code(quick_report)
