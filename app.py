@@ -468,10 +468,10 @@ if not df.empty:
         )
         st.bar_chart(top_products)
 
-    with st.expander("Быстрый отчет"):
+with st.expander("Быстрый отчет"):
         st.code(quick_report)
 
-    with st.expander("Продажи"):
+with st.expander("Продажи"):
         show_cols = [
             "Дата_рус",
             "Канал",
@@ -488,6 +488,6 @@ if not df.empty:
         show_cols = [col for col in show_cols if col in df.columns]
         st.dataframe(df[show_cols], use_container_width=True)
 
-    with st.expander("Расходы"):
+with st.expander("Расходы"):
         exp_cols = [col for col in ["Дата_рус", "Тип расхода", "Сумма"] if col in exp.columns]
         st.dataframe(exp[exp_cols], use_container_width=True)
