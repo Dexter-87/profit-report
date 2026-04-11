@@ -311,7 +311,7 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     return exp
 
 
-st.markdown('<div class="main-title">Панель аналитики</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Продажи • Прибыль • Рентабельность</div>', unsafe_allow_html=True)
 
 
