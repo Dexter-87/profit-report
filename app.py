@@ -453,8 +453,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-    st.code(quick_report)
-
 else:
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Прибыль", format_money(total_profit))
