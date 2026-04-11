@@ -582,63 +582,77 @@ with st.expander("Быстрый отчет"):
 
 with st.expander("Продажи"):
 
-    sales_cols = [col for col in ["Дата_рус", "Наименование", "Прибыль"] if col in df.columns]
-    sales_view = df[sales_cols].copy()
+    st.markdown(f"""
+    <div style="
+        background:#171a21;
+        border:1px solid #2a2f3a;
+        border-radius:14px;
+        padding:14px;
+        margin-bottom:12px;
+    ">
+        <div style="font-size:14px; color:#9ca3af;">Количество продаж</div>
+        <div style="font-size:28px; font-weight:700; color:#f3f4f6;">{len(df)}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # последние 10 записей
-    sales_view = sales_view.tail(8)
+    recent_sales = df[["Дата_рус", "Наименование", "Прибыль"]].tail(3).copy()
 
-    st.caption(f"Показано записей: {len(sales_view)}")
+    st.markdown("**Последние продажи**")
 
-    for _, row in sales_view.iterrows():
-        date_val = row["Дата_рус"] if "Дата_рус" in sales_view.columns else ""
-        name_val = row["Наименование"] if "Наименование" in sales_view.columns else ""
-        profit_val = row["Прибыль"] if "Прибыль" in sales_view.columns else ""
-
+    for _, row in recent_sales.iterrows():
         st.markdown(f"""
         <div style="
             background:#171a21;
             border:1px solid #2a2f3a;
-            border-radius:14px;
-            padding:12px 14px;
-            margin-bottom:10px;
+            border-radius:12px;
+            padding:10px 12px;
+            margin-bottom:8px;
         ">
-            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">{date_val}</div>
-            <div style="font-size:16px; color:#f3f4f6; margin-bottom:8px;">{name_val}</div>
-            <div style="font-size:18px; font-weight:700; color:#22c55e;">{profit_val} ₸</div>
+            <div style="font-size:13px; color:#9ca3af;">{row["Дата_рус"]}</div>
+            <div style="font-size:15px; color:#f3f4f6;">{row["Наименование"]}</div>
+            <div style="font-size:16px; font-weight:700; color:#22c55e;">{row["Прибыль"]} ₸</div>
         </div>
         """, unsafe_allow_html=True)
+
 
 
 
 
 with st.expander("Расходы"):
 
-    expense_cols = [col for col in ["Дата_рус", "Тип расхода", "Сумма"] if col in exp.columns]
-    expense_view = exp[expense_cols].copy()
+    total_exp = exp["Сумма"].sum() if "Сумма" in exp.columns else 0
 
-    # последние 10 записей
-    expense_view = expense_view.tail(5)
+    st.markdown(f"""
+    <div style="
+        background:#171a21;
+        border:1px solid #2a2f3a;
+        border-radius:14px;
+        padding:14px;
+        margin-bottom:12px;
+    ">
+        <div style="font-size:14px; color:#9ca3af;">Общие расходы</div>
+        <div style="font-size:28px; font-weight:700; color:#ef4444;">{int(total_exp)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.caption(f"Показано записей: {len(expense_view)}")
+    recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
 
-    for _, row in expense_view.iterrows():
-        date_val = row["Дата_рус"] if "Дата_рус" in expense_view.columns else ""
-        type_val = row["Тип расхода"] if "Тип расхода" in expense_view.columns else ""
-        amount_val = row["Сумма"] if "Сумма" in expense_view.columns else ""
+    st.markdown("**Последние расходы**")
 
+    for _, row in recent_exp.iterrows():
         st.markdown(f"""
         <div style="
             background:#171a21;
             border:1px solid #2a2f3a;
-            border-radius:14px;
-            padding:12px 14px;
-            margin-bottom:10px;
+            border-radius:12px;
+            padding:10px 12px;
+            margin-bottom:8px;
         ">
-            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">{date_val}</div>
-            <div style="font-size:16px; color:#f3f4f6; margin-bottom:8px;">{type_val}</div>
-            <div style="font-size:18px; font-weight:700; color:#ef4444;">{amount_val} ₸</div>
+            <div style="font-size:13px; color:#9ca3af;">{row["Дата_рус"]}</div>
+            <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
+            <div style="font-size:16px; font-weight:700; color:#ef4444;">{row["Сумма"]} ₸</div>
         </div>
         """, unsafe_allow_html=True)
+
 
 
