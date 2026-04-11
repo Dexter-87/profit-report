@@ -579,11 +579,10 @@ st.pyplot(fig, use_container_width=True)
 start_date = str(df["Дата_рус"].min())
 end_date = str(df["Дата_рус"].max())
 
-my_profit = int(df["Прибыль"].sum()) if "Прибыль" in df.columns else 0
+my_profit = int(my_net) if 'my_net' in locals() else 0
+alexey_profit = int(alex_net) if 'alex_net' in locals() else 0
+total_profit = int(total_net) if 'total_net' in locals() else 0
 
-alexey_profit = int(df["Заработок Алексея"].sum()) if "Заработок Алексея" in df.columns else 0
-
-total_profit = my_profit + alexey_profit
 
 
 with st.expander("Быстрый отчет"):
