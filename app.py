@@ -146,6 +146,24 @@ hr {
     color: #ffffff;
 }
 
+.metric-big {
+    font-size: 34px;
+    font-weight: 800;
+    color: #f9fafb;
+}
+
+.metric-profit {
+    color: #22c55e;
+}
+
+.metric-expense {
+    color: #ef4444;
+}
+
+.metric-muted {
+    color: #9ca3af;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
