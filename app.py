@@ -427,8 +427,8 @@ quick_report = "\n".join([
 if mode == "Сводка":
     st.markdown(f"""
 <div class="metric-card">
-    <div class="metric-title">Общая прибыль</div>
-    <div class="metric-value metric-profit">{format_money(total_profit)} ₸</div>
+    <div class="metric-title">Чистая прибыль</div>
+    <div class="metric-value metric-profit">{format_money(total_net)} ₸</div>
 </div>
 """, unsafe_allow_html=True)
 
