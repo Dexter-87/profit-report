@@ -425,10 +425,34 @@ quick_report = "\n".join([
 ])
 
 if mode == "Сводка":
-    st.metric("Общая прибыль", format_money(total_profit))
-    st.metric("Мой заработок", format_money(my_income))
-    st.metric("Алексей", format_money(alex_income))
-    st.metric("Расходы", format_money(expenses))
+    st.markdown(f"""
+<div class="metric-card">
+    <div class="metric-title">Общая прибыль</div>
+    <div class="metric-value metric-profit">{format_money(total_profit)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div class="metric-card">
+    <div class="metric-title">Мой заработок</div>
+    <div class="metric-value">{format_money(my_income)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div class="metric-card">
+    <div class="metric-title">Алексей</div>
+    <div class="metric-value">{format_money(alex_income)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div class="metric-card">
+    <div class="metric-title">Расходы</div>
+    <div class="metric-value metric-expense">{format_money(expenses)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
+
     st.metric("Мой чистый", format_money(my_net))
     st.metric("Алексей чистый", format_money(alex_net))
     st.metric("Итого", format_money(total_net))
