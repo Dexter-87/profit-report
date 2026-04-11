@@ -571,9 +571,7 @@ if not df.empty:
         spine.set_color("#2a2f3a")
 
     plt.xticks(rotation=45, ha="right")
-
     plt.tight_layout()
-
     st.pyplot(fig, use_container_width=True)
 
 
