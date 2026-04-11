@@ -521,7 +521,10 @@ if not df.empty:
     daily_df["Дата"] = daily_df["Дата"].dt.strftime("%d.%m")
 
     # форматируем подписи
+daily_df["Дата"] = pd.to_datetime(daily_df["Дата"], errors="coerce")
+
 labels = daily_df["Дата"].dt.strftime("%d.%m")
+
 
 ax.plot(
     daily_df["Дата"],
