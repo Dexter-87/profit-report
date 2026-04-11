@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-import altair as alt
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
@@ -485,26 +485,24 @@ st.subheader("Прибыль по дням")
 
 if not df.empty:
     daily_df = (
-        df.groupby("Дата_рус", as_index=False)["Прибыль"]
+        df.groupby("Дата", as_index=False)["Прибыль"]
         .sum()
+        .sort_values("Дата")
     )
 
-    line_chart = alt.Chart(daily_df).mark_line(point=True).encode(
-        x=alt.X("Дата_рус:N", title="Дата", axis=alt.Axis(labelAngle=-45)),
-        y=alt.Y("Прибыль:Q", title="Прибыль")
-    ).properties(
-        height=320
-    ).configure_view(
-        stroke=None
-    ).configure_axis(
-        labelColor="#cbd5e1",
-        titleColor="#cbd5e1",
-        gridColor="#2a2f3a"
-    ).configure_title(
-        color="#f3f4f6"
-    )
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(daily_df["Дата"], daily_df["Прибыль"], marker="o")
 
-    st.altair_chart(line_chart, use_container_width=True)
+    ax.set_title("")
+    ax.set_xlabel("Дата")
+    ax.set_ylabel("Прибыль")
+    ax.grid(True, alpha=0.3)
+
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    st.pyplot(fig, use_container_width=True)
+
 
 
 
@@ -519,22 +517,19 @@ if not df.empty:
         .head(5)
     )
 
-    bar_chart = alt.Chart(top_df).mark_bar().encode(
-        x=alt.X("Наименование:N", sort="-y", title="Товар", axis=alt.Axis(labelAngle=-45)),
-        y=alt.Y("Прибыль:Q", title="Прибыль")
-    ).properties(
-        height=380
-    ).configure_view(
-        stroke=None
-    ).configure_axis(
-        labelColor="#cbd5e1",
-        titleColor="#cbd5e1",
-        gridColor="#2a2f3a"
-    ).configure_title(
-        color="#f3f4f6"
-    )
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.bar(top_df["Наименование"], top_df["Прибыль"])
 
-    st.altair_chart(bar_chart, use_container_width=True)
+    ax.set_title("")
+    ax.set_xlabel("Товар")
+    ax.set_ylabel("Прибыль")
+    ax.grid(True, axis="y", alpha=0.3)
+
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+
+    st.pyplot(fig, use_container_width=True)
+
 
 
 with st.expander("Быстрый отчет"):
