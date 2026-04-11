@@ -435,14 +435,14 @@ if mode == "Сводка":
 st.markdown(f"""
 <div class="metric-card">
     <div class="metric-title">Мой заработок</div>
-    <div class="metric-value">{format_money(my_income)} ₸</div>
+    <div class="metric-value">{format_money(my_net)} ₸</div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
 <div class="metric-card">
     <div class="metric-title">Алексей</div>
-    <div class="metric-value">{format_money(alex_income)} ₸</div>
+    <div class="metric-value">{format_money(alex_net)} ₸</div>
 </div>
 """, unsafe_allow_html=True)
 
