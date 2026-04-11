@@ -587,7 +587,7 @@ total_profit = my_profit + alexey_profit
 
 
 with st.expander("Быстрый отчет"):
-        st.markdown(f"""
+    st.markdown(f"""
 <div style="
     background:#171a21;
     border:1px solid #2a2f3a;
