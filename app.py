@@ -481,7 +481,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-.subheader("Прибыль по дням")
+st.subheader("Прибыль по дням")
 
 if not df.empty:
     daily_df = (
