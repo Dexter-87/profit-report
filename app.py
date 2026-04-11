@@ -607,7 +607,7 @@ with st.expander("Расходы"):
         "Дата_рус",
         "Тип расхода",
         "Сумма"
-    ] if col in expenses_df.columns]
+    ] if col in df.columns]
 
     expense_view = df[expense_cols].copy()
     expense_view["Тип расхода"] = expense_view["Тип расхода"].apply(
