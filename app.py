@@ -602,19 +602,24 @@ with st.expander("Продажи"):
 
 
 with st.expander("Расходы"):
+
     expense_cols = [col for col in [
         "Дата_рус",
         "Тип расхода",
         "Сумма"
-    ] if col in exp.columns]
+    ] if col in expenses_df.columns]
 
-    expense_view = exp[expense_cols].copy()
-
-    st.dataframe(
+    expense_view = expenses_df[expense_cols].copy()
+    expense_view["Тип расхода"] = expense_view["Тип расхода"].apply(
+    lambda x: x[:20] + "..." if isinstance(x, str) and len(x) > 20 else x
+)
+ 
+    st.data_editor(
         expense_view,
         use_container_width=True,
-        height=300,
+        height=250,
         disabled=True,
         hide_index=True
     )
+
 
