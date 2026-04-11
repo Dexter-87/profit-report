@@ -642,37 +642,51 @@ with st.expander("Быстрый отчет"):
 
 with st.expander("Продажи"):
 
+    sales_count_value = int(len(df)) if not df.empty else 0
+    avg_check_value = int(df["РРЦ"].mean()) if "РРЦ" in df.columns and not df.empty else 0
+    avg_margin_value = round(df["Маржа %"].mean(), 1) if "Маржа %" in df.columns and not df.empty else 0
+
     st.markdown(f"""
+<div style="
+    background:#171a21;
+    border:1px solid #2a2f3a;
+    border-radius:16px;
+    padding:16px;
+    margin-top:10px;
+">
+
     <div style="
-        background:#171a21;
-        border:1px solid #2a2f3a;
-        border-radius:14px;
-        padding:14px;
+        display:flex;
+        justify-content:space-between;
         margin-bottom:12px;
+        font-size:16px;
     ">
-        <div style="font-size:14px; color:#9ca3af;">Количество продаж</div>
-        <div style="font-size:28px; font-weight:700; color:#f3f4f6;">{len(df)}</div>
+        <span style="color:#9ca3af;">Количество продаж</span>
+        <span style="color:#f3f4f6; font-weight:600;">{sales_count_value}</span>
     </div>
-    """, unsafe_allow_html=True)
 
-    recent_sales = df[["Дата_рус", "Наименование", "Прибыль"]].tail(3).copy()
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:12px;
+        font-size:16px;
+    ">
+        <span style="color:#9ca3af;">Средний чек</span>
+        <span style="color:#22c55e; font-weight:600;">{avg_check_value} ₸</span>
+    </div>
 
-    st.markdown("**Последние продажи**")
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        font-size:16px;
+    ">
+        <span style="color:#9ca3af;">Средняя маржа</span>
+        <span style="color:#60a5fa; font-weight:600;">{avg_margin_value}%</span>
+    </div>
 
-    for _, row in recent_sales.iterrows():
-        st.markdown(f"""
-        <div style="
-            background:#171a21;
-            border:1px solid #2a2f3a;
-            border-radius:12px;
-            padding:10px 12px;
-            margin-bottom:8px;
-        ">
-            <div style="font-size:13px; color:#9ca3af;">{row["Дата_рус"]}</div>
-            <div style="font-size:15px; color:#f3f4f6;">{row["Наименование"]}</div>
-            <div style="font-size:16px; font-weight:700; color:#22c55e;">{row["Прибыль"]} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
+
 
 
 
