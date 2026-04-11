@@ -609,7 +609,7 @@ with st.expander("Расходы"):
         "Сумма"
     ] if col in expenses_df.columns]
 
-    expense_view = expenses_df[expense_cols].copy()
+    expense_view = df[expense_cols].copy()
     expense_view["Тип расхода"] = expense_view["Тип расхода"].apply(
     lambda x: x[:20] + "..." if isinstance(x, str) and len(x) > 20 else x
 )
