@@ -484,61 +484,43 @@ st.markdown(f"""
 st.subheader("Прибыль по дням")
 
 if not df.empty:
-    daily_df = (
-        df.groupby("Дата", as_index=False)["Прибыль"]
-        .sum()
-        .sort_values("Дата")
-    )
+    date_col = "Дата" if "Дата" in df.columns else "Дата_рус"
 
-    fig, ax = plt.subplots(figsize=(10, 4))
+    daily_df = df[[date_col, "Прибыль"]].copy()
+    daily_df[date_col] = pd.to_datetime(daily_df[date_col], errors="coerce", dayfirst=True)
+    daily_df = daily_df.dropna(subset=[date_col])
 
-    # фон
-    fig.patch.set_facecolor("#0f1115")
-    ax.set_facecolor("#0f1115")
+    if not daily_df.empty:
+        daily_df = (
+            daily_df.groupby(date_col, as_index=False)["Прибыль"]
+            .sum()
+            .sort_values(date_col)
+        )
 
-    # линия
-    ax.plot(
-        daily_df["Дата"],
-        daily_df["Прибыль"],
-        marker="o",
-        color="#22c55e"
-    )
+        labels = daily_df[date_col].dt.strftime("%d.%m")
 
-    # стиль текста
-    ax.set_xlabel("Дата", color="#cbd5e1")
-    ax.set_ylabel("Прибыль", color="#cbd5e1")
+        fig, ax = plt.subplots(figsize=(10, 4))
+        fig.patch.set_facecolor("#0f1115")
+        ax.set_facecolor("#0f1115")
 
-    ax.tick_params(colors="#cbd5e1")
+        ax.plot(daily_df[date_col], daily_df["Прибыль"], marker="o", color="#22c55e")
 
-    # сетка
-    ax.grid(True, alpha=0.2, color="#2a2f3a")
+        ax.set_xlabel("Дата", color="#cbd5e1")
+        ax.set_ylabel("Прибыль", color="#cbd5e1")
+        ax.tick_params(colors="#cbd5e1")
+        ax.grid(True, alpha=0.2, color="#2a2f3a")
 
-    # убираем рамки
-    for spine in ax.spines.values():
-        spine.set_color("#2a2f3a")
+        for spine in ax.spines.values():
+            spine.set_color("#2a2f3a")
 
-    # убираем время из дат
-    daily_df["Дата"] = daily_df["Дата"].dt.strftime("%d.%m")
+        ax.set_xticks(daily_df[date_col])
+        ax.set_xticklabels(labels, rotation=45, ha="right")
 
-    # форматируем подписи
-daily_df["Дата"] = pd.to_datetime(daily_df["Дата"], errors="coerce")
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=True)
+    else:
+        st.info("Нет корректных дат для графика.")
 
-labels = daily_df["Дата"].dt.strftime("%d.%m")
-
-
-ax.plot(
-    daily_df["Дата"],
-    daily_df["Прибыль"],
-    marker="o",
-    color="#22c55e"
-)
-
-ax.set_xticks(daily_df["Дата"])
-ax.set_xticklabels(labels, rotation=45)
-
-plt.tight_layout()
-
-st.pyplot(fig, use_container_width=True)
 
 
 
