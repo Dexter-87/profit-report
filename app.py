@@ -2,7 +2,8 @@ import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
 
-st.set_page_config(page_title="Отчет по прибыли", layout="wide")
+st.set_page_config(page_title="Финансовая сводка", layout="wide")
+
 
 st.markdown("""
 <style>
@@ -11,16 +12,16 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background-color: #0f1115;
+    background-color: #161a22;
     color: #f3f4f6;
 }
 
 .block-container {
     padding-top: 1.2rem;
     padding-bottom: 1rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    max-width: 1600px;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+    max-width: 1500px;
 }
 
 h1, h2, h3 {
@@ -29,12 +30,18 @@ h1, h2, h3 {
 }
 
 .main-title {
-    font-size: 42px;
+    font-size: 34px;
     font-weight: 800;
     color: #f9fafb;
     margin-top: 8px;
-    margin-bottom: 6px;
-    line-height: 1.05;
+    margin-bottom: 4px;
+    line-height: 1.08;
+}
+
+.sub-title {
+    font-size: 14px;
+    color: #b6beca;
+    margin-bottom: 18px;
 }
 
 @media (max-width: 768px) {
@@ -50,31 +57,24 @@ h1, h2, h3 {
     }
 
     .block-container {
-        padding-top: 2.8rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-top: 2.4rem;
+        padding-left: 0.9rem;
+        padding-right: 0.9rem;
     }
 }
 
-
-.sub-title {
-    font-size: 14px;
-    color: #9ca3af;
-    margin-bottom: 20px;
-}
-
 .metric-card {
-    background: #171a21;
-    border: 1px solid #2a2f3a;
+    background: #202633;
+    border: 1px solid #31394a;
     border-radius: 18px;
     padding: 18px 20px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
-    transition: 0.2s ease;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    margin-bottom: 12px;
 }
 
 .metric-title {
     font-size: 13px;
-    color: #9ca3af;
+    color: #aeb7c4;
     margin-bottom: 10px;
 }
 
@@ -86,20 +86,24 @@ h1, h2, h3 {
 }
 
 .metric-green {
-    color: #22c55e;
+    color: #34d399;
 }
 
 .metric-red {
-    color: #ef4444;
+    color: #f87171;
+}
+
+.metric-blue {
+    color: #60a5fa;
 }
 
 .section-card {
-    background: #171a21;
-    border: 1px solid #2a2f3a;
+    background: #202633;
+    border: 1px solid #31394a;
     border-radius: 18px;
-    padding: 18px 18px 10px 18px;
+    padding: 16px 16px 10px 16px;
     margin-top: 14px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 .section-title {
@@ -113,56 +117,24 @@ div[data-baseweb="select"] > div,
 div[data-baseweb="input"] > div,
 div[data-testid="stDateInput"] > div,
 div[data-testid="stNumberInput"] > div {
-    background-color: #11151b !important;
-    border: 1px solid #2a2f3a !important;
+    background-color: #1c2230 !important;
+    border: 1px solid #31394a !important;
     border-radius: 12px !important;
     color: #f3f4f6 !important;
 }
 
-div[data-testid="stMetric"] {
-    background-color: #171a21;
-    border: 1px solid #2a2f3a;
-    padding: 16px;
-    border-radius: 16px;
-}
-
-hr {
-    border: none;
-    height: 1px;
-    background: #2a2f3a;
-    margin: 16px 0;
-}
-
 .stButton > button {
-    background-color: #171a21;
+    background-color: #202633;
     color: #f3f4f6;
-    border: 1px solid #2a2f3a;
+    border: 1px solid #31394a;
     border-radius: 12px;
     padding: 10px 18px;
     font-weight: 600;
 }
 
 .stButton > button:hover {
-    border-color: #3b82f6;
+    border-color: #60a5fa;
     color: #ffffff;
-}
-
-.metric-big {
-    font-size: 34px;
-    font-weight: 800;
-    color: #f9fafb;
-}
-
-.metric-profit {
-    color: #22c55e;
-}
-
-.metric-expense {
-    color: #ef4444;
-}
-
-.metric-muted {
-    color: #9ca3af;
 }
 
 details {
@@ -170,9 +142,9 @@ details {
 }
 
 details summary {
-    background: #171a21 !important;
+    background: #202633 !important;
     color: #f3f4f6 !important;
-    border: 1px solid #2a2f3a !important;
+    border: 1px solid #31394a !important;
     border-radius: 14px !important;
     padding: 12px 16px !important;
 }
@@ -190,28 +162,13 @@ div[data-testid="stExpander"] details {
     border: none !important;
     box-shadow: none !important;
 }
-0
-div[data-testid="stDataFrame"] {
-    background: #171a21 !important;
-    border: 1px solid #2a2f3a !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-}
 
-div[data-testid="stDataFrame"] * {
-    color: #f3f4f6 !important;
+hr {
+    border: none;
+    height: 1px;
+    background: #31394a;
+    margin: 16px 0;
 }
-
-div[data-testid="stDataFrame"] thead tr th {
-    background-color: #11151b !important;
-    color: #cbd5e1 !important;
-}
-
-div[data-testid="stDataFrame"] tbody tr td {
-    background-color: #171a21 !important;
-    color: #f3f4f6 !important;
-}
-   
 </style>
 """, unsafe_allow_html=True)
 
@@ -250,16 +207,13 @@ def find_column(df: pd.DataFrame, variants: list[str]) -> str | None:
 def parse_mixed_dates(series: pd.Series) -> pd.Series:
     s = series.astype(str).str.strip()
 
-    # 1) сначала пробуем день.месяц.год
     parsed_dayfirst = pd.to_datetime(s, errors="coerce", dayfirst=True)
 
-    # 2) всё, что не распарсилось — пробуем месяц/день/год
     missing = parsed_dayfirst.isna()
     if missing.any():
         parsed_monthfirst = pd.to_datetime(s[missing], errors="coerce", dayfirst=False)
         parsed_dayfirst.loc[missing] = parsed_monthfirst
 
-    # 3) отбрасываем явно бредовые даты
     parsed_dayfirst = parsed_dayfirst.where(
         (parsed_dayfirst >= pd.Timestamp("2020-01-01")) &
         (parsed_dayfirst <= pd.Timestamp("2030-12-31"))
@@ -377,9 +331,17 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     return exp
 
 
+sales_raw, expenses_raw = load_data()
+df = load_sales_dataframe(sales_raw)
+exp = load_expenses_dataframe(expenses_raw)
+
+valid_dates = df["Дата"].dropna()
+if valid_dates.empty:
+    st.error("В продажах не распознаны даты.")
+    st.stop()
+
 st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Продажи • Прибыль • Рентабельность</div>', unsafe_allow_html=True)
-
 
 top_left, top_right = st.columns([1, 1])
 
@@ -391,48 +353,59 @@ with top_left:
 with top_right:
     st.caption("Кэш обновляется примерно раз в 60 секунд")
 
-sales_raw, expenses_raw = load_data()
-df = load_sales_dataframe(sales_raw)
-exp = load_expenses_dataframe(expenses_raw)
-
-valid_dates = df["Дата"].dropna()
-if valid_dates.empty:
-    st.error("В продажах не распознаны даты.")
-    st.stop()
 
 st.sidebar.header("Фильтры")
 
 min_date = valid_dates.min().date()
 max_date = valid_dates.max().date()
 
-date_from = st.sidebar.date_input("С", value=min_date, min_value=min_date, max_value=max_date, format="DD.MM.YYYY")
-date_to = st.sidebar.date_input("По", value=max_date, min_value=min_date, max_value=max_date, format="DD.MM.YYYY")
+date_from = st.sidebar.date_input(
+    "С",
+    value=min_date,
+    min_value=min_date,
+    max_value=max_date,
+    format="DD.MM.YYYY",
+)
+
+date_to = st.sidebar.date_input(
+    "По",
+    value=max_date,
+    min_value=min_date,
+    max_value=max_date,
+    format="DD.MM.YYYY",
+)
 
 if date_from > date_to:
     st.sidebar.error("Дата 'С' не может быть позже даты 'По'")
     st.stop()
 
-channel_options = ["Все"] + sorted(
-    [x for x in df["Канал"].dropna().unique().tolist() if str(x).strip() != ""]
+channel_values = sorted(
+    [
+        str(x).strip()
+        for x in df["Канал"].dropna().unique().tolist()
+        if str(x).strip() != ""
+    ]
 )
+channel_options = ["Все"] + channel_values
 selected_channel = st.sidebar.selectbox("Канал", channel_options)
 
-mode = st.radio("Режим", ["Сводка", "Аналитика"], horizontal=True)
-
-if selected_channel != "Все":
-    df = df[df["Канал"] == selected_channel].copy()
-
+# фильтры продаж
 df = df[
     (df["Дата"].dt.date >= date_from) &
     (df["Дата"].dt.date <= date_to)
 ].copy()
 
+if selected_channel != "Все":
+    df = df[df["Канал"].astype(str).str.strip() == selected_channel].copy()
+
+# фильтры расходов
 if "Дата" in exp.columns:
     exp = exp[
         (exp["Дата"].dt.date >= date_from) &
         (exp["Дата"].dt.date <= date_to)
     ].copy()
 
+# расчеты распределения прибыли
 df["Мой"] = 0.0
 df.loc[df["Это Ariston"], "Мой"] = df.loc[df["Это Ariston"], "Прибыль"] / 2
 df.loc[~df["Это Ariston"] & df["Плюс"], "Мой"] = (
@@ -448,7 +421,7 @@ df.loc[~df["Это Ariston"] & ~df["Плюс"], "Алексей"] = (
     df.loc[~df["Это Ariston"] & ~df["Плюс"], "Прибыль"]
 )
 
-total_profit = df["Прибыль"].sum()
+gross_profit = df["Прибыль"].sum()
 my_income = df["Мой"].sum()
 alex_income = df["Алексей"].sum()
 
@@ -459,95 +432,115 @@ my_net = my_income - half_expenses
 alex_net = alex_income - half_expenses
 total_net = my_net + alex_net
 
-avg_check = df["РРЦ"].mean() if len(df) > 0 else 0
 sales_count = len(df)
-revenue_sum = df["РРЦ"].sum()
-margin_percent = (total_profit / revenue_sum * 100) if revenue_sum > 0 else 0
+avg_check = df["РРЦ"].mean() if sales_count > 0 else 0
+revenue_sum = df["РРЦ"].sum() if "РРЦ" in df.columns else 0
 
-quick_report = "\n".join([
-    f"Период: {date_from.strftime('%d.%m.%Y')} - {date_to.strftime('%d.%m.%Y')}",
-    f"Канал: {selected_channel}",
-    f"Мой чистый: {format_money(my_net)}",
-    f"Алексей чистый: {format_money(alex_net)}",
-    f"Итого: {format_money(total_net)}",
-])
+# маржа: правильнее считать от выручки
+margin_percent = (gross_profit / revenue_sum * 100) if revenue_sum > 0 else 0
 
-if mode == "Сводка":
+# верхние карточки
+k1, k2 = st.columns(2)
+k3, k4 = st.columns(2)
+
+with k1:
     st.markdown(f"""
-<div class="metric-card">
-    <div class="metric-title">Чистая прибыль</div>
-    <div class="metric-value metric-profit">{format_money(total_net)} ₸</div>
+    <div class="metric-card">
+        <div class="metric-title">Чистая прибыль</div>
+        <div class="metric-value metric-green">{format_money(total_net)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with k2:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-title">Мой чистый</div>
+        <div class="metric-value">{format_money(my_net)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with k3:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-title">Алексей чистый</div>
+        <div class="metric-value metric-blue">{format_money(alex_net)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with k4:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-title">Расходы</div>
+        <div class="metric-value metric-red">{format_money(expenses)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# блок продажи
+with st.expander("Продажи", expanded=True):
+    st.markdown(f"""
+<div style="
+    background:#202633;
+    border:1px solid #31394a;
+    border-radius:16px;
+    padding:16px;
+    margin-top:10px;
+">
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:16px;">
+        <span style="color:#aeb7c4;">Количество продаж</span>
+        <span style="color:#f3f4f6; font-weight:600;">{sales_count}</span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:16px;">
+        <span style="color:#aeb7c4;">Средний чек</span>
+        <span style="color:#34d399; font-weight:600;">{format_money(avg_check)} ₸</span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; font-size:16px;">
+        <span style="color:#aeb7c4;">Средняя маржа</span>
+        <span style="color:#60a5fa; font-weight:600;">{margin_percent:.1f}%</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown(f"""
-<div class="metric-card">
-    <div class="metric-title">Мой заработок</div>
-    <div class="metric-value">{format_money(my_net)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown(f"""
-<div class="metric-card">
-    <div class="metric-title">Алексей</div>
-    <div class="metric-value">{format_money(alex_net)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown(f"""
-<div class="metric-card">
-    <div class="metric-title">Расходы</div>
-    <div class="metric-value metric-expense">{format_money(expenses)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.subheader("Прибыль по дням")
+# график прибыли по дням
+st.markdown('<div class="section-title">Прибыль по дням</div>', unsafe_allow_html=True)
 
 if not df.empty:
-    date_col = "Дата" if "Дата" in df.columns else "Дата_рус"
-
-    daily_df = df[[date_col, "Прибыль"]].copy()
-    daily_df[date_col] = pd.to_datetime(daily_df[date_col], errors="coerce", dayfirst=True)
-    daily_df = daily_df.dropna(subset=[date_col])
+    daily_df = (
+        df.groupby("Дата", as_index=False)["Прибыль"]
+        .sum()
+        .sort_values("Дата")
+    )
 
     if not daily_df.empty:
-        daily_df = (
-            daily_df.groupby(date_col, as_index=False)["Прибыль"]
-            .sum()
-            .sort_values(date_col)
-        )
-
-        labels = daily_df[date_col].dt.strftime("%d.%m")
+        labels = daily_df["Дата"].dt.strftime("%d.%m")
 
         fig, ax = plt.subplots(figsize=(10, 4))
-        fig.patch.set_facecolor("#0f1115")
-        ax.set_facecolor("#0f1115")
+        fig.patch.set_facecolor("#161a22")
+        ax.set_facecolor("#161a22")
 
-        ax.plot(daily_df[date_col], daily_df["Прибыль"], marker="o", color="#22c55e")
+        ax.plot(daily_df["Дата"], daily_df["Прибыль"], marker="o", color="#34d399", linewidth=2)
 
         ax.set_xlabel("Дата", color="#cbd5e1")
         ax.set_ylabel("Прибыль", color="#cbd5e1")
         ax.tick_params(colors="#cbd5e1")
-        ax.grid(True, alpha=0.2, color="#2a2f3a")
+        ax.grid(True, alpha=0.2, color="#31394a")
 
         for spine in ax.spines.values():
-            spine.set_color("#2a2f3a")
+            spine.set_color("#31394a")
 
-        ax.set_xticks(daily_df[date_col])
+        ax.set_xticks(daily_df["Дата"])
         ax.set_xticklabels(labels, rotation=45, ha="right")
 
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
     else:
-        st.info("Нет корректных дат для графика.")
+        st.info("Нет данных для графика.")
+else:
+    st.info("Нет данных для графика.")
 
-
-
-
-
-
-
-st.subheader("Топ-5 товаров по прибыли")
+# топ товаров
+st.markdown('<div class="section-title">Топ-5 товаров по прибыли</div>', unsafe_allow_html=True)
 
 if not df.empty:
     top_df = (
@@ -557,176 +550,103 @@ if not df.empty:
         .head(5)
     )
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    if not top_df.empty:
+        fig, ax = plt.subplots(figsize=(10, 5))
+        fig.patch.set_facecolor("#161a22")
+        ax.set_facecolor("#161a22")
 
-    fig.patch.set_facecolor("#0f1115")
-    ax.set_facecolor("#0f1115")
+        names = top_df["Наименование"].apply(lambda x: x[:28] + "..." if len(str(x)) > 28 else str(x))
+        ax.bar(names, top_df["Прибыль"], color="#60a5fa")
 
-    ax.bar(top_df["Наименование"], top_df["Прибыль"], color="#3b82f6")
+        ax.set_xlabel("Товар", color="#cbd5e1")
+        ax.set_ylabel("Прибыль", color="#cbd5e1")
+        ax.tick_params(colors="#cbd5e1")
+        ax.grid(True, axis="y", alpha=0.2, color="#31394a")
 
-    ax.set_xlabel("Товар", color="#cbd5e1")
-    ax.set_ylabel("Прибыль", color="#cbd5e1")
-    ax.tick_params(colors="#cbd5e1")
-    ax.grid(True, axis="y", alpha=0.2, color="#2a2f3a")
+        for spine in ax.spines.values():
+            spine.set_color("#31394a")
 
-for spine in ax.spines.values():
-    spine.set_color("#2a2f3a")
+        plt.xticks(rotation=45, ha="right")
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=True)
+    else:
+        st.info("Нет данных по товарам.")
+else:
+    st.info("Нет данных по товарам.")
 
-plt.xticks(rotation=45, ha="right")
-plt.tight_layout()
-st.pyplot(fig, use_container_width=True)
-
-start_date = str(df["Дата_рус"].min())
-end_date = str(df["Дата_рус"].max())
-
-my_profit = int(my_net) if 'my_net' in locals() else 0
-alexey_profit = int(alex_net) if 'alex_net' in locals() else 0
-total_profit = int(total_net) if 'total_net' in locals() else 0
-
-
+# быстрый отчет
+start_date_text = date_from.strftime("%d.%m.%Y")
+end_date_text = date_to.strftime("%d.%m.%Y")
 
 with st.expander("Быстрый отчет"):
     st.markdown(f"""
 <div style="
-    background:#171a21;
-    border:1px solid #2a2f3a;
+    background:#202633;
+    border:1px solid #31394a;
     border-radius:16px;
     padding:16px;
     margin-top:10px;
 ">
+    <div style="font-size:14px; color:#aeb7c4; margin-bottom:10px;">
+        Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+    </div>
 
-<div style="font-size:14px; color:#9ca3af; margin-bottom:10px;">
-    Период: <span style="color:#22c55e;">{start_date} — {end_date}</span>
-</div>
+    <div style="font-size:14px; color:#aeb7c4; margin-bottom:12px;">
+        Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+    </div>
 
-<div style="font-size:14px; color:#9ca3af; margin-bottom:12px;">
-    Канал: <span style="color:#f3f4f6;">Все</span>
-</div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="color:#aeb7c4;">Мой чистый</span>
+        <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
+    </div>
 
-<div style="
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:10px;
-">
-    <span style="color:#9ca3af;">Мой чистый</span>
-    <span style="color:#22c55e; font-weight:600;">{my_profit} ₸</span>
-</div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="color:#aeb7c4;">Алексей чистый</span>
+        <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+    </div>
 
-<div style="
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:10px;
-">
-    <span style="color:#9ca3af;">Алексей</span>
-    <span style="color:#22c55e; font-weight:600;">{alexey_profit} ₸</span>
-</div>
+    <div style="border-top:1px solid #31394a; margin:12px 0;"></div>
 
-<div style="
-    border-top:1px solid #2a2f3a;
-    margin:12px 0;
-"></div>
-
-<div style="
-    display:flex;
-    justify-content:space-between;
-    font-size:18px;
-    font-weight:700;
-">
-    <span style="color:#f3f4f6;">Итого</span>
-    <span style="color:#22c55e;">{total_profit} ₸</span>
-</div>
-
+    <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+        <span style="color:#f3f4f6;">Итого</span>
+        <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-
-with st.expander("Продажи"):
-
-    sales_count_value = int(len(df)) if not df.empty else 0
-    avg_check_value = int(df["РРЦ"].mean()) if "РРЦ" in df.columns and not df.empty else 0
-    avg_margin_value = round(df["Маржа %"].mean(), 1) if "Маржа %" in df.columns and not df.empty else 0
-
-    st.markdown(f"""
-<div style="
-    background:#171a21;
-    border:1px solid #2a2f3a;
-    border-radius:16px;
-    padding:16px;
-    margin-top:10px;
-">
-
-<div style="
-    display:flex;
-    justify-content:space-between;
-    argin-bottom:12px;
-    font-size:16px;
-">
-    <span style="color:#9ca3af;">Количество продаж</span>
-    <span style="color:#f3f4f6; font-weight:600;">{sales_count_value}</span>
-</div>
-
-<div style="
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:12px;
-    font-size:16px;
-">
-    <span style="color:#9ca3af;">Средний чек</span>
-    <span style="color:#22c55e; font-weight:600;">{avg_check_value} ₸</span>
-</div>
-
-<div style="
-    display:flex;
-    justify-content:space-between;
-    font-size:16px;
-">
-    <span style="color:#9ca3af;">Средняя маржа</span>
-    <span style="color:#60a5fa; font-weight:600;">{avg_margin_value}%</span>
-</div>
-
-</div>
-""", unsafe_allow_html=True)
-
-
-
-
-
-
+# расходы
 with st.expander("Расходы"):
-
     total_exp = exp["Сумма"].sum() if "Сумма" in exp.columns else 0
 
     st.markdown(f"""
-    <div style="
-        background:#171a21;
-        border:1px solid #2a2f3a;
-        border-radius:14px;
-        padding:14px;
-        margin-bottom:12px;
-    ">
-        <div style="font-size:14px; color:#9ca3af;">Общие расходы</div>
-        <div style="font-size:28px; font-weight:700; color:#ef4444;">{int(total_exp)} ₸</div>
-    </div>
-    """, unsafe_allow_html=True)
+<div style="
+    background:#202633;
+    border:1px solid #31394a;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:12px;
+">
+    <div style="font-size:14px; color:#aeb7c4;">Общие расходы</div>
+    <div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(total_exp)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
 
-    recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
+    if not exp.empty and {"Дата_рус", "Тип расхода", "Сумма"}.issubset(exp.columns):
+        recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
 
-    st.markdown("**Последние расходы**")
+        st.markdown("**Последние расходы**")
 
-    for _, row in recent_exp.iterrows():
-        st.markdown(f"""
-        <div style="
-            background:#171a21;
-            border:1px solid #2a2f3a;
-            border-radius:12px;
-            padding:10px 12px;
-            margin-bottom:8px;
-        ">
-            <div style="font-size:13px; color:#9ca3af;">{row["Дата_рус"]}</div>
-            <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
-            <div style="font-size:16px; font-weight:700; color:#ef4444;">{row["Сумма"]} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-
-
+        for _, row in recent_exp.iterrows():
+            st.markdown(f"""
+<div style="
+    background:#202633;
+    border:1px solid #31394a;
+    border-radius:12px;
+    padding:10px 12px;
+    margin-bottom:8px;
+">
+    <div style="font-size:13px; color:#aeb7c4;">{row["Дата_рус"]}</div>
+    <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
+    <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
+</div>
+""", unsafe_allow_html=True)
