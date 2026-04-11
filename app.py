@@ -165,6 +165,13 @@ hr {
     color: #9ca3af;
 }
 
+.vega-embed summary,
+.vega-actions,
+.vega-bindings,
+canvas {
+   pointer-events: none !important^;
+   }
+   
 </style>
 """, unsafe_allow_html=True)
 
