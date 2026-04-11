@@ -3,6 +3,116 @@ import streamlit as st
 
 st.set_page_config(page_title="Отчет по прибыли", layout="wide")
 
+st.markdown("""
+<style>
+html, body, [class*="css"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.stApp {
+    background-color: #0f1115;
+    color: #f3f4f6;
+}
+
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: 1600px;
+}
+
+h1, h2, h3 {
+    color: #f9fafb;
+    letter-spacing: 0.2px;
+}
+
+.main-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #f9fafb;
+    margin-bottom: 2px;
+}
+
+.sub-title {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    background: #171a21;
+    border: 1px solid #2a2f3a;
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    transition: 0.2s ease;
+}
+
+.metric-title {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.metric-value {
+    font-size: 30px;
+    font-weight: 800;
+    color: #f9fafb;
+    line-height: 1.1;
+}
+
+.metric-green {
+    color: #22c55e;
+}
+
+.metric-red {
+    color: #ef4444;
+}
+
+.section-card {
+    background: #171a21;
+    border: 1px solid #2a2f3a;
+    border-radius: 18px;
+    padding: 18px 18px 10px 18px;
+    margin-top: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f9fafb;
+    margin-bottom: 12px;
+}
+
+div[data-baseweb="select"] > div,
+div[data-baseweb="input"] > div,
+div[data-testid="stDateInput"] > div,
+div[data-testid="stNumberInput"] > div {
+    background-color: #11151b !important;
+    border: 1px solid #2a2f3a !important;
+    border-radius: 12px !important;
+    color: #f3f4f6 !important;
+}
+
+div[data-testid="stMetric"] {
+    background-color: #171a21;
+    border: 1px solid #2a2f3a;
+    padding: 16px;
+    border-radius: 16px;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background: #2a2f3a;
+    margin: 16px 0;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 sales_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVCDzAu1DphzNCs2AzlpsjgJyRfzYWEAicdYbqMEFCcjjcxo4WyjVkcKa2-6G2BDyhM2GaBRx23DvO/pub?gid=1240951053&single=true&output=csv"
 expenses_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYEdrQn9FbW5xYzz_UuvUvOUYxbENvC1JnSE4z00YUTvtCxtnP4sU54J-Vs_40kEcuyQLRm-Ae6B_0/pub?gid=1622934317&single=true&output=csv"
 
