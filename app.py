@@ -564,7 +564,7 @@ if not df.empty:
     ax.tick_params(colors="#cbd5e1")
     ax.grid(True, axis="y", alpha=0.2, color="#2a2f3a")
 
-    for spine in ax.spines.values():
+for spine in ax.spines.values():
     spine.set_color("#2a2f3a")
 
 plt.xticks(rotation=45, ha="right")
