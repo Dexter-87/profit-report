@@ -4,7 +4,9 @@ from matplotlib import pyplot as plt
 
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 
-# ---------- СТИЛИ ----------
+# =========================
+# СТИЛИ
+# =========================
 st.markdown("""
 <style>
 .stApp {
@@ -18,40 +20,59 @@ st.markdown("""
     max-width: 1400px;
 }
 
+a.anchor-link {
+    display: none !important;
+}
+
 h1, h2, h3 {
     color: #f9fafb;
+    letter-spacing: 0.2px;
 }
 
 .main-title {
-    font-size: 38px;
+    font-size: 40px;
     font-weight: 800;
-    margin-bottom: 4px;
+    color: #f9fafb;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    line-height: 1.05;
 }
 
 .sub-title {
-    color: #aab2bf;
     font-size: 16px;
+    color: #aab2bf;
     margin-bottom: 18px;
+}
+
+.section-box {
+    background: #1d2330;
+    border: 1px solid #2f3747;
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
 }
 
 .card {
     background: #1d2330;
     border: 1px solid #2f3747;
-    border-radius: 18px;
-    padding: 16px 18px;
-    margin-bottom: 12px;
+    border-radius: 20px;
+    padding: 18px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
 }
 
 .card-title {
-    color: #aab2bf;
     font-size: 13px;
-    margin-bottom: 8px;
+    color: #aab2bf;
+    margin-bottom: 10px;
 }
 
 .card-value {
-    color: #f8fafc;
     font-size: 30px;
     font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.1;
 }
 
 .value-green {
@@ -66,35 +87,35 @@ h1, h2, h3 {
     color: #60a5fa;
 }
 
-.section-box {
-    background: #1d2330;
-    border: 1px solid #2f3747;
-    border-radius: 18px;
-    padding: 14px 16px;
-    margin-bottom: 14px;
+.small-label {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #f9fafb;
 }
 
-div[data-baseweb="select"] > div,
-div[data-testid="stDateInput"] > div {
+hr {
+    border: none;
+    height: 1px;
+    background: #2f3747;
+    margin: 14px 0;
+}
+
+/* Кнопка */
+.stButton > button {
     background: #1d2330 !important;
+    color: #f3f4f6 !important;
     border: 1px solid #2f3747 !important;
     border-radius: 14px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+}
+.stButton > button:hover {
+    border-color: #4b5568 !important;
+    color: #ffffff !important;
 }
 
-input {
-    color: #f3f4f6 !important;
-}
-
-@media (max-width: 768px) {
-.main-title {
-    font-size: 28px;
-}
-
-.sub-title {
-    font-size: 14px;
-}
-}
-/* Поля date_input и selectbox */
+/* Поля date_input/selectbox */
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div,
 div[data-testid="stDateInput"] > div,
@@ -105,14 +126,12 @@ div[data-testid="stSelectbox"] > div {
     color: #f3f4f6 !important;
 }
 
-/* Текст внутри input */
 div[data-baseweb="input"] input,
 div[data-testid="stDateInput"] input {
     color: #f3f4f6 !important;
     -webkit-text-fill-color: #f3f4f6 !important;
 }
 
-/* Текст selectbox */
 div[data-baseweb="select"] span {
     color: #f3f4f6 !important;
 }
@@ -122,30 +141,20 @@ div[data-baseweb="popover"] {
     background: #1d2330 !important;
     border-radius: 12px !important;
 }
-
 ul[role="listbox"] {
     background: #1d2330 !important;
     color: #f3f4f6 !important;
     border: 1px solid #2f3747 !important;
 }
-
 ul[role="listbox"] li {
     color: #f3f4f6 !important;
     background: #1d2330 !important;
 }
-.stButton > button {
-    background: #1d2330 !important;
-    color: #f3f4f6 !important;
-    border: 1px solid #2f3747 !important;
-    border-radius: 14px !important;
-    font-weight: 600 !important;
+ul[role="listbox"] li:hover {
+    background: #263042 !important;
 }
 
-.stButton > button:hover {
-    border-color: #4b5568 !important;
-    color: #ffffff !important;
-}
-/* EXPANDER — всегда темный, и в закрытом, и в открытом состоянии */
+/* EXPANDER */
 div[data-testid="stExpander"] details {
     background: #1d2330 !important;
     border: 1px solid #2f3747 !important;
@@ -176,26 +185,42 @@ div[data-testid="stExpander"] details summary span {
     color: #f3f4f6 !important;
 }
 
-/* убираем белую подложку внутри */
 div[data-testid="stExpander"] > div {
     background: transparent !important;
 }
 
-/* стрелка expander */
 div[data-testid="stExpander"] details summary svg {
     fill: #9ca3af !important;
     color: #9ca3af !important;
 }
 
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 28px;
+        margin-top: 8px;
+    }
 
+    .sub-title {
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    .card-value {
+        font-size: 26px;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- URL ----------
+# =========================
+# URL
+# =========================
 SALES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVCDzAu1DphzNCs2AzlpsjgJyRfzYWEAicdYbqMEFCcjjcxo4WyjVkcKa2-6G2BDyhM2GaBRx23DvO/pub?gid=1240951053&single=true&output=csv"
 EXPENSES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYEdrQn9FbW5xYzz_UuvUvOUYxbENvC1JnSE4z00YUTvtCxtnP4sU54J-Vs_40kEcuyQLRm-Ae6B_0/pub?gid=1622934317&single=true&output=csv"
 
-# ---------- ВСПОМОГАТЕЛЬНОЕ ----------
+# =========================
+# ВСПОМОГАТЕЛЬНОЕ
+# =========================
 def format_money(value: float) -> str:
     try:
         return f"{float(value):,.0f}".replace(",", " ")
@@ -248,11 +273,13 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     date_col = find_column(df, ["Дата", "дата"])
     channel_col = find_column(df, ["Канал", "канал"])
     name_col = find_column(df, ["Наименование", "наименование"])
+    order_col = find_column(df, ["Номер заказа", "номер заказа"])
     cost_col = find_column(df, ["Себестоимость", "себестоимость"])
     rrc_col = find_column(df, ["РРЦ", "ррц"])
     kaspi_col = find_column(df, ["Комиссия Kaspi", "комиссия kaspi"])
     profit_col = find_column(df, ["Чистая прибыль", "чистая прибыль"])
     comment_col = find_column(df, ["Комментарий", "комментарий", "Комментарии", "комментарии"])
+    kaspiy_marker_col = find_column(df, ["Каспий", "каспий"])
 
     if date_col is None:
         st.error("В таблице продаж не найден столбец 'Дата'.")
@@ -266,6 +293,10 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     if name_col is None:
         df["Наименование"] = ""
         name_col = "Наименование"
+
+    if order_col is None:
+        df["Номер заказа"] = ""
+        order_col = "Номер заказа"
 
     if cost_col is None:
         df["Себестоимость"] = 0
@@ -283,29 +314,34 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
         df["Комментарий"] = ""
         comment_col = "Комментарий"
 
+    if kaspiy_marker_col is None:
+        df["Каспий"] = ""
+        kaspiy_marker_col = "Каспий"
+
     df["Дата"] = parse_mixed_dates(df[date_col])
     df["Канал"] = df[channel_col].fillna("").astype(str).str.strip()
-    # Если колонка Канал пустая — определяем канал автоматически
-if df["Канал"].eq("").all():
-    kaspi_mask = pd.Series(False, index=df.index)
-
-    if "Комиссия Kaspi" in df.columns:
-        kaspi_mask = kaspi_mask | (pd.to_numeric(df["Комиссия Kaspi"], errors="coerce").fillna(0) > 0)
-
-    if "Номер заказа" in df.columns:
-        kaspi_mask = kaspi_mask | (df["Номер заказа"].fillna("").astype(str).str.strip() != "")
-
-    if "Каспий" in df.columns:
-        kaspi_mask = kaspi_mask | (df["Каспий"].fillna("").astype(str).str.strip() != "")
-
-    df.loc[kaspi_mask, "Канал"] = "Каспий"
-    df.loc[~kaspi_mask, "Канал"] = "ОПТ"
-
     df["Наименование"] = df[name_col].fillna("").astype(str).str.strip()
+    df["Номер заказа"] = df[order_col].fillna("").astype(str).str.strip()
     df["Себестоимость"] = pd.to_numeric(df[cost_col], errors="coerce").fillna(0)
     df["РРЦ"] = pd.to_numeric(df[rrc_col], errors="coerce").fillna(0)
     df["Комиссия Kaspi"] = pd.to_numeric(df[kaspi_col], errors="coerce").fillna(0)
-    df["Комментарий"] = df[comment_col].fillna("").astype(str).str.replace("\xa0", "", regex=False).str.strip()
+
+    df["Комментарий"] = df[comment_col].fillna("").astype(str)
+    df["Комментарий"] = df["Комментарий"].str.replace("\xa0", "", regex=False)
+    df["Комментарий"] = df["Комментарий"].str.strip()
+
+    df["Каспий_маркер"] = df[kaspiy_marker_col].fillna("").astype(str).str.strip()
+
+    # Автоопределение канала, если колонка пустая
+    if df["Канал"].eq("").all():
+        kaspi_mask = pd.Series(False, index=df.index)
+
+        kaspi_mask = kaspi_mask | (df["Комиссия Kaspi"] > 0)
+        kaspi_mask = kaspi_mask | (df["Номер заказа"] != "")
+        kaspi_mask = kaspi_mask | (df["Каспий_маркер"] != "")
+
+        df.loc[kaspi_mask, "Канал"] = "Каспий"
+        df.loc[~kaspi_mask, "Канал"] = "ОПТ"
 
     if profit_col is not None:
         df["Прибыль"] = pd.to_numeric(df[profit_col], errors="coerce").fillna(0)
@@ -317,7 +353,7 @@ if df["Канал"].eq("").all():
     df["Плюс"] = df["Комментарий"] == "+"
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
-return df
+    return df
 
 def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     exp = normalize_columns(data)
@@ -344,19 +380,21 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     exp["Дата_рус"] = exp["Дата"].dt.strftime("%d.%m.%Y")
     return exp
 
-# ---------- ЗАГРУЗКА ----------
+# =========================
+# ЗАГРУЗКА
+# =========================
 sales_raw, expenses_raw = load_data()
 df = load_sales_dataframe(sales_raw)
 exp = load_expenses_dataframe(expenses_raw)
-st.write("Столбцы продаж:", list(df.columns))
-st.write("Уникальные каналы:", df["Канал"].dropna().unique().tolist() if "Канал" in df.columns else "Колонки Канал нет")
 
 valid_dates = df["Дата"].dropna()
 if valid_dates.empty:
     st.error("В продажах не распознаны даты.")
     st.stop()
 
-# ---------- ШАПКА ----------
+# =========================
+# ШАПКА
+# =========================
 st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Продажи • Прибыль • Рентабельность</div>', unsafe_allow_html=True)
 
@@ -370,9 +408,11 @@ with top_left:
 with top_right:
     st.caption("Кэш обновляется примерно раз в 60 секунд")
 
-# ---------- ФИЛЬТРЫ В ОСНОВНОМ ОКНЕ ----------
+# =========================
+# ФИЛЬТРЫ
+# =========================
 st.markdown('<div class="section-box">', unsafe_allow_html=True)
-st.subheader("Фильтры")
+st.markdown('<div class="small-label">Фильтры</div>', unsafe_allow_html=True)
 
 min_date = valid_dates.min().date()
 max_date = valid_dates.max().date()
@@ -382,12 +422,11 @@ channel_values = sorted([
     for x in df["Канал"].dropna().unique().tolist()
     if str(x).strip() != ""
 ])
-
 channel_options = ["Все"] + channel_values
 
-c1, c2, c3 = st.columns(3)
+f1, f2 = st.columns(2)
 
-with c1:
+with f1:
     date_from = st.date_input(
         "С",
         value=min_date,
@@ -397,7 +436,7 @@ with c1:
         key="date_from_main"
     )
 
-with c2:
+with f2:
     date_to = st.date_input(
         "По",
         value=max_date,
@@ -407,17 +446,21 @@ with c2:
         key="date_to_main"
     )
 
-with c3:
-    selected_channel = st.selectbox(
-        "Канал",
-        channel_options,
-        key="channel_main"
-    )
+selected_channel = st.selectbox(
+    "Канал",
+    channel_options,
+    key="channel_main"
+)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
+if date_from > date_to:
+    st.error("Дата 'С' не может быть позже даты 'По'")
+    st.stop()
 
-# ---------- ПРИМЕНЕНИЕ ФИЛЬТРОВ ----------
+# =========================
+# ПРИМЕНЕНИЕ ФИЛЬТРОВ
+# =========================
 df = df[
     (df["Дата"].dt.date >= date_from) &
     (df["Дата"].dt.date <= date_to)
@@ -431,7 +474,9 @@ exp = exp[
     (exp["Дата"].dt.date <= date_to)
 ].copy()
 
-# ---------- РАСЧЕТЫ ----------
+# =========================
+# РАСЧЕТЫ
+# =========================
 df["Мой"] = 0.0
 df.loc[df["Это Ariston"], "Мой"] = df.loc[df["Это Ariston"], "Прибыль"] / 2
 df.loc[~df["Это Ariston"] & df["Плюс"], "Мой"] = df.loc[~df["Это Ariston"] & df["Плюс"], "Прибыль"] / 2
@@ -457,7 +502,9 @@ avg_check = df["РРЦ"].mean() if sales_count > 0 else 0
 revenue_sum = df["РРЦ"].sum() if "РРЦ" in df.columns else 0
 margin_percent = (gross_profit / revenue_sum * 100) if revenue_sum > 0 else 0
 
-# ---------- ВЕРХНИЕ КАРТОЧКИ ----------
+# =========================
+# ВЕРХНИЕ КАРТОЧКИ
+# =========================
 k1, k2 = st.columns(2)
 k3, k4 = st.columns(2)
 
@@ -493,26 +540,9 @@ with k4:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------- ПРОДАЖИ ----------
-with st.expander("Продажи", expanded=True):
-    st.markdown(f"""
-    <div class="section-box">
-        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-            <span style="color:#aab2bf;">Количество продаж</span>
-            <span style="font-weight:700;">{sales_count}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-            <span style="color:#aab2bf;">Средний чек</span>
-            <span style="font-weight:700; color:#34d399;">{format_money(avg_check)} ₸</span>
-        </div>
-        <div style="display:flex; justify-content:space-between;">
-            <span style="color:#aab2bf;">Средняя маржа</span>
-            <span style="font-weight:700; color:#60a5fa;">{margin_percent:.1f}%</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ---------- ПРИБЫЛЬ ПО ДНЯМ ----------
+# =========================
+# ПРИБЫЛЬ ПО ДНЯМ
+# =========================
 st.subheader("Прибыль по дням")
 
 if not df.empty:
@@ -549,7 +579,9 @@ if not df.empty:
 else:
     st.info("Нет данных для графика.")
 
-# ---------- ТОП-5 ----------
+# =========================
+# ТОП-5
+# =========================
 st.subheader("Топ-5 товаров по прибыли")
 
 if not df.empty:
@@ -584,41 +616,66 @@ if not df.empty:
 else:
     st.info("Нет данных по товарам.")
 
-# ---------- БЫСТРЫЙ ОТЧЕТ ----------
+# =========================
+# БЫСТРЫЙ ОТЧЕТ
+# =========================
 start_date_text = date_from.strftime("%d.%m.%Y")
 end_date_text = date_to.strftime("%d.%m.%Y")
 
 with st.expander("Быстрый отчет"):
     st.markdown(f"""
     <div class="section-box">
-    <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
-        Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-    </div>
+        <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
+            Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+        </div>
 
-    <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
-        Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-    </div>
+        <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
+            Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+        </div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aab2bf;">Мой чистый</span>
-        <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-    </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="color:#aab2bf;">Мой чистый</span>
+            <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
+        </div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aab2bf;">Алексей чистый</span>
-        <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-    </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="color:#aab2bf;">Алексей чистый</span>
+            <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+        </div>
 
-    <hr>
+        <hr>
 
-    <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-        <span style="color:#f3f4f6;">Итого</span>
-        <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-    </div>
+        <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+            <span style="color:#f3f4f6;">Итого</span>
+            <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ---------- РАСХОДЫ ----------
+# =========================
+# ПРОДАЖИ
+# =========================
+with st.expander("Продажи"):
+    st.markdown(f"""
+    <div class="section-box">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <span style="color:#aab2bf;">Количество продаж</span>
+            <span style="font-weight:700;">{sales_count}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <span style="color:#aab2bf;">Средний чек</span>
+            <span style="font-weight:700; color:#34d399;">{format_money(avg_check)} ₸</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+            <span style="color:#aab2bf;">Средняя маржа</span>
+            <span style="font-weight:700; color:#60a5fa;">{margin_percent:.1f}%</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================
+# РАСХОДЫ
+# =========================
 with st.expander("Расходы"):
     st.markdown(f"""
     <div class="section-box">
