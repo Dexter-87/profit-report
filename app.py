@@ -741,30 +741,30 @@ with tab1:
     with st.expander("Быстрый отчет"):
         st.markdown(f"""
         <div class="section-box">
-            <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
-                Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-            </div>
+        <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
+            Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+        </div>
 
-            <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
-                Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-            </div>
+        <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
+            Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+        </div>
 
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span style="color:#aab2bf;">Стас чистый доход</span>
-                <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-            </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="color:#aab2bf;">Стас чистый доход</span>
+            <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
+        </div>
 
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span style="color:#aab2bf;">Алексей чистый доход</span>
-                <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-            </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="color:#aab2bf;">Алексей чистый доход</span>
+            <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+        </div>
 
-            <hr>
+        <hr>
 
-            <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-                <span style="color:#f3f4f6;">Итого</span>
-                <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-            </div>
+        <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+            <span style="color:#f3f4f6;">Итого</span>
+            <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+        </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -815,131 +815,87 @@ with tab1:
                 """, unsafe_allow_html=True)
 
 # =========================
-# СОЗДАТЬ ЗАКАЗ
+# СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
-with tab2:
-    st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Новый заказ сохраняется отдельно и не ломает финансовую сводку</div>', unsafe_allow_html=True)
 
-    left, right = st.columns(2)
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
-    with left:
-        order_date = st.date_input(
-            "Дата заказа",
-            value=date.today(),
-            format="DD.MM.YYYY",
-            key="order_date"
-        )
+PRICE_URL = "ВСТАВЬ_ССЫЛКУ_НА_ТВОЙ_ПРАЙС_CSV"
 
-        order_channel = st.selectbox(
-            "Канал продажи",
-            ["ОПТ", "Каспий"],
-            key="order_channel"
-        )
+@st.cache_data(ttl=60)
+def load_price():
+    df = pd.read_csv(PRICE_URL)
+    df.columns = df.columns.str.strip()
+    return df
 
-        order_brand = st.selectbox(
-            "Бренд",
-            ["Ariston", "Thermex", "Edison", "Etalon", "Garanterm", "Другое"],
-            key="order_brand"
-        )
+price_df = load_price()
 
-        order_model = st.text_input(
-            "Модель",
-            value="",
-            placeholder="Например: ABS PRO R 80 V",
-            key="order_model"
-        )
+# Приводим типы
+price_df["Бренд"] = price_df["Бренд"].astype(str)
+price_df["Модель"] = price_df["Модель"].astype(str)
+price_df["ТипЦены"] = price_df["ТипЦены"].astype(str)
+price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
 
-    with right:
-        order_price_type = st.selectbox(
-            "Тип цены",
-            ["РРЦ", "Опт", "Акция", "Спеццена", "Другая"],
-            key="order_price_type"
-        )
+# ===== БРЕНД =====
+brands = sorted(price_df["Бренд"].unique())
 
-        qty_text = st.text_input(
-            "Количество",
-            value="1",
-            key="order_qty"
-        )
+brand = st.selectbox("Бренд", brands)
 
-        price_text = st.text_input(
-            "Цена за шт",
-            value="0",
-            key="order_price"
-        )
+# ===== МОДЕЛИ =====
+models = sorted(price_df[price_df["Бренд"] == brand]["Модель"].unique())
 
-        order_comment = st.text_area(
-            "Комментарий",
-            value="",
-            placeholder="Необязательно",
-            key="order_comment"
-        )
+model = st.selectbox("Модель", models)
 
-    qty = parse_int_text(qty_text, default=1)
-    price = parse_float_text(price_text)
-    total_sum = qty * price
+# ===== ТИПЫ ЦЕН =====
+types = sorted(
+    price_df[
+        (price_df["Бренд"] == brand) &
+        (price_df["Модель"] == model)
+    ]["ТипЦены"].unique()
+)
 
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Общая сумма заказа</div>
-        <div class="card-value value-green">{format_money(total_sum)} ₸</div>
-    </div>
-    """, unsafe_allow_html=True)
+price_type = st.selectbox("Тип цены", types)
 
-    if st.button("Сохранить заказ", key="save_order"):
-        if not str(order_model).strip():
-            st.error("Заполни поле «Модель».")
-        else:
-            row = {
-                "Дата заказа": pd.to_datetime(order_date),
-                "Канал продажи": str(order_channel).strip(),
-                "Бренд": str(order_brand).strip(),
-                "Модель": str(order_model).strip(),
-                "Тип цены": str(order_price_type).strip(),
-                "Количество": qty,
-                "Цена за шт": price,
-                "Общая сумма": total_sum,
-                "Комментарий": str(order_comment).strip(),
-            }
+# ===== ЦЕНА =====
+selected_row = price_df[
+    (price_df["Бренд"] == brand) &
+    (price_df["Модель"] == model) &
+    (price_df["ТипЦены"] == price_type)
+]
 
-            try:
-                save_order_row(row)
-                st.success("Заказ сохранён.")
-            except Exception as e:
-                st.error(f"Ошибка сохранения: {e}")
+price = float(selected_row["Цена"].values[0]) if not selected_row.empty else 0
 
-    with st.expander("Последние заказы"):
-        orders_df = load_orders_dataframe()
+st.markdown(f"""
+<div class="card">
+    <div class="card-title">Цена</div>
+    <div class="card-value value-blue">{format_money(price)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
 
-        if orders_df.empty:
-            st.markdown("""
-            <div class="section-box">
-                Последних заказов пока нет.
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            orders_show = orders_df.copy()
+# ===== КОЛИЧЕСТВО =====
+qty = st.number_input("Количество", min_value=1, value=1)
 
-            if "Дата заказа" in orders_show.columns:
-                orders_show["Дата заказа"] = pd.to_datetime(
-                    orders_show["Дата заказа"], errors="coerce"
-                ).dt.strftime("%d.%m.%Y")
+# ===== СУММА =====
+total = price * qty
 
-            for _, row in orders_show.tail(5).iloc[::-1].iterrows():
-                st.markdown(f"""
-                <div class="section-box">
-                    <div style="font-size:13px; color:#aab2bf;">{row.get("Дата заказа", "")}</div>
-                    <div style="font-size:16px; font-weight:700; color:#f3f4f6; margin-bottom:6px;">
-                        {row.get("Модель", "")}
-                    </div>
-                    <div style="font-size:14px; color:#aab2bf;">Бренд: {row.get("Бренд", "")}</div>
-                    <div style="font-size:14px; color:#aab2bf;">Канал: {row.get("Канал продажи", "")}</div>
-                    <div style="font-size:14px; color:#aab2bf;">Тип цены: {row.get("Тип цены", "")}</div>
-                    <div style="font-size:14px; color:#aab2bf;">Количество: {row.get("Количество", 0)}</div>
-                    <div style="font-size:16px; font-weight:700; color:#34d399;">
-                        {format_money(row.get("Общая сумма", 0))} ₸
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+st.markdown(f"""
+<div class="card">
+    <div class="card-title">Сумма</div>
+    <div class="card-value value-green">{format_money(total)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
 
+# ===== СОХРАНЕНИЕ =====
+if st.button("Сохранить заказ"):
+    new_row = pd.DataFrame([{
+        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
+        "Канал": "ОПТ",
+        "Наименование": model,
+        "РРЦ": price,
+        "Количество": qty,
+        "Сумма": total,
+        "Комментарий": ""
+    }])
+
+    st.success("Заказ готов (дальше можно прикрутить запись в таблицу)")
