@@ -829,3 +829,34 @@ with st.expander("Расходы"):
             </div>
             """, unsafe_allow_html=True)
 
+st.header("Создать заказ")
+
+df = pd.read_excel("teeg_price.xlsx", sheet_name="Прайс")
+df = df.dropna()
+
+brands = df["Бренд"].unique()
+brand = st.selectbox("Выбери бренд", brands)
+
+df_brand = df[df["Бренд"] == brand]
+
+models = df_brand["Модель"].unique()
+model = st.selectbox("Выбери модель", models)
+
+df_model = df_brand[df_brand["Модель"] == model]
+
+price_types = df_model["ТипЦены"].unique()
+price_type = st.selectbox("Тип цены", price_types)
+
+price = df_model[df_model["ТипЦены"] == price_type]["Цена"].values[0]
+
+st.write(f"Цена: {price}")
+
+qty = st.number_input("Количество", min_value=1, value=1)
+
+total = price * qty
+st.write(f"Сумма: {total}")
+
+if st.button("Добавить в заказ"):
+    st.success(f"{model} ({price_type}) x {qty} добавлено")
+
+
