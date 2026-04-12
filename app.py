@@ -241,8 +241,8 @@ elif page == "Финансовая сводка":
     st.caption("Продажи • Прибыль • Рентабельность")
 
     # --- ЗАГРУЗКА ДАННЫХ ---
-    sales = load_price_from_google("1240951053")
-    expenses = load_price_from_google("1622934317")
+    sales = load_price_from_google("1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0")
+    expenses = load_price_from_google("1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK07")
 
     # --- ПРИВОДИМ ДАТЫ ---
     sales["Дата"] = pd.to_datetime(sales["Дата"], errors="coerce")
