@@ -94,6 +94,46 @@ input {
     font-size: 14px;
 }
 }
+/* Поля date_input и selectbox */
+div[data-baseweb="input"] > div,
+div[data-baseweb="select"] > div,
+div[data-testid="stDateInput"] > div,
+div[data-testid="stSelectbox"] > div {
+    background: #1d2330 !important;
+    border: 1px solid #2f3747 !important;
+    border-radius: 14px !important;
+    color: #f3f4f6 !important;
+}
+
+/* Текст внутри input */
+div[data-baseweb="input"] input,
+div[data-testid="stDateInput"] input {
+    color: #f3f4f6 !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+}
+
+/* Текст selectbox */
+div[data-baseweb="select"] span {
+    color: #f3f4f6 !important;
+}
+
+/* Выпадающий список */
+div[data-baseweb="popover"] {
+    background: #1d2330 !important;
+    border-radius: 12px !important;
+}
+
+ul[role="listbox"] {
+    background: #1d2330 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #2f3747 !important;
+}
+
+ul[role="listbox"] li {
+    color: #f3f4f6 !important;
+    background: #1d2330 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
