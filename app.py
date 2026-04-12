@@ -19,83 +19,39 @@ if page == "Создать заказ":
     st.title("Создать заказ")
     st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
-    Teeg_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
-    ARISTON_FILE_ID = "1M2RAZDDdYwPDr92o2E27em3-PDqD4JnR"
+    st.header("Создать заказ")
 
-    price_source = st.selectbox(
-        "Прайс",
-        ["Teeg", "Ariston"]
-    )
+url = "https://docs.google.com/spreadsheets/d/1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq/export?format=csv&gid=115078867"
+df = pd.read_csv(url)
+df.columns = df.columns.str.strip()
 
-    if price_source == "Teeg":
-        price_df = load_price_from_google(Teeg_FILE_ID)
-        
+df = df.dropna()
 
-        required_columns = ["Модель", "Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
-        missing_columns = [col for col in required_columns if col not in price_df.columns]
+brands = df["Бренд"].unique()
+brand = st.selectbox("Выбери бренд", brands)
 
-        if missing_columns:
-            st.error(f"В Teeg-прайсе не хватает колонок: {', '.join(missing_columns)}")
-            st.stop()
+df_brand = df[df["Бренд"] == brand]
 
-        price_df["Модель"] = price_df["Модель"].fillna("").astype(str).str.strip()
-        price_df = price_df[price_df["Модель"] != ""].copy()
+models = df_brand["Модель"].unique()
+model = st.selectbox("Выбери модель", models)
 
-        for col in ["Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]:
-            price_df[col] = pd.to_numeric(price_df[col], errors="coerce").fillna(0)
+df_model = df_brand[df_brand["Модель"] == model]
 
-        model = st.selectbox("Модель", price_df["Модель"].tolist())
+price_types = df_model["ТипЦены"].unique()
+price_type = st.selectbox("Тип цены", price_types)
 
-        price_type = st.selectbox(
-            "Тип цены",
-            ["Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
-        )
+price = df_model[df_model["ТипЦены"] == price_type]["Цена"].values[0]
 
-        qty = st.number_input("Количество", min_value=1, value=1, step=1)
+st.write(f"Цена: {price}")
 
-        selected_row = price_df[price_df["Модель"] == model].iloc[0]
-        price = float(selected_row[price_type])
-        total = price * qty
+qty = st.number_input("Количество", min_value=1, value=1)
 
-        c1, c2 = st.columns(2)
-        c1.metric("Цена", f"{price:,.0f}".replace(",", " "))
-        c2.metric("Сумма", f"{total:,.0f}".replace(",", " "))
+total = price * qty
+st.write(f"Сумма: {total}")
 
-        with st.expander("Показать все цены по модели"):
-            st.write({
-                "Цена_0": f"{selected_row['Цена_0']:,.0f}".replace(",", " "),
-                "Цена_1": f"{selected_row['Цена_1']:,.0f}".replace(",", " "),
-                "Цена_2": f"{selected_row['Цена_2']:,.0f}".replace(",", " "),
-                "Цена_3": f"{selected_row['Цена_3']:,.0f}".replace(",", " "),
-                "Цена_4": f"{selected_row['Цена_4']:,.0f}".replace(",", " "),
-            })
+if st.button("Добавить в заказ"):
+    st.success(f"{model} ({price_type}) x {qty} добавлено")
 
-    else:
-        price_df = load_price_from_google(ARISTON_FILE_ID)
-
-        required_columns = ["Модель", "Цена_1"]
-        missing_columns = [col for col in required_columns if col not in price_df.columns]
-
-        if missing_columns:
-            st.error(f"В Ariston-прайсе не хватает колонок: {', '.join(missing_columns)}")
-            st.stop()
-
-        price_df["Модель"] = price_df["Модель"].fillna("").astype(str).str.strip()
-        price_df = price_df[price_df["Модель"] != ""].copy()
-        price_df["Цена_1"] = pd.to_numeric(price_df["Цена_1"], errors="coerce").fillna(0)
-
-        model = st.selectbox("Модель", price_df["Модель"].tolist())
-        qty = st.number_input("Количество", min_value=1, value=1, step=1)
-
-        selected_row = price_df[price_df["Модель"] == model].iloc[0]
-        price = float(selected_row["Цена_1"])
-        total = price * qty
-
-        c1, c2 = st.columns(2)
-        c1.metric("Цена", f"{price:,.0f}".replace(",", " "))
-        c2.metric("Сумма", f"{total:,.0f}".replace(",", " "))
-
-    st.stop()
 
 
 # =========================
@@ -828,37 +784,3 @@ with st.expander("Расходы"):
                 <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
             </div>
             """, unsafe_allow_html=True)
-
-st.header("Создать заказ")
-
-url = "https://docs.google.com/spreadsheets/d/1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq/export?format=csv&gid=115078867"
-df = pd.read_csv(url)
-
-df = df.dropna()
-
-brands = df["Бренд"].unique()
-brand = st.selectbox("Выбери бренд", brands)
-
-df_brand = df[df["Бренд"] == brand]
-
-models = df_brand["Модель"].unique()
-model = st.selectbox("Выбери модель", models)
-
-df_model = df_brand[df_brand["Модель"] == model]
-
-price_types = df_model["ТипЦены"].unique()
-price_type = st.selectbox("Тип цены", price_types)
-
-price = df_model[df_model["ТипЦены"] == price_type]["Цена"].values[0]
-
-st.write(f"Цена: {price}")
-
-qty = st.number_input("Количество", min_value=1, value=1)
-
-total = price * qty
-st.write(f"Сумма: {total}")
-
-if st.button("Добавить в заказ"):
-    st.success(f"{model} ({price_type}) x {qty} добавлено")
-
-
