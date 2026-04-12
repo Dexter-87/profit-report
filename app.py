@@ -18,22 +18,22 @@ if page == "Создать заказ":
     st.title("Создать заказ")
     st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
-    TIG_FILE_ID = "1M2RAZDDdYwPDr92o2E27em3-PDqD4JnR"
+    Teeg_FILE_ID = "1M2RAZDDdYwPDr92o2E27em3-PDqD4JnR"
     ARISTON_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
 
     price_source = st.selectbox(
         "Прайс",
-        ["TIG", "Ariston"]
+        ["Teeg", "Ariston"]
     )
 
-    if price_source == "TIG":
-        price_df = load_price_from_google(TIG_FILE_ID)
+    if price_source == "Teeg":
+        price_df = load_price_from_google(Teeg_FILE_ID)
 
         required_columns = ["Модель", "Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
         missing_columns = [col for col in required_columns if col not in price_df.columns]
 
         if missing_columns:
-            st.error(f"В TIG-прайсе не хватает колонок: {', '.join(missing_columns)}")
+            st.error(f"В Teeg-прайсе не хватает колонок: {', '.join(missing_columns)}")
             st.stop()
 
         price_df["Модель"] = price_df["Модель"].fillna("").astype(str).str.strip()
