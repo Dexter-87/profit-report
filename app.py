@@ -680,7 +680,7 @@ if not df.empty:
             daily_df,
             x="Дата_подпись",
             y="Прибыль",
-            markers=True
+            markers=True,
             height=300
         )
 
