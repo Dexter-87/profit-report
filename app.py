@@ -831,7 +831,9 @@ with st.expander("Расходы"):
 
 st.header("Создать заказ")
 
-df = pd.read_excel("teeg_price.xlsx", sheet_name="Прайс")
+url = "https://docs.google.com/spreadsheets/d/1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq/export?format=csv&gid=115078867"
+df = pd.read_csv(url)
+
 df = df.dropna()
 
 brands = df["Бренд"].unique()
