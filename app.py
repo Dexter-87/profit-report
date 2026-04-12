@@ -818,83 +818,71 @@ with tab1:
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
 with tab2:
-st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
-PRICE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+    PRICE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
 
-@st.cache_data(ttl=60)
-def load_price():
-    df = pd.read_csv(PRICE_URL)
-    df.columns = df.columns.str.strip()
-    return df
+    @st.cache_data(ttl=60)
+    def load_price():
+        df = pd.read_csv(PRICE_URL)
+        df.columns = df.columns.str.strip()
+        return df
 
-price_df = load_price()
+    price_df = load_price()
 
-# Приводим типы
-price_df["Бренд"] = price_df["Бренд"].astype(str)
-price_df["Модель"] = price_df["Модель"].astype(str)
-price_df["ТипЦены"] = price_df["ТипЦены"].astype(str)
-price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
+    price_df["Бренд"] = price_df["Бренд"].astype(str).str.strip()
+    price_df["Модель"] = price_df["Модель"].astype(str).str.strip()
+    price_df["ТипЦены"] = price_df["ТипЦены"].astype(str).str.strip()
+    price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
 
-# ===== БРЕНД =====
-brands = sorted(price_df["Бренд"].unique())
+    brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
+    brand = st.selectbox("Бренд", brands, key="price_brand")
 
-brand = st.selectbox("Бренд", brands)
+    models = sorted(
+        [
+            x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
+            if str(x).strip() != ""
+        ]
+    )
+    model = st.selectbox("Модель", models, key="price_model")
 
-# ===== МОДЕЛИ =====
-models = sorted(price_df[price_df["Бренд"] == brand]["Модель"].unique())
+    price_types = sorted(
+        [
+            x for x in price_df.loc[
+                (price_df["Бренд"] == brand) &
+                (price_df["Модель"] == model),
+                "ТипЦены"
+            ].dropna().unique()
+            if str(x).strip() != ""
+        ]
+    )
+    price_type = st.selectbox("Тип цены", price_types, key="price_type")
 
-model = st.selectbox("Модель", models)
-
-# ===== ТИПЫ ЦЕН =====
-types = sorted(
-    price_df[
+    selected_row = price_df[
         (price_df["Бренд"] == brand) &
-        (price_df["Модель"] == model)
-    ]["ТипЦены"].unique()
-)
+        (price_df["Модель"] == model) &
+        (price_df["ТипЦены"] == price_type)
+    ]
 
-price_type = st.selectbox("Тип цены", types)
+    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
 
-# ===== ЦЕНА =====
-selected_row = price_df[
-    (price_df["Бренд"] == brand) &
-    (price_df["Модель"] == model) &
-    (price_df["ТипЦены"] == price_type)
-]
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Цена</div>
+        <div class="card-value value-blue">{format_money(price)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-price = float(selected_row["Цена"].values[0]) if not selected_row.empty else 0
+    qty = st.number_input("Количество", min_value=1, value=1, key="price_qty")
 
-st.markdown(f"""
-<div class="card">
-    <div class="card-title">Цена</div>
-    <div class="card-value value-blue">{format_money(price)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
+    total = price * qty
 
-# ===== КОЛИЧЕСТВО =====
-qty = st.number_input("Количество", min_value=1, value=1)
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Сумма</div>
+        <div class="card-value value-green">{format_money(total)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# ===== СУММА =====
-total = price * qty
-
-st.markdown(f"""
-<div class="card">
-    <div class="card-title">Сумма</div>
-    <div class="card-value value-green">{format_money(total)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
-
-# ===== СОХРАНЕНИЕ =====
-if st.button("Сохранить заказ"):
-    new_row = pd.DataFrame([{
-        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-        "Канал": "ОПТ",
-        "Наименование": model,
-        "РРЦ": price,
-        "Количество": qty,
-        "Сумма": total,
-        "Комментарий": ""
-    }])
-
-    st.success("Заказ готов (дальше можно прикрутить запись в таблицу)")
+    if st.button("Сохранить заказ", key="save_price_order"):
+        st.success("Заказ готов")
