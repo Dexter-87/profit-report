@@ -86,13 +86,13 @@ input {
 }
 
 @media (max-width: 768px) {
-    .main-title {
-        font-size: 28px;
-    }
+.main-title {
+    font-size: 28px;
+}
 
-    .sub-title {
-        font-size: 14px;
-    }
+.sub-title {
+    font-size: 14px;
+}
 }
 </style>
 """, unsafe_allow_html=True)
