@@ -28,6 +28,10 @@ if page == "Создать заказ":
 
     if price_source == "Teeg":
         price_df = load_price_from_google(Teeg_FILE_ID)
+        st.write("Источник:", price_source)
+        st.write("Колонки:", price_df.columns.tolist())
+        st.write(price_df.head(3))
+
 
         required_columns = ["Модель", "Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
         missing_columns = [col for col in required_columns if col not in price_df.columns]
