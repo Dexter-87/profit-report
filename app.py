@@ -105,9 +105,11 @@ def load_sheet_csv(url: str) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=60)
-def load_price_csv(url: str) -> pd.DataFrame:
+def load_sheet_csv(url: str) -> pd.DataFrame:
     df = pd.read_csv(url)
     df.columns = df.columns.astype(str).str.strip()
+    return df
+
 
     required_cols = {"Бренд", "Модель", "ТипЦены", "Цена"}
     missing = required_cols - set(df.columns)
