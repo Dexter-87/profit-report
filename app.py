@@ -236,23 +236,72 @@ if page == "Создать заказ":
 # ФИНАНСОВАЯ СВОДКА
 # =========================
 elif page == "Финансовая сводка":
-    st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="sub-title">Продажи • Прибыль • Рентабельность</div>',
-        unsafe_allow_html=True
-    )
 
-    st.markdown(
-        """
-        <div class="section-box">
-            <div class="metric-label">Статус</div>
-            <div style="font-size:18px; font-weight:700; color:#f3f4f6;">
-                Экран временно вынесен в безопасный режим
-            </div>
-            <div style="margin-top:8px; color:#aab2bf; font-size:14px;">
-                Сводка будет возвращена отдельным аккуратным блоком, чтобы не мешать разделу "Создать заказ".
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.title("Финансовая сводка")
+    st.caption("Продажи • Прибыль • Рентабельность")
+
+    # --- ЗАГРУЗКА ДАННЫХ ---
+    sales = load_price_from_google("ID_ФАЙЛА_ПРОДАЖ")
+    expenses = load_price_from_google("ID_ФАЙЛА_РАСХОДОВ")
+
+    # --- ПРИВОДИМ ДАТЫ ---
+    sales["Дата"] = pd.to_datetime(sales["Дата"], errors="coerce")
+    expenses["Дата"] = pd.to_datetime(expenses["Дата"], errors="coerce")
+
+    # удаляем пустые даты
+    sales = sales.dropna(subset=["Дата"])
+    expenses = expenses.dropna(subset=["Дата"])
+
+    # --- ФИЛЬТРЫ ---
+    st.subheader("Фильтры")
+
+    min_date = sales["Дата"].min().date()
+    max_date = sales["Дата"].max().date()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        date_from = st.date_input("С", min_date)
+
+    with col2:
+        date_to = st.date_input("По", max_date)
+
+    channel_options = ["Все"] + sorted(sales["Каспий"].dropna().unique().tolist())
+    channel = st.selectbox("Канал", channel_options)
+
+    # --- ПРИМЕНЕНИЕ ФИЛЬТРОВ ---
+    df = sales[
+        (sales["Дата"].dt.date >= date_from) &
+        (sales["Дата"].dt.date <= date_to)
+    ]
+
+    if channel != "Все":
+        df = df[df["Каспий"] == channel]
+
+    # --- РАСЧЕТЫ ---
+    revenue = df["РРЦ"].sum()
+    profit = df["Чистая прибыль"].sum()
+
+    expenses_filtered = expenses[
+        (expenses["Дата"].dt.date >= date_from) &
+        (expenses["Дата"].dt.date <= date_to)
+    ]
+
+    total_expenses = expenses_filtered["Сумма"].sum()
+
+    net_profit = profit - total_expenses
+
+    # --- КАРТОЧКИ ---
+    st.subheader("Итоги")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Выручка", f"{int(revenue):,}".replace(",", " "))
+    col2.metric("Прибыль", f"{int(profit):,}".replace(",", " "))
+    col3.metric("Чистая прибыль", f"{int(net_profit):,}".replace(",", " "))
+
+    st.divider()
+
+    # --- ДЕТАЛИ ---
+    st.write("Расходы:", f"{int(total_expenses):,}".replace(",", " "))
+    st.write("Сделок:", len(df))
