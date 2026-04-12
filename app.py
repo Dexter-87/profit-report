@@ -15,42 +15,52 @@ def load_price_from_google(file_id: str) -> pd.DataFrame:
     df.columns = df.columns.astype(str).str.strip()
     return df
 
+# =========================
+# СОЗДАТЬ ЗАКАЗ
+# =========================
 if page == "Создать заказ":
     st.title("Создать заказ")
     st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
-   
-url = "https://docs.google.com/spreadsheets/d/1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq/export?format=csv&gid=115078867"
-df = pd.read_csv(url)
-df.columns = df.columns.str.strip()
+    TEEG_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
 
-df = df.dropna()
+    df = load_price_from_google(TEEG_FILE_ID)
 
-brands = df["Бренд"].unique()
-brand = st.selectbox("Выбери бренд", brands)
+    brands = df["Бренд"].unique()
+    brand = st.selectbox("Выбери бренд", brands)
 
-df_brand = df[df["Бренд"] == brand]
+    df_brand = df[df["Бренд"] == brand]
 
-models = df_brand["Модель"].unique()
-model = st.selectbox("Выбери модель", models)
+    models = df_brand["Модель"].unique()
+    model = st.selectbox("Выбери модель", models)
 
-df_model = df_brand[df_brand["Модель"] == model]
+    df_model = df_brand[df_brand["Модель"] == model]
 
-price_types = df_model["ТипЦены"].unique()
-price_type = st.selectbox("Тип цены", price_types)
+    price_types = df_model["ТипЦены"].unique()
+    price_type = st.selectbox("Тип цены", price_types)
 
-price = df_model[df_model["ТипЦены"] == price_type]["Цена"].values[0]
+    price = df_model[df_model["ТипЦены"] == price_type]["Цена"].values[0]
 
-st.write(f"Цена: {price}")
+    st.write(f"Цена: {price}")
 
-qty = st.number_input("Количество", min_value=1, value=1)
+    qty = st.number_input("Количество", min_value=1, value=1)
 
-total = price * qty
-st.write(f"Сумма: {total}")
+    total = price * qty
+    st.write(f"Сумма: {total}")
 
-if st.button("Добавить в заказ"):
-    st.success(f"{model} ({price_type}) x {qty} добавлено")
-st.stop()
+    if st.button("Добавить в заказ"):
+        st.success(f"{model} ({price_type}) x {qty} добавлено")
+
+
+# =========================
+# ФИНАНСОВАЯ СВОДКА
+# =========================
+elif page == "Финансовая сводка":
+    st.title("Финансовая сводка")
+    st.write("Здесь будет твоя аналитика")
+
+    st.info("Пока заглушка. Потом подключим BI данные 💪")
+
 
 
 # =========================
