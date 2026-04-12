@@ -664,7 +664,7 @@ with k4:
 # =========================
 # ПРИБЫЛЬ ПО ДНЯМ
 # =========================
-st.subheader("Прибыль по дням")
+st.subheader("Прибыль по дням TEST")
 
 if not df.empty:
     daily_df = (
@@ -675,9 +675,6 @@ if not df.empty:
 
     if not daily_df.empty:
         daily_df["Дата_подпись"] = daily_df["Дата"].dt.strftime("%d.%m")
-        daily_df["Подпись_суммы"] = daily_df["Прибыль"].apply(
-            lambda x: f"{x:,.0f} ₸".replace(",", " ")
-        )
 
         fig = px.line(
             daily_df,
@@ -685,13 +682,6 @@ if not df.empty:
             y="Прибыль",
             markers=True,
             height=320
-        )
-
-        fig.update_traces(
-            text=daily_df["Подпись_суммы"],
-            textposition="top center",
-            line=dict(width=3),
-            marker=dict(size=8)
         )
 
         fig.update_layout(
@@ -711,9 +701,6 @@ if not df.empty:
                 "staticPlot": True
             }
         )
-
-
-
 
 # =========================
 # ТОП-5
