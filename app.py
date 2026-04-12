@@ -262,38 +262,48 @@ with top_right:
 st.markdown('<div class="section-box">', unsafe_allow_html=True)
 st.subheader("Фильтры")
 
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    date_from = st.date_input("С")
-
-with c2:
-    date_to = st.date_input("По")
-
-with c3:
-    selected_channel = st.selectbox("Канал", channel_options)
-
 min_date = valid_dates.min().date()
 max_date = valid_dates.max().date()
 
-channel_values = sorted(
-    [
-        str(x).strip()
-        for x in df["Канал"].dropna().unique().tolist()
-        if str(x).strip() != ""
-    ]
-)
+channel_values = sorted([
+    str(x).strip()
+    for x in df["Канал"].dropna().unique().tolist()
+    if str(x).strip() != ""
+])
+
 channel_options = ["Все"] + channel_values
 
-f1, f2, f3 = st.columns(3)
+c1, c2, c3 = st.columns(3)
 
+with c1:
+    date_from = st.date_input(
+        "С",
+        value=min_date,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD.MM.YYYY",
+        key="date_from_main"
+    )
 
+with c2:
+    date_to = st.date_input(
+        "По",
+        value=max_date,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD.MM.YYYY",
+        key="date_to_main"
+    )
+
+with c3:
+    selected_channel = st.selectbox(
+        "Канал",
+        channel_options,
+        key="channel_main"
+    )
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-if date_from > date_to:
-    st.error("Дата 'С' не может быть позже даты 'По'")
-    st.stop()
 
 # ---------- ПРИМЕНЕНИЕ ФИЛЬТРОВ ----------
 df = df[
