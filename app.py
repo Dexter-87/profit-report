@@ -110,6 +110,7 @@ hr {
     font-weight: 600 !important;
     padding: 10px 18px !important;
 }
+
 .stButton > button:hover {
     border-color: #4b5568 !important;
     color: #ffffff !important;
@@ -141,15 +142,18 @@ div[data-baseweb="popover"] {
     background: #1d2330 !important;
     border-radius: 12px !important;
 }
+
 ul[role="listbox"] {
     background: #1d2330 !important;
     color: #f3f4f6 !important;
     border: 1px solid #2f3747 !important;
 }
+
 ul[role="listbox"] li {
     color: #f3f4f6 !important;
     background: #1d2330 !important;
 }
+
 ul[role="listbox"] li:hover {
     background: #263042 !important;
 }
@@ -315,7 +319,7 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
         comment_col = "Комментарий"
 
     if kaspiy_marker_col is None:
-        df["Каспий"] = ""
+        df["Каспий"] = 0
         kaspiy_marker_col = "Каспий"
 
     df["Дата"] = parse_mixed_dates(df[date_col])
@@ -330,40 +334,41 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     df["Комментарий"] = df["Комментарий"].str.replace("\xa0", "", regex=False)
     df["Комментарий"] = df["Комментарий"].str.strip()
 
-    df["Каспий_маркер"] = df[kaspiy_marker_col].fillna("").astype(str).str.strip()
+    df["Каспий_маркер"] = pd.to_numeric(df[kaspiy_marker_col], errors="coerce").fillna(0)
 
-   # Автоопределение канала, если колонка пустая
-if df["Канал"].eq("").all():
-    kaspi_mask = pd.Series(False, index=df.index)
+    # Автоопределение канала, если колонка пустая
+    if df["Канал"].eq("").all():
+        kaspi_mask = pd.Series(False, index=df.index)
 
-    # Каспий, если есть комиссия > 0
-    if "Комиссия Kaspi" in df.columns:
-        kaspi_mask = kaspi_mask | (
-            pd.to_numeric(df["Комиссия Kaspi"], errors="coerce").fillna(0) > 0
-        )
+        if "Комиссия Kaspi" in df.columns:
+            kaspi_mask = kaspi_mask | (
+                pd.to_numeric(df["Комиссия Kaspi"], errors="coerce").fillna(0) > 0
+            )
 
-    # Каспий, если есть номер заказа
-    if "Номер заказа" in df.columns:
-        kaspi_mask = kaspi_mask | (
-            df["Номер заказа"].fillna("").astype(str).str.strip() != ""
-        )
+        if "Номер заказа" in df.columns:
+            kaspi_mask = kaspi_mask | (
+                df["Номер заказа"].fillna("").astype(str).str.strip() != ""
+            )
 
-    # Каспий, если в колонке "Каспий" число > 0
-    if "Каспий_маркер" in df.columns:
-        kaspi_mask = kaspi_mask | (
-            pd.to_numeric(df["Каспий_маркер"], errors="coerce").fillna(0) > 0
-        )
+        if "Каспий_маркер" in df.columns:
+            kaspi_mask = kaspi_mask | (
+                pd.to_numeric(df["Каспий_маркер"], errors="coerce").fillna(0) > 0
+            )
 
-    df.loc[kaspi_mask, "Канал"] = "Каспий"
-    df.loc[~kaspi_mask, "Канал"] = "ОПТ"
-
+        df.loc[kaspi_mask, "Канал"] = "Каспий"
+        df.loc[~kaspi_mask, "Канал"] = "ОПТ"
 
     if profit_col is not None:
         df["Прибыль"] = pd.to_numeric(df[profit_col], errors="coerce").fillna(0)
     else:
         df["Прибыль"] = df["РРЦ"] - df["Себестоимость"] - df["Комиссия Kaspi"]
 
-    df["Маржа %"] = (df["Прибыль"] / df["РРЦ"] * 100).replace([float("inf"), -float("inf")], 0).fillna(0)
+    df["Маржа %"] = (
+        (df["Прибыль"] / df["РРЦ"] * 100)
+        .replace([float("inf"), -float("inf")], 0)
+        .fillna(0)
+    )
+
     df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
     df["Плюс"] = df["Комментарий"] == "+"
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
@@ -640,30 +645,30 @@ end_date_text = date_to.strftime("%d.%m.%Y")
 with st.expander("Быстрый отчет"):
     st.markdown(f"""
     <div class="section-box">
-    <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
-        Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-    </div>
+        <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
+            Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+        </div>
 
-    <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
-        Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-    </div>
+        <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
+            Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+        </div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aab2bf;">Мой чистый</span>
-        <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-    </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="color:#aab2bf;">Мой чистый</span>
+            <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
+        </div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aab2bf;">Алексей чистый</span>
-        <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-    </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="color:#aab2bf;">Алексей чистый</span>
+            <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+        </div>
 
-    <hr>
+        <hr>
 
-    <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-        <span style="color:#f3f4f6;">Итого</span>
-        <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-    </div>
+        <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+            <span style="color:#f3f4f6;">Итого</span>
+            <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -712,3 +717,4 @@ with st.expander("Расходы"):
                 <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
             </div>
             """, unsafe_allow_html=True)
+
