@@ -430,8 +430,6 @@ if valid_dates.empty:
 st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Продажи • Прибыль • Рентабельность</div>', unsafe_allow_html=True)
 
-top_left, top_right = st.columns([1, 1])
-
 if st.button("Обновить данные"):
     st.cache_data.clear()
     st.rerun()
