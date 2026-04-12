@@ -719,22 +719,34 @@ if not df.empty:
     )
 
     if not top_products.empty:
+        top_products = top_products.sort_values("Прибыль", ascending=True)
+
         fig = px.bar(
             top_products,
-            x="Наименование",
-            y="Прибыль"
+            x="Прибыль",
+            y="Наименование",
+            orientation="h",
+            height=360
         )
 
         fig.update_layout(
             paper_bgcolor="#151922",
             plot_bgcolor="#151922",
             font=dict(color="#cbd5e1"),
-            margin=dict(l=10, r=10, t=30, b=10),
-            xaxis_title="Товар",
-            yaxis_title="Прибыль"
+            margin=dict(l=10, r=10, t=20, b=10),
+            xaxis_title="Прибыль",
+            yaxis_title=""
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": False,
+                "staticPlot": True
+            }
+        )
+
 
 
 # =========================
