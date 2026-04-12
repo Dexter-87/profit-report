@@ -241,8 +241,8 @@ elif page == "Финансовая сводка":
     st.caption("Продажи • Прибыль • Рентабельность")
 
     # --- ЗАГРУЗКА ДАННЫХ ---
-    sales = load_price_csv("https://docs.google.com/spreadsheets/d/ID/export?format=csv")
-    expenses = load_price_csv("https://docs.google.com/spreadsheets/d/ID/export?format=csv")
+    sales = load_price_csv("https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0/export?format=csv")
+    expenses = load_price_csv("https://docs.google.com/spreadsheets/d/1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK0/export?format=csv")
 
     sales.columns = sales.columns.str.strip()
     expenses.columns = expenses.columns.str.strip()
