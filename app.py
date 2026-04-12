@@ -701,36 +701,31 @@ if not df.empty:
 st.subheader("Топ-5 товаров по прибыли")
 
 if not df.empty:
-    top_df = (
+    top_products = (
         df.groupby("Наименование", as_index=False)["Прибыль"]
         .sum()
         .sort_values("Прибыль", ascending=False)
         .head(5)
     )
 
-    if not top_df.empty:
-        fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor("#151922")
-        ax.set_facecolor("#151922")
+    if not top_products.empty:
+        fig = px.bar(
+            top_products,
+            x="Наименование",
+            y="Прибыль"
+        )
 
-        names = top_df["Наименование"].apply(lambda x: x[:28] + "..." if len(str(x)) > 28 else str(x))
-        ax.bar(names, top_df["Прибыль"], color="#60a5fa")
+        fig.update_layout(
+            paper_bgcolor="#151922",
+            plot_bgcolor="#151922",
+            font=dict(color="#cbd5e1"),
+            margin=dict(l=20, r=20, t=20, b=20),
+            xaxis_title="Товар",
+            yaxis_title="Прибыль"
+        )
 
-        ax.set_xlabel("Товар", color="#cbd5e1")
-        ax.set_ylabel("Прибыль", color="#cbd5e1")
-        ax.tick_params(colors="#cbd5e1")
-        ax.grid(True, axis="y", alpha=0.2, color="#2f3747")
+        st.plotly_chart(fig, use_container_width=True)
 
-        for spine in ax.spines.values():
-            spine.set_color("#2f3747")
-
-        plt.xticks(rotation=45, ha="right")
-        plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
-    else:
-        st.info("Нет данных по товарам.")
-else:
-    st.info("Нет данных по товарам.")
 
 # =========================
 # БЫСТРЫЙ ОТЧЕТ
