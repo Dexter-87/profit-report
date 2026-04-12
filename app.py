@@ -101,8 +101,3 @@ if not filtered.empty:
 else:
     st.write("Нет данных")
 
-
-
-
-
-Отправлено из мобильной Почты Mail
