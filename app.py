@@ -439,7 +439,6 @@ st.caption("Кэш обновляется примерно раз в 60 секу
 # =========================
 # ФИЛЬТРЫ
 # =========================
-st.markdown('<div class="section-box">', unsafe_allow_html=True)
 st.markdown('<div class="small-label">Фильтры</div>', unsafe_allow_html=True)
 
 min_date = valid_dates.min().date()
