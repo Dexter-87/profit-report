@@ -7,7 +7,7 @@ st.set_page_config(
 )
 
 # =========================
-# ССЫЛКИ НА GOOGLE SHEETS
+# GOOGLE SHEETS URLS
 # =========================
 PRICE_URL = (
     "https://docs.google.com/spreadsheets/d/"
@@ -17,18 +17,18 @@ PRICE_URL = (
 
 SALES_URL = (
     "https://docs.google.com/spreadsheets/d/"
-    "1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UffjJzQnvtB0/"
-    "export?format=csv"
+    "1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0/"
+    "gviz/tq?tqx=out:csv&gid=1240951053"
 )
 
 EXPENSES_URL = (
     "https://docs.google.com/spreadsheets/d/"
-    "1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfjxK07/"
-    "export?format=csv"
+    "1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK0/"
+    "gviz/tq?tqx=out:csv&gid=1622934317"
 )
 
 # =========================
-# СТИЛИ
+# STYLES
 # =========================
 st.markdown(
     """
@@ -91,16 +91,10 @@ st.markdown(
 )
 
 # =========================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+# HELPERS
 # =========================
 def format_money(value: float | int) -> str:
     return f"{int(round(value)):,}".replace(",", " ")
-
-
-@st.cache_data(ttl=60)
-def load_sheet_csv(url: str) -> pd.DataFrame:
-    return pd.read_csv(url)
-
 
 
 @st.cache_data(ttl=60)
@@ -109,6 +103,11 @@ def load_sheet_csv(url: str) -> pd.DataFrame:
     df.columns = df.columns.astype(str).str.strip()
     return df
 
+
+@st.cache_data(ttl=60)
+def load_price_csv(url: str) -> pd.DataFrame:
+    df = pd.read_csv(url)
+    df.columns = df.columns.astype(str).str.strip()
 
     required_cols = {"Бренд", "Модель", "ТипЦены", "Цена"}
     missing = required_cols - set(df.columns)
@@ -143,7 +142,7 @@ def detect_brand(name: str) -> str:
 
 
 # =========================
-# САЙДБАР
+# SIDEBAR
 # =========================
 page = st.sidebar.selectbox(
     "Раздел",
@@ -151,7 +150,7 @@ page = st.sidebar.selectbox(
 )
 
 # =========================
-# СОЗДАТЬ ЗАКАЗ
+# CREATE ORDER
 # =========================
 if page == "Создать заказ":
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
@@ -186,6 +185,7 @@ if page == "Создать заказ":
     total = price * qty
 
     c1, c2 = st.columns(2)
+
     with c1:
         st.markdown(
             f"""
@@ -266,7 +266,7 @@ if page == "Создать заказ":
             )
 
 # =========================
-# ФИНАНСОВАЯ СВОДКА
+# FINANCIAL DASHBOARD
 # =========================
 elif page == "Финансовая сводка":
     st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
@@ -276,23 +276,15 @@ elif page == "Финансовая сводка":
     )
 
     try:
-        sales = load_sheet_csv(
-    "https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0/gviz/tq?tqx=out:csv&gid=1240951053"
-)
-
-        expenses = load_sheet_csv(
-    "https://docs.google.com/spreadsheets/d/1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK0/gviz/tq?tqx=out:csv&gid=1622934317"
-)
-
+        sales = load_sheet_csv(SALES_URL)
+        expenses = load_sheet_csv(EXPENSES_URL)
     except Exception as e:
         st.error(f"Ошибка загрузки таблиц: {e}")
         st.stop()
 
-    # --- НОРМАЛИЗАЦИЯ КОЛОНОК ---
     sales.columns = sales.columns.str.strip()
     expenses.columns = expenses.columns.str.strip()
 
-    # --- ПРОВЕРКА КОЛОНОК ---
     sales_required = {
         "Дата", "Каспий", "Наименование", "Себестоимость", "РРЦ", "Комиссия Kaspi", "Чистая прибыль"
     }
@@ -309,19 +301,22 @@ elif page == "Финансовая сводка":
         st.error(f"В таблице расходов не хватает колонок: {', '.join(sorted(missing_expenses))}")
         st.stop()
 
-    # --- ПРИВОДИМ ТИПЫ ---
     sales["Дата"] = pd.to_datetime(sales["Дата"], errors="coerce", dayfirst=True)
     expenses["Дата"] = pd.to_datetime(expenses["Дата"], errors="coerce", dayfirst=True)
 
-    numeric_sales_cols = ["Себестоимость", "РРЦ", "Комиссия Kaspi", "Чистая прибыль"]
-    for col in numeric_sales_cols:
+    for col in ["Себестоимость", "РРЦ", "Комиссия Kaspi", "Чистая прибыль"]:
         sales[col] = pd.to_numeric(sales[col], errors="coerce").fillna(0)
 
     expenses["Сумма"] = pd.to_numeric(expenses["Сумма"], errors="coerce").fillna(0)
 
     sales["Каспий"] = sales["Каспий"].astype(str).str.strip()
     sales["Наименование"] = sales["Наименование"].astype(str).str.strip()
-    sales["Комментарий"] = sales["Комментарий"].astype(str).str.strip() if "Комментарий" in sales.columns else ""
+
+    if "Комментарий" in sales.columns:
+        sales["Комментарий"] = sales["Комментарий"].astype(str).str.strip()
+    else:
+        sales["Комментарий"] = ""
+
     sales["Бренд"] = sales["Наименование"].apply(detect_brand)
 
     sales = sales.dropna(subset=["Дата"])
@@ -331,7 +326,6 @@ elif page == "Финансовая сводка":
         st.warning("В таблице продаж нет корректных дат.")
         st.stop()
 
-    # --- ФИЛЬТРЫ ---
     st.subheader("Фильтры")
 
     min_date = sales["Дата"].min().date()
@@ -356,7 +350,6 @@ elif page == "Финансовая сводка":
         st.error("Дата 'С' не может быть позже даты 'По'")
         st.stop()
 
-    # --- ПРИМЕНЕНИЕ ФИЛЬТРОВ К ПРОДАЖАМ ---
     filtered_sales = sales[
         (sales["Дата"].dt.date >= date_from) &
         (sales["Дата"].dt.date <= date_to)
@@ -368,36 +361,29 @@ elif page == "Финансовая сводка":
     if selected_brand != "Все":
         filtered_sales = filtered_sales[filtered_sales["Бренд"] == selected_brand]
 
-    # --- ПРИМЕНЕНИЕ ФИЛЬТРОВ К РАСХОДАМ ---
     filtered_expenses = expenses[
         (expenses["Дата"].dt.date >= date_from) &
         (expenses["Дата"].dt.date <= date_to)
     ].copy()
 
-    # --- ОСНОВНЫЕ МЕТРИКИ ---
     revenue = filtered_sales["РРЦ"].sum()
     gross_profit = filtered_sales["Чистая прибыль"].sum()
     total_expenses = filtered_expenses["Сумма"].sum()
     net_profit = gross_profit - total_expenses
 
-    # --- ЛОГИКА ДЕЛЕНИЯ ---
-    comment_series = filtered_sales["Комментарий"].astype(str) if "Комментарий" in filtered_sales.columns else pd.Series("", index=filtered_sales.index)
+    comment_series = filtered_sales["Комментарий"].astype(str)
 
     shared_mask = (
         filtered_sales["Бренд"].eq("Ariston") |
         comment_series.str.contains(r"\+", na=False)
     )
 
-    stas_profit = (filtered_sales.loc[shared_mask, "Чистая прибыль"].sum() * 0.5)
+    stas_profit = filtered_sales.loc[shared_mask, "Чистая прибыль"].sum() * 0.5
     alexey_profit = (
         filtered_sales.loc[shared_mask, "Чистая прибыль"].sum() * 0.5
         + filtered_sales.loc[~shared_mask, "Чистая прибыль"].sum()
     )
 
-    # расходы пока вычитаем общим итогом только в чистой прибыли
-    # персональное деление расходов можно добавить следующим шагом
-
-    # --- КАРТОЧКИ ---
     c1, c2, c3 = st.columns(3)
     c4, c5 = st.columns(2)
 
@@ -456,20 +442,18 @@ elif page == "Финансовая сводка":
             unsafe_allow_html=True,
         )
 
-    # --- ДОП. ИНФО ---
-    col_x, col_y, col_z = st.columns(3)
-    col_x.metric("Расходы", format_money(total_expenses))
-    col_y.metric("Сделок", len(filtered_sales))
+    x1, x2, x3 = st.columns(3)
+    x1.metric("Расходы", format_money(total_expenses))
+    x2.metric("Сделок", len(filtered_sales))
     avg_margin = (gross_profit / revenue * 100) if revenue > 0 else 0
-    col_z.metric("Средняя маржа %", f"{avg_margin:.1f}")
+    x3.metric("Средняя маржа %", f"{avg_margin:.1f}")
 
-    # --- ПОСЛЕДНИЕ ПРОДАЖИ ---
     st.subheader("Последние продажи")
 
-    preview_cols = [
-        "Дата", "Каспий", "Бренд", "Наименование", "РРЦ", "Чистая прибыль"
-    ]
-    sales_preview = filtered_sales[preview_cols].sort_values("Дата", ascending=False).head(10).copy()
+    sales_preview = filtered_sales[
+        ["Дата", "Каспий", "Бренд", "Наименование", "РРЦ", "Чистая прибыль"]
+    ].sort_values("Дата", ascending=False).head(10).copy()
+
     sales_preview["Дата"] = sales_preview["Дата"].dt.strftime("%d.%m.%Y")
 
     st.dataframe(
@@ -478,10 +462,12 @@ elif page == "Финансовая сводка":
         hide_index=True
     )
 
-    # --- ПОСЛЕДНИЕ РАСХОДЫ ---
     st.subheader("Последние расходы")
 
-    expenses_preview = filtered_expenses[["Дата", "Тип расхода", "Сумма"]].sort_values("Дата", ascending=False).head(10).copy()
+    expenses_preview = filtered_expenses[
+        ["Дата", "Тип расхода", "Сумма"]
+    ].sort_values("Дата", ascending=False).head(10).copy()
+
     expenses_preview["Дата"] = expenses_preview["Дата"].dt.strftime("%d.%m.%Y")
 
     st.dataframe(
@@ -489,3 +475,4 @@ elif page == "Финансовая сводка":
         use_container_width=True,
         hide_index=True
     )
+    
