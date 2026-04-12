@@ -332,6 +332,8 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 sales_raw, expenses_raw = load_data()
 df = load_sales_dataframe(sales_raw)
 exp = load_expenses_dataframe(expenses_raw)
+st.write("Столбцы продаж:", list(df.columns))
+st.write("Уникальные каналы:", df["Канал"].dropna().unique().tolist() if "Канал" in df.columns else "Колонки Канал нет")
 
 valid_dates = df["Дата"].dropna()
 if valid_dates.empty:
