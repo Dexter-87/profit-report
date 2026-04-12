@@ -19,8 +19,7 @@ if page == "Создать заказ":
     st.title("Создать заказ")
     st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
-    st.header("Создать заказ")
-
+   
 url = "https://docs.google.com/spreadsheets/d/1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq/export?format=csv&gid=115078867"
 df = pd.read_csv(url)
 df.columns = df.columns.str.strip()
@@ -51,7 +50,7 @@ st.write(f"Сумма: {total}")
 
 if st.button("Добавить в заказ"):
     st.success(f"{model} ({price_type}) x {qty} добавлено")
-
+st.stop()
 
 
 # =========================
