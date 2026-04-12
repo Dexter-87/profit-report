@@ -818,7 +818,6 @@ with tab1:
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
 with tab2:
-st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
 PRICE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
