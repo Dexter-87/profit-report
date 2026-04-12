@@ -145,6 +145,47 @@ ul[role="listbox"] li {
     border-color: #4b5568 !important;
     color: #ffffff !important;
 }
+/* EXPANDER — всегда темный, и в закрытом, и в открытом состоянии */
+div[data-testid="stExpander"] details {
+    background: #1d2330 !important;
+    border: 1px solid #2f3747 !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+}
+
+div[data-testid="stExpander"] details summary {
+    background: #1d2330 !important;
+    color: #f3f4f6 !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 14px 18px !important;
+}
+
+div[data-testid="stExpander"] details[open] summary {
+    background: #1d2330 !important;
+    color: #f3f4f6 !important;
+    border-bottom: 1px solid #2f3747 !important;
+}
+
+div[data-testid="stExpander"] details summary:hover {
+    background: #1d2330 !important;
+    color: #ffffff !important;
+}
+
+div[data-testid="stExpander"] details summary span {
+    color: #f3f4f6 !important;
+}
+
+/* убираем белую подложку внутри */
+div[data-testid="stExpander"] > div {
+    background: transparent !important;
+}
+
+/* стрелка expander */
+div[data-testid="stExpander"] details summary svg {
+    fill: #9ca3af !important;
+    color: #9ca3af !important;
+}
 
 
 </style>
