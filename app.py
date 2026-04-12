@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
 import io
+import plotly.express as px
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 page = st.sidebar.selectbox(
     "Раздел",
@@ -673,31 +674,26 @@ if not df.empty:
     )
 
     if not daily_df.empty:
-        labels = daily_df["Дата"].dt.strftime("%d.%m")
+        daily_df["Дата_подпись"] = daily_df["Дата"].dt.strftime("%d.%m")
 
-        fig, ax = plt.subplots(figsize=(10, 4))
-        fig.patch.set_facecolor("#151922")
-        ax.set_facecolor("#151922")
+        fig = px.line(
+            daily_df,
+            x="Дата_подпись",
+            y="Прибыль",
+            markers=True
+        )
 
-        ax.plot(daily_df["Дата"], daily_df["Прибыль"], marker="o", color="#34d399", linewidth=2)
+        fig.update_layout(
+            paper_bgcolor="#151922",
+            plot_bgcolor="#151922",
+            font=dict(color="#cbd5e1"),
+            margin=dict(l=20, r=20, t=20, b=20),
+            xaxis_title="Дата",
+            yaxis_title="Прибыль"
+        )
 
-        ax.set_xlabel("Дата", color="#cbd5e1")
-        ax.set_ylabel("Прибыль", color="#cbd5e1")
-        ax.tick_params(colors="#cbd5e1")
-        ax.grid(True, alpha=0.2, color="#2f3747")
+        st.plotly_chart(fig, use_container_width=True)
 
-        for spine in ax.spines.values():
-            spine.set_color("#2f3747")
-
-        ax.set_xticks(daily_df["Дата"])
-        ax.set_xticklabels(labels, rotation=45, ha="right")
-
-        plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
-    else:
-        st.info("Нет данных для графика.")
-else:
-    st.info("Нет данных для графика.")
 
 # =========================
 # ТОП-5
