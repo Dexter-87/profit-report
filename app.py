@@ -317,7 +317,7 @@ if df["Канал"].eq("").all():
     df["Плюс"] = df["Комментарий"] == "+"
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
-    return df
+return df
 
 def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     exp = normalize_columns(data)
