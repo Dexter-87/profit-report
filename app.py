@@ -15,10 +15,11 @@ st.markdown("""
 }
 
 .block-container {
-    padding-top: 1.2rem;
+    padding-top: calc(2.8rem + env(safe-area-inset-top));
     padding-bottom: 2rem;
     max-width: 1400px;
 }
+
 
 a.anchor-link {
     display: none !important;
@@ -33,10 +34,11 @@ h1, h2, h3 {
     font-size: 40px;
     font-weight: 800;
     color: #f9fafb;
-    margin-top: 4px;
+    margin-top: 0;
     margin-bottom: 6px;
     line-height: 1.05;
 }
+
 
 .sub-title {
     font-size: 16px;
@@ -199,9 +201,13 @@ div[data-testid="stExpander"] details summary svg {
 }
 
 @media (max-width: 768px) {
+    .block-container {
+        padding-top: calc(4.2rem + env(safe-area-inset-top));
+    }
+
     .main-title {
         font-size: 28px;
-        margin-top: 8px;
+        margin-top: 0;
     }
 
     .sub-title {
@@ -213,6 +219,7 @@ div[data-testid="stExpander"] details summary svg {
         font-size: 26px;
     }
 }
+
 div[data-testid="stDateInput"] input {
     caret-color: transparent !important;
 }
