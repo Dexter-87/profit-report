@@ -546,7 +546,7 @@ with k1:
 with k2:
     st.markdown(f"""
     <div class="card">
-        <div class="card-title">Мой чистый</div>
+        <div class="card-title">Стас чистый доход</div>
         <div class="card-value">{format_money(my_net)} ₸</div>
     </div>
     """, unsafe_allow_html=True)
@@ -554,7 +554,7 @@ with k2:
 with k3:
     st.markdown(f"""
     <div class="card">
-        <div class="card-title">Алексей чистый</div>
+        <div class="card-title">Алексей чистый доход</div>
         <div class="card-value value-blue">{format_money(alex_net)} ₸</div>
     </div>
     """, unsafe_allow_html=True)
