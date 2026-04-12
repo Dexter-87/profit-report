@@ -3,7 +3,6 @@ import streamlit as st
 from matplotlib import pyplot as plt
 import io
 import plotly.express as px
-import ploty.graph_objects as go
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 page = st.sidebar.selectbox(
     "Раздел",
@@ -676,40 +675,22 @@ if not df.empty:
 
     if not daily_df.empty:
         daily_df["Дата_подпись"] = daily_df["Дата"].dt.strftime("%d.%m")
-        daily_df["Сумма_подпись"] = daily_df["Прибыль"].apply(
-            lambda x: f"{x:,.0f} ₸".replace(",", " ")
-        )
 
-        max_value = daily_df["Прибыль"].max()
-        daily_df["Текст"] = daily_df["Прибыль"].apply(
-            lambda x: f"{x:,.0f} ₸".replace(",", " ") if x >= max_value * 0.65 else ""
-        )
-
-        fig = go.Figure()
-
-        fig.add_trace(
-            go.Scatter(
-                x=daily_df["Дата_подпись"].tolist(),
-                y=daily_df["Прибыль"].tolist(),
-                mode="lines+markers+text",
-                text=daily_df["Текст"].tolist(),
-                textposition="top center",
-                line=dict(width=3, color="#1e88e5"),
-                marker=dict(size=8, color="#1e88e5"),
-                hovertemplate="<b>%{x}</b><br>Прибыль: %{y:,.0f} ₸<extra></extra>"
-            )
+        fig = px.line(
+            daily_df,
+            x="Дата_подпись",
+            y="Прибыль",
+            markers=True,
+            height=320
         )
 
         fig.update_layout(
-            height=320,
             paper_bgcolor="#151922",
             plot_bgcolor="#151922",
             font=dict(color="#cbd5e1"),
             margin=dict(l=10, r=10, t=20, b=10),
             xaxis_title="Дата",
-            yaxis_title="Прибыль, ₸",
-            xaxis=dict(type="category"),
-            yaxis=dict(tickformat=",")
+            yaxis_title="Прибыль, ₸"
         )
 
         st.plotly_chart(
