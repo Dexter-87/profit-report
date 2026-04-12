@@ -661,12 +661,12 @@ with st.expander("Быстрый отчет"):
     </div>
 
     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aab2bf;">Мой чистый</span>
+        <span style="color:#aab2bf;">Стас чистый доход</span>
         <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
     </div>
 
     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <span style="color:#aab2bf;">Алексей чистый</span>
+        <span style="color:#aab2bf;">Алексей чистый доход</span>
         <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
     </div>
 
