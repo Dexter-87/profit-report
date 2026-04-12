@@ -1,7 +1,8 @@
 import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
-
+st.sidebar.success("НОВАЯ ВЕРСИЯ")
+st.write("ТЕСТ НОВОГО КОДА")
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 
 # =========================
