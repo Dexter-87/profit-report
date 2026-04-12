@@ -432,13 +432,11 @@ st.markdown('<div class="sub-title">Продажи • Прибыль • Рен
 
 top_left, top_right = st.columns([1, 1])
 
-with top_left:
-    if st.button("Обновить данные"):
-        st.cache_data.clear()
-        st.rerun()
+if st.button("Обновить данные"):
+    st.cache_data.clear()
+    st.rerun()
 
-with top_right:
-    st.caption("Кэш обновляется примерно раз в 60 секунд")
+st.caption("Кэш обновляется примерно раз в 60 секунд")
 
 # =========================
 # ФИЛЬТРЫ
