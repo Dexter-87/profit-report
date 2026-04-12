@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 
 # ---------- СТИЛИ ----------
-st.markdown(f"""
+st.markdown("""
 <style>
 .stApp {
     background: #151922;
