@@ -15,15 +15,11 @@ def load_price_from_google(file_id: str) -> pd.DataFrame:
     df.columns = df.columns.astype(str).str.strip()
     return df
 
-# =========================
-# СОЗДАТЬ ЗАКАЗ
-# =========================
 if page == "Создать заказ":
     st.title("Создать заказ")
     st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
     TEEG_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
-
     df = load_price_from_google(TEEG_FILE_ID)
 
     brands = df["Бренд"].unique()
@@ -51,15 +47,12 @@ if page == "Создать заказ":
     if st.button("Добавить в заказ"):
         st.success(f"{model} ({price_type}) x {qty} добавлено")
 
-
-# =========================
-# ФИНАНСОВАЯ СВОДКА
-# =========================
 elif page == "Финансовая сводка":
     st.title("Финансовая сводка")
-    st.write("Здесь будет твоя аналитика")
+    st.caption("Продажи • Прибыль • Рентабельность")
 
-    st.info("Пока заглушка. Потом подключим BI данные 💪")
+    st.info("Сводку вернем следующим шагом. Сейчас главное — развести экраны по разделам.")
+
 
 
 
