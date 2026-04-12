@@ -690,7 +690,7 @@ if not df.empty:
             font=dict(color="#cbd5e1"),
             margin=dict(l=10, r=10, t=30, b=10),
             xaxis_title="Дата",
-            yaxis_title="Прибыль"
+            yaxis_title="Прибыль",
             xaxis_tickangle=-30
         )
 
