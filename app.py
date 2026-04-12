@@ -675,33 +675,42 @@ if not df.empty:
 
     if not daily_df.empty:
         daily_df["Дата_подпись"] = daily_df["Дата"].dt.strftime("%d.%m")
+        daily_df["Подпись_суммы"] = daily_df["Прибыль"].apply(
+            lambda x: f"{x:,.0f} ₸".replace(",", " ")
+        )
 
         fig = px.line(
             daily_df,
             x="Дата_подпись",
             y="Прибыль",
             markers=True,
-            height=300
+            height=320
+        )
+
+        fig.update_traces(
+            text=daily_df["Подпись_суммы"],
+            textposition="top center",
+            line=dict(width=3),
+            marker=dict(size=8)
         )
 
         fig.update_layout(
             paper_bgcolor="#151922",
             plot_bgcolor="#151922",
             font=dict(color="#cbd5e1"),
-            margin=dict(l=10, r=10, t=30, b=10),
+            margin=dict(l=10, r=10, t=20, b=10),
             xaxis_title="Дата",
-            yaxis_title="Прибыль",
-            xaxis_tickangle=-30
+            yaxis_title="Прибыль, ₸"
         )
 
         st.plotly_chart(
-    fig,
-    use_container_width=True,
-    config={
-        "displayModeBar": False,   # убрать кнопки сверху
-        "staticPlot": True         # полностью отключить взаимодействие
-    }
-)
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": False,
+                "staticPlot": True
+            }
+        )
 
 
 
