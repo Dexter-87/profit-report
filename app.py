@@ -133,6 +133,19 @@ ul[role="listbox"] li {
     color: #f3f4f6 !important;
     background: #1d2330 !important;
 }
+.stButton > button {
+    background: #1d2330 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #2f3747 !important;
+    border-radius: 14px !important;
+    font-weight: 600 !important;
+}
+
+.stButton > button:hover {
+    border-color: #4b5568 !important;
+    color: #ffffff !important;
+}
+
 
 </style>
 """, unsafe_allow_html=True)
