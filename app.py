@@ -285,6 +285,22 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
     df["Дата"] = parse_mixed_dates(df[date_col])
     df["Канал"] = df[channel_col].fillna("").astype(str).str.strip()
+    # Если колонка Канал пустая — определяем канал автоматически
+if df["Канал"].eq("").all():
+    kaspi_mask = pd.Series(False, index=df.index)
+
+    if "Комиссия Kaspi" in df.columns:
+        kaspi_mask = kaspi_mask | (pd.to_numeric(df["Комиссия Kaspi"], errors="coerce").fillna(0) > 0)
+
+    if "Номер заказа" in df.columns:
+        kaspi_mask = kaspi_mask | (df["Номер заказа"].fillna("").astype(str).str.strip() != "")
+
+    if "Каспий" in df.columns:
+        kaspi_mask = kaspi_mask | (df["Каспий"].fillna("").astype(str).str.strip() != "")
+
+    df.loc[kaspi_mask, "Канал"] = "Каспий"
+    df.loc[~kaspi_mask, "Канал"] = "ОПТ"
+
     df["Наименование"] = df[name_col].fillna("").astype(str).str.strip()
     df["Себестоимость"] = pd.to_numeric(df[cost_col], errors="coerce").fillna(0)
     df["РРЦ"] = pd.to_numeric(df[rrc_col], errors="coerce").fillna(0)
