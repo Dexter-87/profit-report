@@ -817,7 +817,7 @@ with tab1:
 # =========================
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
-
+with tab2:
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
