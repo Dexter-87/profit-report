@@ -213,11 +213,10 @@ div[data-testid="stExpander"] details summary svg {
         font-size: 26px;
     }
 }
-/* Убираем ручной ввод в date_input на мобильном */
 div[data-testid="stDateInput"] input {
-    pointer-events: none !important;
     caret-color: transparent !important;
 }
+
 
 </style>
 """, unsafe_allow_html=True)
