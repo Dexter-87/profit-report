@@ -99,9 +99,8 @@ def format_money(value: float | int) -> str:
 
 @st.cache_data(ttl=60)
 def load_sheet_csv(url: str) -> pd.DataFrame:
-    df = pd.read_csv(url)
-    df.columns = df.columns.astype(str).str.strip()
-    return df
+    return pd.read_csv(url)
+
 
 
 @st.cache_data(ttl=60)
@@ -277,8 +276,14 @@ elif page == "Финансовая сводка":
     )
 
     try:
-        sales = load_sheet_csv(SALES_URL)
-        expenses = load_sheet_csv(EXPENSES_URL)
+        sales = load_sheet_csv(
+    "https://docs.google.com/spreadsheets/d/1D26s-VjLPvg43z-Hk38fU7Y4tPFZ9h-UfFjJzQnvtB0/gviz/tq?tqx=out:csv&gid=1240951053"
+)
+
+        expenses = load_sheet_csv(
+    "https://docs.google.com/spreadsheets/d/1AuxP3Qgk-zzOVOZChdwZ1udx4A8o01k3-w8_8TfJxK0/gviz/tq?tqx=out:csv&gid=1622934317"
+)
+
     except Exception as e:
         st.error(f"Ошибка загрузки таблиц: {e}")
         st.stop()
