@@ -1,66 +1,100 @@
 import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
+import io
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 page = st.sidebar.selectbox(
     "Раздел",
     ["Финансовая сводка", "Создать заказ"]
 )
+@st.cache_data(ttl=60)
+def load_price_from_google(file_id: str) -> pd.DataFrame:
+    url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx"
+    df = pd.read_excel(url)
+    df.columns = df.columns.astype(str).str.strip()
+    return df
+
 if page == "Создать заказ":
     st.title("Создать заказ")
-    st.caption("Подбор модели, типа цены и расчёт суммы")
+    st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
-    PRICE_FILE = "teeg_price.xlsx"
+    TIG_FILE_ID = "1M2RAZDDdYwPDr92o2E27em3-PDqD4JnR"
+    ARISTON_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
 
-    try:
-        price_df = pd.read_excel(PRICE_FILE)
-    except FileNotFoundError:
-        st.error("Файл teeg_price.xlsx не найден в репозитории.")
-        st.info("Добавь teeg_price.xlsx в корень проекта рядом с app.py")
-        st.stop()
-
-    price_df.columns = price_df.columns.astype(str).str.strip()
-
-    required_columns = ["Модель", "Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
-    missing_columns = [col for col in required_columns if col not in price_df.columns]
-
-    if missing_columns:
-        st.error(f"В прайс-листе не хватает колонок: {', '.join(missing_columns)}")
-        st.stop()
-
-    price_df["Модель"] = price_df["Модель"].fillna("").astype(str).str.strip()
-    price_df = price_df[price_df["Модель"] != ""].copy()
-
-    for col in ["Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]:
-        price_df[col] = pd.to_numeric(price_df[col], errors="coerce").fillna(0)
-
-    model = st.selectbox("Модель", price_df["Модель"].tolist())
-
-    price_type = st.selectbox(
-        "Тип цены",
-        ["Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
+    price_source = st.selectbox(
+        "Прайс",
+        ["TIG", "Ariston"]
     )
 
-    qty = st.number_input("Количество", min_value=1, value=1, step=1)
+    if price_source == "TIG":
+        price_df = load_price_from_google(TIG_FILE_ID)
 
-    selected_row = price_df[price_df["Модель"] == model].iloc[0]
-    price = float(selected_row[price_type])
-    total = price * qty
+        required_columns = ["Модель", "Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
+        missing_columns = [col for col in required_columns if col not in price_df.columns]
 
-    col1, col2 = st.columns(2)
-    col1.metric("Цена", f"{price:,.0f}".replace(",", " "))
-    col2.metric("Сумма", f"{total:,.0f}".replace(",", " "))
+        if missing_columns:
+            st.error(f"В TIG-прайсе не хватает колонок: {', '.join(missing_columns)}")
+            st.stop()
 
-    with st.expander("Показать все цены по модели"):
-        st.write({
-            "Цена_0": f"{selected_row['Цена_0']:,.0f}".replace(",", " "),
-            "Цена_1": f"{selected_row['Цена_1']:,.0f}".replace(",", " "),
-            "Цена_2": f"{selected_row['Цена_2']:,.0f}".replace(",", " "),
-            "Цена_3": f"{selected_row['Цена_3']:,.0f}".replace(",", " "),
-            "Цена_4": f"{selected_row['Цена_4']:,.0f}".replace(",", " "),
-        })
+        price_df["Модель"] = price_df["Модель"].fillna("").astype(str).str.strip()
+        price_df = price_df[price_df["Модель"] != ""].copy()
+
+        for col in ["Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]:
+            price_df[col] = pd.to_numeric(price_df[col], errors="coerce").fillna(0)
+
+        model = st.selectbox("Модель", price_df["Модель"].tolist())
+
+        price_type = st.selectbox(
+            "Тип цены",
+            ["Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
+        )
+
+        qty = st.number_input("Количество", min_value=1, value=1, step=1)
+
+        selected_row = price_df[price_df["Модель"] == model].iloc[0]
+        price = float(selected_row[price_type])
+        total = price * qty
+
+        c1, c2 = st.columns(2)
+        c1.metric("Цена", f"{price:,.0f}".replace(",", " "))
+        c2.metric("Сумма", f"{total:,.0f}".replace(",", " "))
+
+        with st.expander("Показать все цены по модели"):
+            st.write({
+                "Цена_0": f"{selected_row['Цена_0']:,.0f}".replace(",", " "),
+                "Цена_1": f"{selected_row['Цена_1']:,.0f}".replace(",", " "),
+                "Цена_2": f"{selected_row['Цена_2']:,.0f}".replace(",", " "),
+                "Цена_3": f"{selected_row['Цена_3']:,.0f}".replace(",", " "),
+                "Цена_4": f"{selected_row['Цена_4']:,.0f}".replace(",", " "),
+            })
+
+    else:
+        price_df = load_price_from_google(ARISTON_FILE_ID)
+
+        required_columns = ["Модель", "Цена_1"]
+        missing_columns = [col for col in required_columns if col not in price_df.columns]
+
+        if missing_columns:
+            st.error(f"В Ariston-прайсе не хватает колонок: {', '.join(missing_columns)}")
+            st.stop()
+
+        price_df["Модель"] = price_df["Модель"].fillna("").astype(str).str.strip()
+        price_df = price_df[price_df["Модель"] != ""].copy()
+        price_df["Цена_1"] = pd.to_numeric(price_df["Цена_1"], errors="coerce").fillna(0)
+
+        model = st.selectbox("Модель", price_df["Модель"].tolist())
+        qty = st.number_input("Количество", min_value=1, value=1, step=1)
+
+        selected_row = price_df[price_df["Модель"] == model].iloc[0]
+        price = float(selected_row["Цена_1"])
+        total = price * qty
+
+        c1, c2 = st.columns(2)
+        c1.metric("Цена", f"{price:,.0f}".replace(",", " "))
+        c2.metric("Сумма", f"{total:,.0f}".replace(",", " "))
 
     st.stop()
+
 
 # =========================
 # СТИЛИ
