@@ -18,8 +18,8 @@ if page == "Создать заказ":
     st.title("Создать заказ")
     st.caption("Выбор прайса, модели, количества и расчёт суммы")
 
-    Teeg_FILE_ID = "1M2RAZDDdYwPDr92o2E27em3-PDqD4JnR"
-    ARISTON_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
+    Teeg_FILE_ID = "1a4rIkdUUNjdO21CmKNb71FctyTdr2JMq"
+    ARISTON_FILE_ID = "1M2RAZDDdYwPDr92o2E27em3-PDqD4JnR"
 
     price_source = st.selectbox(
         "Прайс",
@@ -28,10 +28,7 @@ if page == "Создать заказ":
 
     if price_source == "Teeg":
         price_df = load_price_from_google(Teeg_FILE_ID)
-        st.write("Источник:", price_source)
-        st.write("Колонки:", price_df.columns.tolist())
-        st.write(price_df.head(3))
-
+        
 
         required_columns = ["Модель", "Цена_0", "Цена_1", "Цена_2", "Цена_3", "Цена_4"]
         missing_columns = [col for col in required_columns if col not in price_df.columns]
