@@ -681,15 +681,17 @@ if not df.empty:
             x="Дата_подпись",
             y="Прибыль",
             markers=True
+            height=300
         )
 
         fig.update_layout(
             paper_bgcolor="#151922",
             plot_bgcolor="#151922",
             font=dict(color="#cbd5e1"),
-            margin=dict(l=20, r=20, t=20, b=20),
+            margin=dict(l=10, r=10, t=30, b=10),
             xaxis_title="Дата",
             yaxis_title="Прибыль"
+            xaxis_tickangle=-30
         )
 
         st.plotly_chart(fig, use_container_width=True)
@@ -719,7 +721,7 @@ if not df.empty:
             paper_bgcolor="#151922",
             plot_bgcolor="#151922",
             font=dict(color="#cbd5e1"),
-            margin=dict(l=20, r=20, t=20, b=20),
+            margin=dict(l=10, r=10, t=30, b=10),
             xaxis_title="Товар",
             yaxis_title="Прибыль"
         )
