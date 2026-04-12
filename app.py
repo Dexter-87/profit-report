@@ -694,7 +694,15 @@ if not df.empty:
             xaxis_tickangle=-30
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(
+    fig,
+    use_container_width=True,
+    config={
+        "displayModeBar": False,   # убрать кнопки сверху
+        "staticPlot": True         # полностью отключить взаимодействие
+    }
+)
+
 
 
 # =========================
