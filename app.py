@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 
 # ---------- СТИЛИ ----------
-st.markdown("""
+st.markdown(f"""
 <style>
 .stApp {
     background: #151922;
@@ -483,30 +483,30 @@ end_date_text = date_to.strftime("%d.%m.%Y")
 with st.expander("Быстрый отчет"):
     st.markdown(f"""
     <div class="section-box">
-        <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
-            Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-        </div>
+    <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
+        Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+    </div>
 
-        <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
-            Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-        </div>
+    <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
+        Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+    </div>
 
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="color:#aab2bf;">Мой чистый</span>
-            <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-        </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="color:#aab2bf;">Мой чистый</span>
+        <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
+    </div>
 
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="color:#aab2bf;">Алексей чистый</span>
-            <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-        </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="color:#aab2bf;">Алексей чистый</span>
+        <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+    </div>
 
-        <hr>
+    <hr>
 
-        <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-            <span style="color:#f3f4f6;">Итого</span>
-            <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-        </div>
+    <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+        <span style="color:#f3f4f6;">Итого</span>
+        <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+    </div>
     </div>
     """, unsafe_allow_html=True)
 
