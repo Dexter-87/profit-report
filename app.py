@@ -937,13 +937,12 @@ with b3:
 
     if st.button("Сохранить накладную в Excel"):
 
-    if st.session_state.invoice_items:
+        if st.session_state.invoice_items:
 
             file_path = "orders.xlsx"
-
             invoice_df = pd.DataFrame(st.session_state.invoice_items)
 
-            # ЧИСТАЯ структура накладной
+            # Чистая структура накладной
             final_columns = [
                 "Дата",
                 "Бренд",
@@ -962,21 +961,17 @@ with b3:
 
             invoice_df = invoice_df[final_columns].copy()
 
-            # Перезаписываем файл (без мусора)
+            # Перезаписываем файл
             invoice_df.to_excel(file_path, index=False)
 
             st.success("Накладная сохранена")
 
-            # Включаем кнопку скачивания
             st.session_state.saved_invoice_ready = True
-
-            # ОЧИЩАЕМ текущую накладную
             st.session_state.invoice_items = []
 
         else:
             st.warning("Накладная пустая")
 
-    # КНОПКА СКАЧИВАНИЯ (появляется после сохранения)
     if st.session_state.saved_invoice_ready:
         with open("orders.xlsx", "rb") as f:
             st.download_button(
@@ -985,3 +980,4 @@ with b3:
                 file_name="orders.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
