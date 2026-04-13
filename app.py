@@ -958,7 +958,7 @@ if st.button("Сохранить в Excel"):
     new_df = pd.concat([old_df, pd.DataFrame([excel_row])], ignore_index=True)
     new_df.to_excel(excel_file, index=False)
 
-        st.success("Сохранено в Excel")
+    st.success("Сохранено в Excel")
 
     with c2:
         if st.button("Добавить в отчет", key="add_to_report"):
