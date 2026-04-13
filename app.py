@@ -931,28 +931,36 @@ with tab2:
 
     with b3:
         if st.button("Сохранить накладную в Excel"):
-            if st.session_state.invoice_items:
-                file_path = "orders.xlsx"
-                invoice_df = pd.DataFrame(st.session_state.invoice_items)
+    if st.session_state.invoice_items:
+        file_path = "orders.xlsx"
 
-                if os.path.exists(file_path):
-                    old_df = pd.read_excel(file_path)
-                    new_df = pd.concat([old_df, invoice_df], ignore_index=True)
-                else:
-                    new_df = invoice_df.copy()
+        invoice_df = pd.DataFrame(st.session_state.invoice_items)
 
-                new_df.to_excel(file_path, index=False)
-                st.success("Накладная сохранена в Excel")
+        # Оставляем только нужные колонки и в нужном порядке
+        final_columns = ["Дата", "Бренд", "Модель", "Тип цены", "Количество", "Цена", "Сумма", "Комментарий"]
 
-                with open(file_path, "rb") as f:
-                    st.download_button(
-                        "Скачать накладную",
-                        data=f,
-                        file_name="orders.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
+        for col in final_columns:
+            if col not in invoice_df.columns:
+                invoice_df[col] = ""
 
-                st.session_state.invoice_items = []
-            else:
-                st.warning("Накладная пустая")
+        invoice_df = invoice_df[final_columns].copy()
+
+        # Перезаписываем файл заново, без старого мусора
+        invoice_df.to_excel(file_path, index=False)
+
+        st.success("Накладная сохранена в Excel")
+
+        with open(file_path, "rb") as f:
+            st.download_button(
+                "Скачать накладную",
+                data=f,
+                file_name="orders.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+        # очищаем текущую накладную после сохранения
+        st.session_state.invoice_items = []
+    else:
+        st.warning("Накладная пустая")
+
 
