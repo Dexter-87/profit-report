@@ -923,7 +923,7 @@ with tab1:
         """, unsafe_allow_html=True)
 
     
-    comment = st.text_input("Комментарий", value="", key="price_comment")
+    comment = st.text_input("Комментарий", value="", key="price_comment_v2")
 
   
     current_row = {
