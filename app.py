@@ -27,10 +27,28 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     sh = gc.open(spreadsheet_name)
     ws = sh.worksheet(worksheet_name)
 
-    rows = df.fillna("").values.tolist()
-    ws.append_rows(rows, value_input_option="USER_ENTERED")
+    # Пишем только в нужные столбцы: A, B, C, D, E, F, G, I
+    rows = []
+    for _, row in df.iterrows():
+        rows.append([
+            row["Дата"],              # A
+            row["Канал"],             # B
+            row["Наименование"],      # C
+            "",                       # D - Номер заказа пустой
+            row["Себестоимость"],     # E
+            row["РРЦ"],               # F
+            row["Комиссия Kaspi"],    # G
+            row["Комментарий"],       # I
+        ])
 
-st.set_page_config(page_title="Финансовая сводка", layout="wide")
+    # append_rows пишет подряд, поэтому пишем в диапазон A:G и I через update построчно
+    next_row = len(ws.get_all_values()) + 1
+
+    for i, r in enumerate(rows):
+        current_row = next_row + i
+        ws.update(f"A{current_row}:G{current_row}", [r[:7]])
+        ws.update(f"I{current_row}", [[r[7]]])
+
 
 # =========================
 # СТИЛИ
@@ -1105,25 +1123,21 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
         if "Комментарий" not in df_to_save.columns:
             df_to_save["Комментарий"] = ""
 
-        if "Количество" not in df_to_save.columns:
-            df_to_save["Количество"] = 1
+        # Себестоимость берем из суммы позиции
+        df_to_save["Себестоимость"] = df_to_save["Сумма"]
 
-        if "Номер заказа" not in df_to_save.columns:
-            df_to_save["Номер заказа"] = ""
-
+        # Для ОПТ комиссия 0
         df_to_save["Комиссия Kaspi"] = 0
-        df_to_save["Себестоимость"] = 0
 
+        # Оставляем только то, что реально нужно для записи
         df_to_save = df_to_save[
             [
                 "Дата",
                 "Канал",
                 "Наименование",
-                "Номер заказа",
-                "Количество",
+                "Себестоимость",
                 "РРЦ",
                 "Комиссия Kaspi",
-                "Себестоимость",
                 "Комментарий",
             ]
         ]
@@ -1133,6 +1147,7 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
             st.success("✅ Продажи добавлены в Google Sheets")
         except Exception as e:
             st.error(f"Ошибка записи в Google Sheets: {e}")
+
 
 
 
