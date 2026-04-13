@@ -962,12 +962,11 @@ st.markdown(f"""
         <div class="card-value">{format_money(total_sum)} ₸</div>
     </div>
 """, unsafe_allow_html=True)
-
-comment = st.text_input("Комментарий", value="")
-
+    comment = st.text_input("Комментарий", value="")
 
 
-current_row = {
+
+    current_row = {
         "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
         "Бренд": brand,
         "Модель": model,
