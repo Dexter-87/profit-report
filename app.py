@@ -1063,7 +1063,7 @@ if st.session_state.saved_invoice_ready:
         )
 
     # 👇 ВАЖНО: это уже ВНЕ with
-    if st.button("➕ Добавить в продажи (ОПТ)"):
+if st.button("➕ Добавить в продажи (ОПТ)"):
     st.write("Кнопка нажата")
 
     if not st.session_state.invoice_items:
