@@ -821,13 +821,13 @@ with tab1:
         if "invoice_items" not in st.session_state:
            st.session_state.invoice_items = []
 
-    st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
+        st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
-    PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
-    PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv"
+        PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+        PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv"
 
-    @st.cache_data(ttl=60)
-    def load_price():
+        @st.cache_data(ttl=60)
+        def load_price():
         df1 = pd.read_csv(PRICE_URL_TEEG)
         df2 = pd.read_csv(PRICE_URL_ARISTON)
 
@@ -840,11 +840,11 @@ with tab1:
         return df
 
 
-    price_df = load_price()
+        price_df = load_price()
 
-    price_df = price_df.fillna("")
+        price_df = price_df.fillna("")
 
-    for col in ["Бренд", "Модель", "ТипЦены"]:
+        for col in ["Бренд", "Модель", "ТипЦены"]:
         price_df[col] = (
             price_df[col]
             .astype(str)
@@ -853,23 +853,23 @@ with tab1:
             .str.strip()
         )
 
-    price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
-    price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
+        price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
+        price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
 
 
 
-    brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
-    brand = st.selectbox("Бренд", brands, key="price_brand")
+        brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
+        brand = st.selectbox("Бренд", brands, key="price_brand")
 
-    models = sorted(
+        models = sorted(
         [
             x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
             if str(x).strip() != ""
         ]
     )
-    model = st.selectbox("Модель", models, key="price_model")
+        model = st.selectbox("Модель", models, key="price_model")
 
-    price_types = sorted(
+        price_types = sorted(
         [
             x for x in price_df.loc[
                 (price_df["Бренд"] == brand) &
@@ -879,9 +879,9 @@ with tab1:
             if str(x).strip() != ""
         ]
     )
-    price_type = st.selectbox("Тип цены", price_types, key="price_type")
-
-    selected_row = price_df[
+        price_type = st.selectbox("Тип цены", price_types, key="price_type")
+ 
+        selected_row = price_df[
         (price_df["Бренд"] == brand) &
         (price_df["Модель"] == model) &
         (price_df["ТипЦены"] == price_type)
