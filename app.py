@@ -28,30 +28,33 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     ws = sh.worksheet(worksheet_name)
 
     for _, row in df.iterrows():
-        qty = int(row["Количество"]) if pd.notna(row["Количество"]) else 1
+    qty = int(row["Количество"]) if pd.notna(row["Количество"]) else 1
 
-        for _ in range(qty):
-            values = [
-                row["Дата"],              # A
-                "ОПТ",                   # B
-                row["Наименование"],     # C
-                "",                      # D
-                row["Себестоимость"],    # E
-                row["РРЦ"],              # F
-                0,                       # G
-                "",                      # H
-                row["Комментарий"]       # I
-            ]
+    price_per_unit = row["Сумма"] / qty
 
-            ws.append_row(values, value_input_option="USER_ENTERED")
+    for _ in range(qty):
+        values = [
+            row["Дата"],
+            "ОПТ",
+            row["Наименование"],
+            "",
+            price_per_unit,   # ✅ себестоимость
+            row["РРЦ"],       # ✅ продажа (если есть отдельно)
+            0,
+            "",
+            row["Комментарий"]
+        ]
 
-            last_row = len(ws.get_all_values())
+        ws.append_row(values, value_input_option="USER_ENTERED")
 
-            ws.update(
-                f"H{last_row}",
-                [[f"=F{last_row}-E{last_row}-G{last_row}"]],
-                value_input_option="USER_ENTERED"
-            )
+        last_row = len(ws.get_all_values())
+
+        ws.update(
+            f"H{last_row}",
+            [[f"=F{last_row}-E{last_row}-G{last_row}"]],
+            value_input_option="USER_ENTERED"
+        )
+
 
 
 
