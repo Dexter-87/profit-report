@@ -818,6 +818,9 @@ with tab1:
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
 with tab2:
+    if "invoice_items" not in st.session_state:
+    st.session_state.invoice_items = []
+
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
     PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
@@ -922,31 +925,64 @@ with tab2:
     
     comment = st.text_input("Комментарий", value="", key="price_comment")
 
-    c1, c2 = st.columns(2)
+    comment = st.text_input("Комментарий", value="", key="price_comment")
 
-    with c1:
-        if st.button("Сохранить в Excel", key="save_to_excel"):
-            file_path = "orders.xlsx"
+    current_row = {
+        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
+        "Бренд": brand,
+        "Модель": model,
+        "Тип цены": price_type,
+        "Цена": price,
+        "Количество": qty,
+        "Сумма": total_sum,
+        "Комментарий": comment
+    }
 
-            new_row = {
-                "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-                "Бренд": brand,
-                "Модель": model,
-                "Тип цены": price_type,
-                "Цена": price,
-                "Количество": qty,
-                "Сумма": total_sum,
-                "Комментарий": comment
-            }
+    b1, b2, b3 = st.columns(3)
 
-            if os.path.exists(file_path):
-                df = pd.read_excel(file_path)
-                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    with b1:
+        if st.button("Добавить позицию", key="add_item"):
+            st.session_state.invoice_items.append(current_row.copy())
+            st.success("Позиция добавлена в накладную")
+
+    with b2:
+        if st.button("Очистить накладную", key="clear_invoice"):
+            st.session_state.invoice_items = []
+            st.success("Накладная очищена")
+
+    with b3:
+        if st.button("Сохранить накладную в Excel", key="save_invoice_excel"):
+            if st.session_state.invoice_items:
+                file_path = "orders.xlsx"
+
+                invoice_df = pd.DataFrame(st.session_state.invoice_items)
+
+                if os.path.exists(file_path):
+                    old_df = pd.read_excel(file_path)
+                    new_df = pd.concat([old_df, invoice_df], ignore_index=True)
+                else:
+                    new_df = invoice_df.copy()
+
+                new_df.to_excel(file_path, index=False)
+
+                st.success("Накладная сохранена в Excel")
+                st.dataframe(invoice_df, use_container_width=True)
+
+                st.session_state.invoice_items = []
             else:
-                df = pd.DataFrame([new_row])
+                st.warning("Накладная пустая")
 
-            df.to_excel(file_path, index=False)
+if st.session_state.invoice_items:
+        st.markdown("### Текущая накладная")
 
-            st.success("Сохранено в Excel")
-            st.write("Добавлено:")
-            st.dataframe(pd.DataFrame([new_row]), use_container_width=True)
+        invoice_preview = pd.DataFrame(st.session_state.invoice_items)
+        st.dataframe(invoice_preview, use_container_width=True)
+
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">Итого по накладной</div>
+            <div class="card-value">{format_money(invoice_preview["Сумма"].sum())} ₸</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
