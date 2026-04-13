@@ -27,7 +27,7 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     sh = gc.open(spreadsheet_name)
     ws = sh.worksheet(worksheet_name)
 
-for _, row in df.iterrows():
+for i, row in df.iterrows():
     qty = int(row["Количество"]) if pd.notna(row["Количество"]) else 1
 
     for _ in range(qty):
