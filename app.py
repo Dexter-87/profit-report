@@ -942,7 +942,7 @@ cost_row = cost_row[cost_row["Себестоимость"] > 0]
 cost = float(cost_row["Себестоимость"].iloc[0]) if not cost_row.empty else 0
 
 
-    st.markdown(f"""
+st.markdown(f"""
     <div class="card">
         <div class="card-title">Цена</div>
         <div class="card-value value-blue">{format_money(price)} ₸</div>
