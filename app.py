@@ -1061,9 +1061,8 @@ if st.session_state.saved_invoice_ready:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-    # 👇 ВАЖНО: это уже ВНЕ with
-    if st.button("➕ Добавить в продажи (ОПТ)"):
-        st.write("Кнопка нажата")  # пока тест
+if st.button("➕ Добавить в продажи (ОПТ)"):
+    st.write("Кнопка нажата")  # пока тест
 
 
         df_to_save = df_order.copy()
