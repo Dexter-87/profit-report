@@ -4,6 +4,31 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
+import gspread
+from google.oauth2.service_account import Credentials
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+@st.cache_resource
+def get_gsheet_client():
+    creds_dict = dict(st.secrets["gcp_service_account"])
+    credentials = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+    return gspread.authorize(credentials)
+
+def append_opt_sales_to_gsheet(df: pd.DataFrame):
+    gc = get_gsheet_client()
+
+    spreadsheet_name = st.secrets["google_sheets"]["spreadsheet_name"]
+    worksheet_name = st.secrets["google_sheets"]["worksheet_name"]
+
+    sh = gc.open(spreadsheet_name)
+    ws = sh.worksheet(worksheet_name)
+
+    rows = df.fillna("").values.tolist()
+    ws.append_rows(rows, value_input_option="USER_ENTERED")
 
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 
@@ -1064,8 +1089,6 @@ if st.session_state.saved_invoice_ready:
 
     # 👇 ВАЖНО: это уже ВНЕ with
 if st.button("➕ Добавить в продажи (ОПТ)"):
-    st.write("Кнопка нажата")
-
     if not st.session_state.invoice_items:
         st.warning("Накладная пустая")
     else:
@@ -1079,23 +1102,38 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
             "Цена": "РРЦ"
         })
 
-        df_to_save["Себестоимость"] = 0
+        if "Комментарий" not in df_to_save.columns:
+            df_to_save["Комментарий"] = ""
+
+        if "Количество" not in df_to_save.columns:
+            df_to_save["Количество"] = 1
+
+        if "Номер заказа" not in df_to_save.columns:
+            df_to_save["Номер заказа"] = ""
+
         df_to_save["Комиссия Kaspi"] = 0
-        df_to_save["Комментарий"] = df_to_save.get("Комментарий", "")
+        df_to_save["Себестоимость"] = 0
 
-        df_to_save = df_to_save[[
-            "Дата",
-            "Канал",
-            "Наименование",
-            "Количество",
-            "РРЦ",
-            "Себестоимость",
-            "Комиссия Kaspi",
-            "Комментарий"
-        ]]
+        df_to_save = df_to_save[
+            [
+                "Дата",
+                "Канал",
+                "Наименование",
+                "Номер заказа",
+                "Количество",
+                "РРЦ",
+                "Комиссия Kaspi",
+                "Себестоимость",
+                "Комментарий",
+            ]
+        ]
 
-        st.dataframe(df_to_save)
-        st.success("Таблица для ОПТ сформирована")
+        try:
+            append_opt_sales_to_gsheet(df_to_save)
+            st.success("✅ Продажи добавлены в Google Sheets")
+        except Exception as e:
+            st.error(f"Ошибка записи в Google Sheets: {e}")
+
 
 
 
