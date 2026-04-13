@@ -929,7 +929,7 @@ with tab2:
             st.session_state.invoice_items = []
             st.success("Накладная очищена")
 
-    with b3:
+with b3:
 
     # Флаг, чтобы понимать — есть ли готовая накладная
     if "saved_invoice_ready" not in st.session_state:
@@ -937,7 +937,7 @@ with tab2:
 
     if st.button("Сохранить накладную в Excel"):
 
-        if st.session_state.invoice_items:
+    if st.session_state.invoice_items:
 
             file_path = "orders.xlsx"
 
@@ -973,7 +973,7 @@ with tab2:
             # ОЧИЩАЕМ текущую накладную
             st.session_state.invoice_items = []
 
-        else:
+    else:
             st.warning("Накладная пустая")
 
     # КНОПКА СКАЧИВАНИЯ (появляется после сохранения)
