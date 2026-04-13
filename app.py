@@ -27,27 +27,35 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     sh = gc.open(spreadsheet_name)
     ws = sh.worksheet(worksheet_name)
 
-    # Пишем только в нужные столбцы: A, B, C, D, E, F, G, I
-    rows = []
+    all_values = ws.get_all_values()
+    last_row = len(all_values)
+
+    # Для каждой позиции создаем столько строк, сколько указано в "Количество"
     for _, row in df.iterrows():
-        rows.append([
-            row["Дата"],              # A
-            row["Канал"],             # B
-            row["Наименование"],      # C
-            "",                       # D - Номер заказа пустой
-            row["Себестоимость"],     # E
-            row["РРЦ"],               # F
-            row["Комиссия Kaspi"],    # G
-            row["Комментарий"],       # I
-        ])
+        qty = int(row["Количество"]) if pd.notna(row["Количество"]) else 1
 
-    # append_rows пишет подряд, поэтому пишем в диапазон A:G и I через update построчно
-    next_row = len(ws.get_all_values()) + 1
+        for _ in range(qty):
+            new_row = last_row + 1
 
-    for i, r in enumerate(rows):
-        current_row = next_row + i
-        ws.update(f"A{current_row}:G{current_row}", [r[:7]])
-        ws.update(f"I{current_row}", [[r[7]]])
+            # Копируем предыдущую строку вниз, чтобы сохранились формулы и формат
+            ws.copy_range(
+                source_range_name=f"A{last_row}:I{last_row}",
+                dest_range_name=f"A{new_row}:I{new_row}"
+            )
+
+            # Заполняем только нужные поля
+            ws.update(f"A{new_row}", [[row["Дата"]]])             # Дата
+            ws.update(f"B{new_row}", [[row["Канал"]]])            # ОПТ
+            ws.update(f"C{new_row}", [[row["Наименование"]]])     # Модель
+            ws.update(f"D{new_row}", [[""]])                      # Номер заказа пустой
+            ws.update(f"E{new_row}", [[row["Себестоимость"]]])    # Себестоимость за 1 шт
+            ws.update(f"F{new_row}", [[row["РРЦ"]]])              # Цена продажи за 1 шт
+            ws.update(f"G{new_row}", [[0]])                       # Комиссия
+            ws.update(f"I{new_row}", [[row["Комментарий"]]])      # Комментарий
+
+            # H не трогаем — там должна остаться формула из скопированной строки
+            last_row = new_row
+
 
 
 # =========================
@@ -1123,21 +1131,20 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
         if "Комментарий" not in df_to_save.columns:
             df_to_save["Комментарий"] = ""
 
-        # Себестоимость берем из суммы позиции
-        df_to_save["Себестоимость"] = df_to_save["Сумма"]
+        if "Количество" not in df_to_save.columns:
+            df_to_save["Количество"] = 1
 
-        # Для ОПТ комиссия 0
-        df_to_save["Комиссия Kaspi"] = 0
+        # Для ОПТ пока считаем, что себестоимость за 1 шт = цена из формы
+        df_to_save["Себестоимость"] = df_to_save["РРЦ"]
 
-        # Оставляем только то, что реально нужно для записи
         df_to_save = df_to_save[
             [
                 "Дата",
                 "Канал",
                 "Наименование",
+                "Количество",
                 "Себестоимость",
                 "РРЦ",
-                "Комиссия Kaspi",
                 "Комментарий",
             ]
         ]
@@ -1147,6 +1154,7 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
             st.success("✅ Продажи добавлены в Google Sheets")
         except Exception as e:
             st.error(f"Ошибка записи в Google Sheets: {e}")
+
 
 
 
