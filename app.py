@@ -878,7 +878,7 @@ with tab2:
     )
     price_type = st.selectbox("Тип цены", price_types, key="price_type")
 
-     selected_row = price_df[
+    selected_row = price_df[
         (price_df["Бренд"] == brand) &
         (price_df["Модель"] == model) &
         (price_df["ТипЦены"] == price_type)
