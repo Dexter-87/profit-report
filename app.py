@@ -549,7 +549,7 @@ with tab1:
             min_value=min_date,
             max_value=max_date,
             format="DD.MM.YYYY",
-            key="date_from_main"
+            key="date_from_main_v2"
         )
 
     with f2:
@@ -559,13 +559,13 @@ with tab1:
             min_value=min_date,
             max_value=max_date,
             format="DD.MM.YYYY",
-            key="date_to_main"
+            key="date_to_main_v2"
         )
 
     selected_channel = st.selectbox(
         "Канал",
         channel_options,
-        key="channel_main"
+        key="channel_main_v2"
     )
 
     if date_from > date_to:
