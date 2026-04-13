@@ -818,31 +818,27 @@ with tab1:
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
     with tab2:
-        if "invoice_items" not in st.session_state:
-           st.session_state.invoice_items = []
+    if "invoice_items" not in st.session_state:
+        st.session_state.invoice_items = []
 
-        st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
-        PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
-        PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv"
+    PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+    PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
 
-        @st.cache_data(ttl=60)
-        def load_price():
-            df1 = pd.read_csv(PRICE_URL_TEEG)
-            df2 = pd.read_csv(PRICE_URL_ARISTON)
+    @st.cache_data(ttl=60)
+    def load_price():
+        df1 = pd.read_csv(PRICE_URL_TEEG)
+        df2 = pd.read_csv(PRICE_URL_ARISTON)
 
-            df1.columns = df1.columns.str.strip()
-            df2.columns = df2.columns.str.strip()
+        df1.columns = df1.columns.str.strip()
+        df2.columns = df2.columns.str.strip()
 
-            df = pd.concat([df1, df2], ignore_index=True)
-            df.columns = df.columns.str.strip()
+        df = pd.concat([df1, df2], ignore_index=True)
+        df.columns = df.columns.str.strip()
+        return df
 
-            return df
-
-
-        price_df = load_price()
-
-        price_df = price_df.fillna("")
+    price_df = load_price().fillna("")
 
     for col in ["Бренд", "Модель", "ТипЦены"]:
         price_df[col] = (
@@ -853,35 +849,32 @@ with tab1:
             .str.strip()
         )
 
-        price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
-        price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
+    price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
+    price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
 
+    brands = sorted([
+        x for x in price_df["Бренд"].dropna().unique()
+        if str(x).strip() != ""
+    ])
+    brand = st.selectbox("Бренд", brands)
 
+    models = sorted([
+        x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
+        if str(x).strip() != ""
+    ])
+    model = st.selectbox("Модель", models)
 
-        brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
-        brand = st.selectbox("Бренд", brands)
+    price_types = sorted([
+        x for x in price_df.loc[
+            (price_df["Бренд"] == brand) &
+            (price_df["Модель"] == model),
+            "ТипЦены"
+        ].dropna().unique()
+        if str(x).strip() != ""
+    ])
+    price_type = st.selectbox("Тип цены", price_types)
 
-        models = sorted(
-        [
-            x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
-            if str(x).strip() != ""
-        ]
-    )
-        model = st.selectbox("Модель", models)
-
-        price_types = sorted(
-        [
-            x for x in price_df.loc[
-                (price_df["Бренд"] == brand) &
-                (price_df["Модель"] == model),
-                "ТипЦены"
-            ].dropna().unique()
-            if str(x).strip() != ""
-        ]
-    )
-        price_type = st.selectbox("Тип цены", price_types)
- 
-        selected_row = price_df[
+    selected_row = price_df[
         (price_df["Бренд"] == brand) &
         (price_df["Модель"] == model) &
         (price_df["ТипЦены"] == price_type)
@@ -890,42 +883,29 @@ with tab1:
     if not selected_row.empty:
         selected_row = selected_row[selected_row["Цена"] > 0]
 
-        price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
-        cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
+    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
+    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
 
-        st.markdown(f"""
-        <div class="card">
+    st.markdown(f"""
+    <div class="card">
         <div class="card-title">Цена</div>
         <div class="card-value value-blue">{format_money(price)} ₸</div>
-        </div>
+    </div>
     """, unsafe_allow_html=True)
 
     qty = st.number_input("Количество", min_value=1, value=1)
 
-    if price and cost:
-        total_sum = price * qty
-        total_profit = (price - cost) * qty
-    else:
-        total_sum = 0
-        total_profit = 0
+    total_sum = price * qty if price else 0
 
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Сумма</div>
+        <div class="card-value">{format_money(total_sum)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-
-
-    col_c, col_d = st.columns(2)
-
-    with col_c:
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Сумма</div>
-            <div class="card-value">{format_money(total_sum)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    
     comment = st.text_input("Комментарий", value="")
 
-  
     current_row = {
         "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
         "Бренд": brand,
@@ -940,9 +920,9 @@ with tab1:
     b1, b2, b3 = st.columns(3)
 
     with b1:
-        if st.button("Добавить позицию", key="add_item"):
+        if st.button("Добавить позицию"):
             st.session_state.invoice_items.append(current_row.copy())
-            st.success("Позиция добавлена в накладную")
+            st.success("Позиция добавлена")
 
     with b2:
         if st.button("Очистить накладную"):
@@ -953,7 +933,6 @@ with tab1:
         if st.button("Сохранить накладную в Excel"):
             if st.session_state.invoice_items:
                 file_path = "orders.xlsx"
-
                 invoice_df = pd.DataFrame(st.session_state.invoice_items)
 
                 if os.path.exists(file_path):
@@ -963,25 +942,17 @@ with tab1:
                     new_df = invoice_df.copy()
 
                 new_df.to_excel(file_path, index=False)
-
                 st.success("Накладная сохранена в Excel")
-                st.dataframe(invoice_df, use_container_width=True)
+
+                with open(file_path, "rb") as f:
+                    st.download_button(
+                        "Скачать накладную",
+                        data=f,
+                        file_name="orders.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
 
                 st.session_state.invoice_items = []
             else:
                 st.warning("Накладная пустая")
-
-if st.session_state.invoice_items:
-        st.markdown("### Текущая накладная")
-
-        invoice_preview = pd.DataFrame(st.session_state.invoice_items)
-        st.dataframe(invoice_preview, use_container_width=True)
-
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Итого по накладной</div>
-            <div class="card-value">{format_money(invoice_preview["Сумма"].sum())} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
 
