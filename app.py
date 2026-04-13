@@ -1064,32 +1064,25 @@ if st.session_state.saved_invoice_ready:
 
     # 👇 ВАЖНО: это уже ВНЕ with
     if st.button("➕ Добавить в продажи (ОПТ)"):
-        st.write("Кнопка нажата")  # пока тест
+    st.write("Кнопка нажата")
 
+    if not st.session_state.invoice_items:
+        st.warning("Накладная пустая")
+    else:
+        df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
 
-
-        df_to_save = df_order.copy()
-
-        # Добавляем нужные колонки
-        df_to_save["Канал"] = "ОПТ"
         df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
+        df_to_save["Канал"] = "ОПТ"
 
-        # Переименуем под структуру продаж
         df_to_save = df_to_save.rename(columns={
-            "Бренд": "Бренд",
             "Модель": "Наименование",
-            "Количество": "Количество",
-            "Цена": "РРЦ",
-            "Сумма": "РРЦ"  # если у тебя сумма отдельно — уберем ниже
+            "Цена": "РРЦ"
         })
 
-        # Если сумма есть — лучше не трогать РРЦ
-        df_to_save["РРЦ"] = df_order["Цена"]
         df_to_save["Себестоимость"] = 0
         df_to_save["Комиссия Kaspi"] = 0
-        df_to_save["Комментарий"] = ""
+        df_to_save["Комментарий"] = df_to_save.get("Комментарий", "")
 
-        # Оставляем нужные колонки
         df_to_save = df_to_save[[
             "Дата",
             "Канал",
@@ -1101,10 +1094,9 @@ if st.session_state.saved_invoice_ready:
             "Комментарий"
         ]]
 
-        # === ВАЖНО: ТВОЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ===
-        append_to_google_sheet(df_to_save)
+        st.dataframe(df_to_save)
+        st.success("Таблица для ОПТ сформирована")
 
-        st.success("✅ Добавлено в продажи (ОПТ)")
 
 
 
