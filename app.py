@@ -828,8 +828,8 @@ with tab2:
 
     @st.cache_data(ttl=60)
     def load_price():
-        df1 = pd.read_csv(PRICE_URL_TEEG)
-        df2 = pd.read_csv(PRICE_URL_ARISTON)
+        df1 = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv")
+        df2 = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv")
     
         df1.columns = df1.columns.str.strip()
         df2.columns = df2.columns.str.strip()
