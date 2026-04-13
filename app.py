@@ -828,29 +828,29 @@ with tab1:
 
         @st.cache_data(ttl=60)
         def load_price():
-        df1 = pd.read_csv(PRICE_URL_TEEG)
-        df2 = pd.read_csv(PRICE_URL_ARISTON)
+    df1 = pd.read_csv(PRICE_URL_TEEG)
+    df2 = pd.read_csv(PRICE_URL_ARISTON)
 
-        df1.columns = df1.columns.str.strip()
-        df2.columns = df2.columns.str.strip()
+    df1.columns = df1.columns.str.strip()
+    df2.columns = df2.columns.str.strip()
 
-        df = pd.concat([df1, df2], ignore_index=True)
-        df.columns = df.columns.str.strip()
+    df = pd.concat([df1, df2], ignore_index=True)
+    df.columns = df.columns.str.strip()
 
-        return df
+    return df
 
 
-        price_df = load_price()
+    price_df = load_price()
 
-        price_df = price_df.fillna("")
+    price_df = price_df.fillna("")
 
-        for col in ["Бренд", "Модель", "ТипЦены"]:
-        price_df[col] = (
-            price_df[col]
-            .astype(str)
-            .str.replace("\xa0", " ", regex=False)
-            .str.replace("\ufeff", "", regex=False)
-            .str.strip()
+    for col in ["Бренд", "Модель", "ТипЦены"]:
+    price_df[col] = (
+        price_df[col]
+        .astype(str)
+        .str.replace("\xa0", " ", regex=False)
+        .str.replace("\ufeff", "", regex=False)
+        .str.strip()
         )
 
         price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
