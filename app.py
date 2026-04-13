@@ -35,24 +35,24 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
                 row["Дата"],              # A
                 "ОПТ",                   # B
                 row["Наименование"],     # C
-                "",                      # D (номер заказа пустой)
+                "",                      # D
                 row["Себестоимость"],    # E
                 row["РРЦ"],              # F
-                0,                       # G комиссия
-                "",                      # H (формула вставим ниже)
+                0,                       # G
+                "",                      # H
                 row["Комментарий"]       # I
             ]
 
             ws.append_row(values, value_input_option="USER_ENTERED")
 
-            # Получаем номер последней строки
             last_row = len(ws.get_all_values())
 
-            # Вставляем формулу прибыли (пример — подгони под свою!)
             ws.update(
                 f"H{last_row}",
-                [[f"=F{last_row}-E{last_row}-G{last_row}"]]
+                [[f"=F{last_row}-E{last_row}-G{last_row}"]],
+                value_input_option="USER_ENTERED"
             )
+
 
 
 
