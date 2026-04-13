@@ -924,17 +924,23 @@ with tab2:
     ])
     price_type = st.selectbox("Тип цены", price_types)
 
-    selected_row = price_df[
-        (price_df["Бренд"] == brand) &
-        (price_df["Модель"] == model) &
-        (price_df["ТипЦены"] == price_type)
-    ].copy()
+    # РРЦ
+price_row = price_df[
+    (price_df["Модель"] == model) &
+    (price_df["ТипЦены"] == price_type)
+]
 
-    if not selected_row.empty:
-        selected_row = selected_row[selected_row["Цена"] > 0]
+price = float(price_row["Цена"].iloc[0]) if not price_row.empty else 0
 
-    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
-    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
+# Себестоимость (без типа цены!)
+cost_row = price_df[
+    (price_df["Модель"] == model)
+]
+
+cost_row = cost_row[cost_row["Себестоимость"] > 0]
+
+cost = float(cost_row["Себестоимость"].iloc[0]) if not cost_row.empty else 0
+
 
     st.markdown(f"""
     <div class="card">
