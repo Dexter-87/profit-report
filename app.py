@@ -859,7 +859,7 @@ with tab1:
 
 
         brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
-        brand = st.selectbox("Бренд", brands, key="price_brand_v2")
+        brand = st.selectbox("Бренд", brands)
 
         models = sorted(
         [
@@ -867,7 +867,7 @@ with tab1:
             if str(x).strip() != ""
         ]
     )
-        model = st.selectbox("Модель", models, key="price_model_v2")
+        model = st.selectbox("Модель", models)
 
         price_types = sorted(
         [
@@ -879,7 +879,7 @@ with tab1:
             if str(x).strip() != ""
         ]
     )
-        price_type = st.selectbox("Тип цены", price_types, key="price_type_v2")
+        price_type = st.selectbox("Тип цены", price_types)
  
         selected_row = price_df[
         (price_df["Бренд"] == brand) &
@@ -900,7 +900,7 @@ with tab1:
         </div>
     """, unsafe_allow_html=True)
 
-    qty = st.number_input("Количество", min_value=1, value=1, key="price_qty")
+    qty = st.number_input("Количество", min_value=1, value=1)
 
     if price and cost:
         total_sum = price * qty
@@ -923,7 +923,7 @@ with tab1:
         """, unsafe_allow_html=True)
 
     
-    comment = st.text_input("Комментарий", value="", key="price_comment_v2")
+    comment = st.text_input("Комментарий", value="")
 
   
     current_row = {
@@ -945,12 +945,12 @@ with tab1:
             st.success("Позиция добавлена в накладную")
 
     with b2:
-        if st.button("Очистить накладную", key="clear_invoice"):
+        if st.button("Очистить накладную"):
             st.session_state.invoice_items = []
             st.success("Накладная очищена")
 
     with b3:
-        if st.button("Сохранить накладную в Excel", key="save_invoice_excel"):
+        if st.button("Сохранить накладную в Excel"):
             if st.session_state.invoice_items:
                 file_path = "orders.xlsx"
 
