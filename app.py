@@ -827,7 +827,7 @@ with tab1:
         PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
 
         @st.cache_data(ttl=60)
-    def load_price():
+        def load_price():
         df1 = pd.read_csv(PRICE_URL_TEEG)
         df2 = pd.read_csv(PRICE_URL_ARISTON)
 
