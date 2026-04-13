@@ -839,10 +839,21 @@ with tab2:
 
     price_df = load_price()
 
-    price_df["Бренд"] = price_df["Бренд"].astype(str).str.strip()
-    price_df["Модель"] = price_df["Модель"].astype(str).str.strip()
-    price_df["ТипЦены"] = price_df["ТипЦены"].astype(str).str.strip()
+     price_df = price_df.fillna("")
+
+    for col in ["Бренд", "Модель", "ТипЦены"]:
+        price_df[col] = (
+            price_df[col]
+            .astype(str)
+            .str.replace("\xa0", " ", regex=False)
+            .str.replace("\ufeff", "", regex=False)
+            .str.strip()
+        )
+
     price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
+    price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
+
+
 
     brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
     brand = st.selectbox("Бренд", brands, key="price_brand")
@@ -873,7 +884,20 @@ with tab2:
         (price_df["ТипЦены"] == price_type)
     ]
 
+    if brand == "Ariston":
+        st.write("DEBUG Ariston")
+        st.write("brand:", brand)
+        st.write("model:", model)
+        st.write("price_type:", price_type)
+        st.write(
+            price_df[
+                price_df["Бренд"].eq("Ariston")
+            ][["Бренд", "Модель", "ТипЦены", "Цена", "Себестоимость"]].head(10)
+        )
+        st.write("selected_row:", selected_row)
+
     price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
+    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
 
     st.markdown(f"""
     <div class="card">
@@ -890,6 +914,7 @@ with tab2:
     else:
         total_sum = 0
         total_profit = 0
+
 
 
     col_c, col_d = st.columns(2)
