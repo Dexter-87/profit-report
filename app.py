@@ -1053,15 +1053,19 @@ with b3:
             st.warning("Накладная пустая")
 
     if st.session_state.saved_invoice_ready:
-        with open("orders.xlsx", "rb") as f:
-            st.download_button(
-                "Скачать накладную",
-                data=f,
-                file_name="orders.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-            with col2:
+
+    with open("orders.xlsx", "rb") as f:
+        st.download_button(
+            "Скачать накладную",
+            data=f,
+            file_name="orders.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    # 👇 ВАЖНО: это уже ВНЕ with
     if st.button("➕ Добавить в продажи (ОПТ)"):
+        st.write("Кнопка нажата")  # пока тест
+
 
         df_to_save = df_order.copy()
 
