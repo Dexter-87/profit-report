@@ -947,20 +947,21 @@ st.markdown(f"""
         <div class="card-title">Цена</div>
         <div class="card-value value-blue">{format_money(price)} ₸</div>
     </div>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-    qty = st.number_input("Количество", min_value=1, value=1)
+qty = st.number_input("Количество", min_value=1, value=1)
 
-    total_sum = price * qty if price else 0
+total_sum = price * qty if price else 0
 
 st.markdown(f"""
     <div class="card">
         <div class="card-title">Сумма</div>
         <div class="card-value">{format_money(total_sum)} ₸</div>
     </div>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-    comment = st.text_input("Комментарий", value="")
+comment = st.text_input("Комментарий", value="")
+
 
     current_row = {
         "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
