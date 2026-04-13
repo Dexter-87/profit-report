@@ -1052,8 +1052,7 @@ with b3:
         else:
             st.warning("Накладная пустая")
 
-    if st.session_state.saved_invoice_ready:
-
+if st.session_state.saved_invoice_ready:
     with open("orders.xlsx", "rb") as f:
         st.download_button(
             "Скачать накладную",
