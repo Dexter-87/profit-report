@@ -884,14 +884,83 @@ with tab2:
 
     qty = st.number_input("Количество", min_value=1, value=1, key="price_qty")
 
-    total = price * qty
+    total_sum = price * qty
+    total_profit = (price - cost) * qty
 
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Сумма</div>
-        <div class="card-value value-green">{format_money(total)} ₸</div>
-    </div>
-    """, unsafe_allow_html=True)
+    col_c, col_d = st.columns(2)
 
-    if st.button("Сохранить заказ", key="save_price_order"):
-        st.success("Заказ готов")
+    with col_c:
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">Сумма</div>
+            <div class="card-value">{format_money(total_sum)} ₸</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_d:
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">Общая прибыль</div>
+            <div class="card-value value-green">{format_money(total_profit)} ₸</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    comment = st.text_input("Комментарий", value="", key="price_comment")
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        if st.button("Сохранить в Excel", key="save_to_excel"):
+            excel_row = {
+                "Дата заказа": pd.Timestamp.today().strftime("%d.%m.%Y"),
+                "Бренд": brand,
+                "Модель": model,
+                "Тип цены": price_type,
+                "Цена": price,
+                "Себестоимость": cost,
+                "Количество": qty,
+                "Сумма": total_sum,
+                "Прибыль": total_profit,
+                "Комментарий": comment,
+            }
+
+            excel_file = "orders.xlsx"
+
+            try:
+                old_df = pd.read_excel(excel_file)
+            except Exception:
+                old_df = pd.DataFrame(columns=[
+                    "Дата заказа",
+                    "Бренд",
+                    "Модель",
+                    "Тип цены",
+                    "Цена",
+                    "Себестоимость",
+                    "Количество",
+                    "Сумма",
+                    "Прибыль",
+                    "Комментарий",
+                ])
+
+            new_df = pd.concat([old_df, pd.DataFrame([excel_row])], ignore_index=True)
+            new_df.to_excel(excel_file, index=False)
+
+            st.success("Сохранено в Excel")
+
+    with c2:
+        if st.button("Добавить в отчет", key="add_to_report"):
+            report_row = {
+                "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
+                "Канал": "ОПТ",
+                "Наименование": model,
+                "Номер заказа": "",
+                "Себестоимость": cost,
+                "РРЦ": price,
+                "Комиссия Kaspi": 0,
+                "Чистая прибыль": price - cost,
+                "Комментарий": comment,
+            }
+
+            st.session_state["last_report_row"] = report_row
+            st.success("Строка для отчета подготовлена")
+
