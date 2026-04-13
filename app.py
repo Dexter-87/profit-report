@@ -844,13 +844,13 @@ with tab1:
 
         price_df = price_df.fillna("")
 
-        for col in ["Бренд", "Модель", "ТипЦены"]:
+    for col in ["Бренд", "Модель", "ТипЦены"]:
         price_df[col] = (
-        price_df[col]
-        .astype(str)
-        .str.replace("\xa0", " ", regex=False)
-        .str.replace("\ufeff", "", regex=False)
-        .str.strip()
+            price_df[col]
+            .astype(str)
+            .str.replace("\xa0", " ", regex=False)
+            .str.replace("\ufeff", "", regex=False)
+            .str.strip()
         )
 
         price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
