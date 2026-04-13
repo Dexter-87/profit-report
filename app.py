@@ -878,23 +878,14 @@ with tab2:
     )
     price_type = st.selectbox("Тип цены", price_types, key="price_type")
 
-    selected_row = price_df[
+     selected_row = price_df[
         (price_df["Бренд"] == brand) &
         (price_df["Модель"] == model) &
         (price_df["ТипЦены"] == price_type)
-    ]
+    ].copy()
 
-    if brand == "Ariston":
-        st.write("DEBUG Ariston")
-        st.write("brand:", brand)
-        st.write("model:", model)
-        st.write("price_type:", price_type)
-        st.write(
-            price_df[
-                price_df["Бренд"].eq("Ariston")
-            ][["Бренд", "Модель", "ТипЦены", "Цена", "Себестоимость"]].head(10)
-        )
-        st.write("selected_row:", selected_row)
+    if not selected_row.empty:
+        selected_row = selected_row[selected_row["Цена"] > 0]
 
     price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
     cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
@@ -914,6 +905,7 @@ with tab2:
     else:
         total_sum = 0
         total_profit = 0
+
 
 
 
