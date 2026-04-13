@@ -884,8 +884,13 @@ with tab2:
 
     qty = st.number_input("Количество", min_value=1, value=1, key="price_qty")
 
-    total_sum = price * qty
-    total_profit = (price - cost) * qty
+    if price and cost:
+        total_sum = price * qty
+        total_profit = (price - cost) * qty
+    else:
+        total_sum = 0
+        total_profit = 0
+
 
     col_c, col_d = st.columns(2)
 
