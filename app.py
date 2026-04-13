@@ -974,6 +974,6 @@ if st.button("Сохранить в Excel"):
                 "Комментарий": comment,
             }
 
-            st.session_state["last_report_row"] = report_row
-            st.success("Строка для отчета подготовлена")
+    st.session_state["last_report_row"] = report_row
+    st.success("Строка для отчета подготовлена")
 
