@@ -859,7 +859,7 @@ with tab1:
 
 
         brands = sorted([x for x in price_df["Бренд"].dropna().unique() if str(x).strip() != ""])
-        brand = st.selectbox("Бренд", brands, key="price_brand")
+        brand = st.selectbox("Бренд", brands, key="price_brand_v2")
 
         models = sorted(
         [
@@ -867,7 +867,7 @@ with tab1:
             if str(x).strip() != ""
         ]
     )
-        model = st.selectbox("Модель", models, key="price_model")
+        model = st.selectbox("Модель", models, key="price_model_v2")
 
         price_types = sorted(
         [
@@ -879,7 +879,7 @@ with tab1:
             if str(x).strip() != ""
         ]
     )
-        price_type = st.selectbox("Тип цены", price_types, key="price_type")
+        price_type = st.selectbox("Тип цены", price_types, key="price_type_v2")
  
         selected_row = price_df[
         (price_df["Бренд"] == brand) &
