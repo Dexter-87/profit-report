@@ -27,34 +27,33 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     sh = gc.open(spreadsheet_name)
     ws = sh.worksheet(worksheet_name)
 
-    all_values = ws.get_all_values()
-    last_row = len(all_values)
-
-    # Для каждой позиции создаем столько строк, сколько указано в "Количество"
     for _, row in df.iterrows():
         qty = int(row["Количество"]) if pd.notna(row["Количество"]) else 1
 
         for _ in range(qty):
-            new_row = last_row + 1
+            values = [
+                row["Дата"],              # A
+                "ОПТ",                   # B
+                row["Наименование"],     # C
+                "",                      # D (номер заказа пустой)
+                row["Себестоимость"],    # E
+                row["РРЦ"],              # F
+                0,                       # G комиссия
+                "",                      # H (формула вставим ниже)
+                row["Комментарий"]       # I
+            ]
 
-            # Копируем предыдущую строку вниз, чтобы сохранились формулы и формат
-            ws.copy_range(
-                source_range_name=f"A{last_row}:I{last_row}",
-                dest_range_name=f"A{new_row}:I{new_row}"
+            ws.append_row(values, value_input_option="USER_ENTERED")
+
+            # Получаем номер последней строки
+            last_row = len(ws.get_all_values())
+
+            # Вставляем формулу прибыли (пример — подгони под свою!)
+            ws.update(
+                f"H{last_row}",
+                [[f"=F{last_row}-E{last_row}-G{last_row}"]]
             )
 
-            # Заполняем только нужные поля
-            ws.update(f"A{new_row}", [[row["Дата"]]])             # Дата
-            ws.update(f"B{new_row}", [[row["Канал"]]])            # ОПТ
-            ws.update(f"C{new_row}", [[row["Наименование"]]])     # Модель
-            ws.update(f"D{new_row}", [[""]])                      # Номер заказа пустой
-            ws.update(f"E{new_row}", [[row["Себестоимость"]]])    # Себестоимость за 1 шт
-            ws.update(f"F{new_row}", [[row["РРЦ"]]])              # Цена продажи за 1 шт
-            ws.update(f"G{new_row}", [[0]])                       # Комиссия
-            ws.update(f"I{new_row}", [[row["Комментарий"]]])      # Комментарий
-
-            # H не трогаем — там должна остаться формула из скопированной строки
-            last_row = new_row
 
 
 
