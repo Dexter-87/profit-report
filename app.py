@@ -967,7 +967,7 @@ comment = st.text_input("Комментарий", value="")
 
 
 
-    current_row = {
+current_row = {
         "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
         "Бренд": brand,
         "Модель": model,
