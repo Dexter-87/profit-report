@@ -1060,5 +1060,46 @@ with b3:
                 file_name="orders.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+            with col2:
+    if st.button("➕ Добавить в продажи (ОПТ)"):
+
+        df_to_save = df_order.copy()
+
+        # Добавляем нужные колонки
+        df_to_save["Канал"] = "ОПТ"
+        df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
+
+        # Переименуем под структуру продаж
+        df_to_save = df_to_save.rename(columns={
+            "Бренд": "Бренд",
+            "Модель": "Наименование",
+            "Количество": "Количество",
+            "Цена": "РРЦ",
+            "Сумма": "РРЦ"  # если у тебя сумма отдельно — уберем ниже
+        })
+
+        # Если сумма есть — лучше не трогать РРЦ
+        df_to_save["РРЦ"] = df_order["Цена"]
+        df_to_save["Себестоимость"] = 0
+        df_to_save["Комиссия Kaspi"] = 0
+        df_to_save["Комментарий"] = ""
+
+        # Оставляем нужные колонки
+        df_to_save = df_to_save[[
+            "Дата",
+            "Канал",
+            "Наименование",
+            "Количество",
+            "РРЦ",
+            "Себестоимость",
+            "Комиссия Kaspi",
+            "Комментарий"
+        ]]
+
+        # === ВАЖНО: ТВОЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ===
+        append_to_google_sheet(df_to_save)
+
+        st.success("✅ Добавлено в продажи (ОПТ)")
+
 
 
