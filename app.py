@@ -953,7 +953,7 @@ st.markdown(f"""
 
     total_sum = price * qty if price else 0
 
-    st.markdown(f"""
+st.markdown(f"""
     <div class="card">
         <div class="card-title">Сумма</div>
         <div class="card-value">{format_money(total_sum)} ₸</div>
