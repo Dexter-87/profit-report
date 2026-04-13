@@ -925,55 +925,28 @@ with tab2:
     c1, c2 = st.columns(2)
 
     with c1:
-        from datetime import datetime
-import pandas as pd
-import os
+        if st.button("Сохранить в Excel", key="save_to_excel"):
+            file_path = "orders.xlsx"
 
-file_path = "orders.xlsx"
-
-if st.button("Сохранить в Excel"):
-
-    new_row = {
-        "Дата": datetime.now().strftime("%d.%m.%Y"),
-        "Бренд": brand,
-        "Модель": model,
-        "Тип цены": price_type,
-        "Цена": price,
-        "Количество": qty,
-        "Сумма": total_sum,
-        "Комментарий": comment
-    }
-
-    if os.path.exists(file_path):
-        df = pd.read_excel(file_path)
-        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-    else:
-        df = pd.DataFrame([new_row])
-
-    df.to_excel(file_path, index=False)
-
-    st.success("Сохранено в Excel")
-
-
-    new_df = pd.concat([old_df, pd.DataFrame([excel_row])], ignore_index=True)
-    new_df.to_excel(excel_file, index=False)
-
-    st.success("Сохранено в Excel")
-
-    with c2:
-        if st.button("Добавить в отчет", key="add_to_report"):
-            report_row = {
+            new_row = {
                 "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-                "Канал": "ОПТ",
-                "Наименование": model,
-                "Номер заказа": "",
-                "Себестоимость": cost,
-                "РРЦ": price,
-                "Комиссия Kaspi": 0,
-                "Чистая прибыль": price - cost,
-                "Комментарий": comment,
+                "Бренд": brand,
+                "Модель": model,
+                "Тип цены": price_type,
+                "Цена": price,
+                "Количество": qty,
+                "Сумма": total_sum,
+                "Комментарий": comment
             }
 
-    st.session_state["last_report_row"] = report_row
-    st.success("Строка для отчета подготовлена")
+            if os.path.exists(file_path):
+                df = pd.read_excel(file_path)
+                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+            else:
+                df = pd.DataFrame([new_row])
 
+            df.to_excel(file_path, index=False)
+
+            st.success("Сохранено в Excel")
+            st.write("Добавлено:")
+            st.dataframe(pd.DataFrame([new_row]), use_container_width=True)
