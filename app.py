@@ -919,50 +919,41 @@ with tab2:
         </div>
         """, unsafe_allow_html=True)
 
-    with col_d:
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Общая прибыль</div>
-            <div class="card-value value-green">{format_money(total_profit)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
+    
     comment = st.text_input("Комментарий", value="", key="price_comment")
 
     c1, c2 = st.columns(2)
 
     with c1:
-        if st.button("Сохранить в Excel", key="save_to_excel"):
-            excel_row = {
-                "Дата заказа": pd.Timestamp.today().strftime("%d.%m.%Y"),
-                "Бренд": brand,
-                "Модель": model,
-                "Тип цены": price_type,
-                "Цена": price,
-                "Себестоимость": cost,
-                "Количество": qty,
-                "Сумма": total_sum,
-                "Прибыль": total_profit,
-                "Комментарий": comment,
-            }
+        from datetime import datetime
+import pandas as pd
+import os
 
-            excel_file = "orders.xlsx"
+file_path = "orders.xlsx"
 
-            try:
-                old_df = pd.read_excel(excel_file)
-            except Exception:
-                old_df = pd.DataFrame(columns=[
-                    "Дата заказа",
-                    "Бренд",
-                    "Модель",
-                    "Тип цены",
-                    "Цена",
-                    "Себестоимость",
-                    "Количество",
-                    "Сумма",
-                    "Прибыль",
-                    "Комментарий",
-                ])
+if st.button("Сохранить в Excel"):
+
+    new_row = {
+        "Дата": datetime.now().strftime("%d.%m.%Y"),
+        "Бренд": brand,
+        "Модель": model,
+        "Тип цены": price_type,
+        "Цена": price,
+        "Количество": qty,
+        "Сумма": total_sum,
+        "Комментарий": comment
+    }
+
+    if os.path.exists(file_path):
+        df = pd.read_excel(file_path)
+        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    else:
+        df = pd.DataFrame([new_row])
+
+    df.to_excel(file_path, index=False)
+
+    st.success("Сохранено в Excel")
+
 
             new_df = pd.concat([old_df, pd.DataFrame([excel_row])], ignore_index=True)
             new_df.to_excel(excel_file, index=False)
