@@ -932,16 +932,19 @@ price_row = price_df[
 
 price = float(price_row["Цена"].iloc[0]) if not price_row.empty else 0
 
-# Себестоимость (без типа цены!)
+# Себестоимость
 cost_row = price_df[
+    (price_df["Бренд"] == brand) &
     (price_df["Модель"] == model)
-]
+].copy()
 
-cost_row = cost_row[cost_row["Себестоимость"] > 0]
+if not cost_row.empty:
+    cost_row = cost_row[cost_row["Себестоимость"] > 0]
 
 cost = float(cost_row["Себестоимость"].iloc[0]) if not cost_row.empty else 0
 
 
+# === UI ===
 st.markdown(f"""
     <div class="card">
         <div class="card-title">Цена</div>
@@ -961,6 +964,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 comment = st.text_input("Комментарий", value="")
+
 
 
     current_row = {
