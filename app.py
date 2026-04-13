@@ -930,37 +930,58 @@ with tab2:
             st.success("Накладная очищена")
 
     with b3:
-        if st.button("Сохранить накладную в Excel"):
-    if st.session_state.invoice_items:
-        file_path = "orders.xlsx"
 
-        invoice_df = pd.DataFrame(st.session_state.invoice_items)
+    # Флаг, чтобы понимать — есть ли готовая накладная
+    if "saved_invoice_ready" not in st.session_state:
+        st.session_state.saved_invoice_ready = False
 
-        # Оставляем только нужные колонки и в нужном порядке
-        final_columns = ["Дата", "Бренд", "Модель", "Тип цены", "Количество", "Цена", "Сумма", "Комментарий"]
+    if st.button("Сохранить накладную в Excel"):
 
-        for col in final_columns:
-            if col not in invoice_df.columns:
-                invoice_df[col] = ""
+        if st.session_state.invoice_items:
 
-        invoice_df = invoice_df[final_columns].copy()
+            file_path = "orders.xlsx"
 
-        # Перезаписываем файл заново, без старого мусора
-        invoice_df.to_excel(file_path, index=False)
+            invoice_df = pd.DataFrame(st.session_state.invoice_items)
 
-        st.success("Накладная сохранена в Excel")
+            # ЧИСТАЯ структура накладной
+            final_columns = [
+                "Дата",
+                "Бренд",
+                "Модель",
+                "Тип цены",
+                "Количество",
+                "Цена",
+                "Сумма",
+                "Комментарий"
+            ]
 
-        with open(file_path, "rb") as f:
+            # Если каких-то колонок нет — добавим
+            for col in final_columns:
+                if col not in invoice_df.columns:
+                    invoice_df[col] = ""
+
+            invoice_df = invoice_df[final_columns].copy()
+
+            # Перезаписываем файл (без мусора)
+            invoice_df.to_excel(file_path, index=False)
+
+            st.success("Накладная сохранена")
+
+            # Включаем кнопку скачивания
+            st.session_state.saved_invoice_ready = True
+
+            # ОЧИЩАЕМ текущую накладную
+            st.session_state.invoice_items = []
+
+        else:
+            st.warning("Накладная пустая")
+
+    # КНОПКА СКАЧИВАНИЯ (появляется после сохранения)
+    if st.session_state.saved_invoice_ready:
+        with open("orders.xlsx", "rb") as f:
             st.download_button(
                 "Скачать накладную",
                 data=f,
                 file_name="orders.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-        # очищаем текущую накладную после сохранения
-        st.session_state.invoice_items = []
-    else:
-        st.warning("Накладная пустая")
-
-
