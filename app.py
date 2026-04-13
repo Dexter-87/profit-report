@@ -818,7 +818,7 @@ with tab1:
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
     with tab2:
-    if "invoice_items" not in st.session_state:
+        if "invoice_items" not in st.session_state:
         st.session_state.invoice_items = []
 
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
