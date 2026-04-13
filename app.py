@@ -925,8 +925,7 @@ with tab1:
     
     comment = st.text_input("Комментарий", value="", key="price_comment")
 
-    comment = st.text_input("Комментарий", value="", key="price_comment")
-
+  
     current_row = {
         "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
         "Бренд": brand,
