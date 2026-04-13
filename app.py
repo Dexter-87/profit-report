@@ -871,7 +871,6 @@ with tab1:
 with tab2:
     if "invoice_items" not in st.session_state:
         st.session_state.invoice_items = []
-
     if "saved_invoice_ready" not in st.session_state:
         st.session_state.saved_invoice_ready = False
 
