@@ -839,7 +839,7 @@ with tab2:
 
     price_df = load_price()
 
-     price_df = price_df.fillna("")
+    price_df = price_df.fillna("")
 
     for col in ["Бренд", "Модель", "ТипЦены"]:
         price_df[col] = (
