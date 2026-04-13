@@ -27,10 +27,8 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     sh = gc.open(spreadsheet_name)
     ws = sh.worksheet(worksheet_name)
 
-    for _, row in df.iterrows():
+for _, row in df.iterrows():
     qty = int(row["Количество"]) if pd.notna(row["Количество"]) else 1
-
-    price_per_unit = row["Сумма"] / qty
 
     for _ in range(qty):
         values = [
@@ -38,8 +36,8 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
             "ОПТ",
             row["Наименование"],
             "",
-            price_per_unit,   # ✅ себестоимость
-            row["РРЦ"],       # ✅ продажа (если есть отдельно)
+            row["Себестоимость"],
+            row["РРЦ"],
             0,
             "",
             row["Комментарий"]
@@ -54,6 +52,7 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
             [[f"=F{last_row}-E{last_row}-G{last_row}"]],
             value_input_option="USER_ENTERED"
         )
+
 
 
 
