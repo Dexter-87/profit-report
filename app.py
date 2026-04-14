@@ -1148,7 +1148,7 @@ if st.button("+ Добавить в продажи (ОПТ)"):
         ]
 
         df_to_save = df_to_save[save_columns].copy()
-
+        append_opt_sales_to_gsheet(df_to_save)
         # 👉 СОХРАНЕНИЕ (у тебя уже есть функция/логика — оставь свою)
   
         st.success("Продажи добавлены")
