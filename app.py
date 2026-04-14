@@ -6,6 +6,7 @@ import streamlit as st
 from matplotlib import pyplot as plt
 import gspread
 from google.oauth2.service_account import Credentials
+from matplotlib.backends.backend_pdf import PdfPages
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -957,136 +958,217 @@ with tab2:
 
 with b3:
 
-    if "saved_invoice_ready" not in st.session_state:
-        st.session_state.saved_invoice_ready = False
+        if "saved_invoice_ready" not in st.session_state:
+            st.session_state.saved_invoice_ready = False
 
-    if st.button("Сохранить накладную в Excel"):
+        if st.button("Сохранить накладную в Excel и PDF"):
 
-        if st.session_state.invoice_items:
+            if st.session_state.invoice_items:
 
-            file_path = "orders.xlsx"
+                excel_file_path = "orders.xlsx"
+                pdf_file_path = "orders.pdf"
 
-            invoice_df = pd.DataFrame(st.session_state.invoice_items)
+                invoice_df = pd.DataFrame(st.session_state.invoice_items)
 
-            final_columns = [
-                "Дата",
-                "Бренд",
-                "Модель",
-                "Количество",
-                "Цена",
-                "Сумма",
-                "Комментарий"
-            ]
+                final_columns = [
+                    "Дата",
+                    "Бренд",
+                    "Модель",
+                    "Количество",
+                    "Цена",
+                    "Сумма",
+                    "Комментарий"
+                ]
 
-            for col in final_columns:
-                if col not in invoice_df.columns:
-                    invoice_df[col] = ""
+                for col in final_columns:
+                    if col not in invoice_df.columns:
+                        invoice_df[col] = ""
 
-            invoice_df = invoice_df[final_columns].copy()
+                invoice_df = invoice_df[final_columns].copy()
 
-            total_invoice_sum = pd.to_numeric(invoice_df["Сумма"], errors="coerce").fillna(0).sum()
+                total_invoice_sum = pd.to_numeric(
+                    invoice_df["Сумма"], errors="coerce"
+                ).fillna(0).sum()
 
-            from openpyxl import Workbook
-            from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
-            from openpyxl.utils import get_column_letter
+                from openpyxl import Workbook
+                from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
-            wb = Workbook()
-            ws = wb.active
-            ws.title = "Накладная"
+                wb = Workbook()
+                ws = wb.active
+                ws.title = "Накладная"
 
-            # Название компании
-            ws.merge_cells("A1:G1")
-            ws["A1"] = "Королевство бойлеров"
-            ws["A1"].font = Font(size=16, bold=True, color="FFFFFF")
-            ws["A1"].fill = PatternFill("solid", fgColor="1F4E78")
-            ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+                # Название компании
+                ws.merge_cells("A1:G1")
+                ws["A1"] = "Королевство бойлеров"
+                ws["A1"].font = Font(size=16, bold=True, color="FFFFFF")
+                ws["A1"].fill = PatternFill("solid", fgColor="1F4E78")
+                ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
 
-            # Подзаголовок
-            ws.merge_cells("A2:G2")
-            ws["A2"] = f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}"
-            ws["A2"].font = Font(size=11, bold=True, color="FFFFFF")
-            ws["A2"].fill = PatternFill("solid", fgColor="4F81BD")
-            ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
+                # Подзаголовок
+                ws.merge_cells("A2:G2")
+                ws["A2"] = f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}"
+                ws["A2"].font = Font(size=11, bold=True, color="FFFFFF")
+                ws["A2"].fill = PatternFill("solid", fgColor="4F81BD")
+                ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
 
-            # Заголовки таблицы
-            headers = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
-            header_row = 4
+                # Заголовки таблицы
+                headers = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
+                header_row = 4
 
-            thin = Side(style="thin", color="BFBFBF")
-            border = Border(left=thin, right=thin, top=thin, bottom=thin)
+                thin = Side(style="thin", color="BFBFBF")
+                border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-            for col_num, header in enumerate(headers, 1):
-                cell = ws.cell(row=header_row, column=col_num, value=header)
-                cell.font = Font(bold=True, color="FFFFFF")
-                cell.fill = PatternFill("solid", fgColor="4472C4")
-                cell.alignment = Alignment(horizontal="center", vertical="center")
-                cell.border = border
-
-            # Данные
-            start_row = 5
-            for row_idx, row in enumerate(invoice_df.itertuples(index=False), start_row):
-                values = list(row)
-                for col_num, value in enumerate(values, 1):
-                    cell = ws.cell(row=row_idx, column=col_num, value=value)
+                for col_num, header in enumerate(headers, 1):
+                    cell = ws.cell(row=header_row, column=col_num, value=header)
+                    cell.font = Font(bold=True, color="FFFFFF")
+                    cell.fill = PatternFill("solid", fgColor="4472C4")
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
                     cell.border = border
-                    if col_num in [4]:
-                        cell.alignment = Alignment(horizontal="center")
-                    elif col_num in [5, 6]:
-                        cell.alignment = Alignment(horizontal="right")
-                    else:
-                        cell.alignment = Alignment(horizontal="left")
 
-            # Итог
-            total_row = start_row + len(invoice_df)
+                # Данные
+                start_row = 5
+                for row_idx, row in enumerate(invoice_df.itertuples(index=False), start_row):
+                    values = list(row)
+                    for col_num, value in enumerate(values, 1):
+                        cell = ws.cell(row=row_idx, column=col_num, value=value)
+                        cell.border = border
+                        if col_num == 4:
+                            cell.alignment = Alignment(horizontal="center")
+                        elif col_num in [5, 6]:
+                            cell.alignment = Alignment(horizontal="right")
+                        else:
+                            cell.alignment = Alignment(horizontal="left")
 
-            ws.cell(row=total_row, column=1, value="ИТОГО")
-            ws.cell(row=total_row, column=6, value=total_invoice_sum)
+                # Итог
+                total_row = start_row + len(invoice_df)
 
-            for col_num in range(1, 8):
-                cell = ws.cell(row=total_row, column=col_num)
-                cell.font = Font(bold=True)
-                cell.fill = PatternFill("solid", fgColor="D9EAF7")
-                cell.border = border
+                ws.cell(row=total_row, column=1, value="ИТОГО")
+                ws.cell(row=total_row, column=6, value=total_invoice_sum)
 
-            ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="center")
-            ws.cell(row=total_row, column=6).alignment = Alignment(horizontal="right")
+                for col_num in range(1, 8):
+                    cell = ws.cell(row=total_row, column=col_num)
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill("solid", fgColor="D9EAF7")
+                    cell.border = border
 
-            # Ширина колонок
-            widths = {
-                "A": 14,   # Дата
-                "B": 16,   # Бренд
-                "C": 38,   # Модель
-                "D": 14,   # Количество
-                "E": 14,   # Цена
-                "F": 16,   # Сумма
-                "G": 22    # Комментарий
-            }
+                ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="center")
+                ws.cell(row=total_row, column=6).alignment = Alignment(horizontal="right")
 
-            for col_letter, width in widths.items():
-                ws.column_dimensions[col_letter].width = width
+                # Ширина колонок
+                widths = {
+                    "A": 14,
+                    "B": 16,
+                    "C": 38,
+                    "D": 14,
+                    "E": 14,
+                    "F": 16,
+                    "G": 22
+                }
 
-            # Высота строк
-            ws.row_dimensions[1].height = 24
-            ws.row_dimensions[2].height = 20
+                for col_letter, width in widths.items():
+                    ws.column_dimensions[col_letter].width = width
 
-            wb.save(file_path)
+                ws.row_dimensions[1].height = 24
+                ws.row_dimensions[2].height = 20
 
-            st.success("Накладная сохранена")
-            st.session_state.saved_invoice_ready = True
-            st.session_state.invoice_items = []
+                wb.save(excel_file_path)
 
-        else:
-            st.warning("Накладная пустая")
+                # =========================
+                # PDF
+                # =========================
+                pdf_df = invoice_df.copy()
+                pdf_df["Цена"] = pdf_df["Цена"].apply(lambda x: f"{format_money(x)} ₸")
+                pdf_df["Сумма"] = pdf_df["Сумма"].apply(lambda x: f"{format_money(x)} ₸")
 
-if st.session_state.saved_invoice_ready:
+                rows_per_page = 18
+                total_pages = max(1, (len(pdf_df) + rows_per_page - 1) // rows_per_page)
 
-    with open("orders.xlsx", "rb") as f:
-        st.download_button(
-            "Скачать накладную",
-            data=f,
-            file_name="orders.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+                with PdfPages(pdf_file_path) as pdf:
+                    for page_num in range(total_pages):
+                        start_idx = page_num * rows_per_page
+                        end_idx = start_idx + rows_per_page
+                        page_df = pdf_df.iloc[start_idx:end_idx]
+
+                        fig, ax = plt.subplots(figsize=(11.69, 8.27))  # A4 landscape
+                        ax.axis("off")
+
+                        fig.patch.set_facecolor("white")
+
+                        fig.text(
+                            0.5, 0.95,
+                            "Королевство бойлеров",
+                            ha="center", va="center",
+                            fontsize=18, fontweight="bold"
+                        )
+
+                        fig.text(
+                            0.5, 0.915,
+                            f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}",
+                            ha="center", va="center",
+                            fontsize=11
+                        )
+
+                        table_data = [headers] + page_df.values.tolist()
+
+                        table = ax.table(
+                            cellText=table_data,
+                            cellLoc="center",
+                            loc="center",
+                            colWidths=[0.10, 0.12, 0.30, 0.10, 0.12, 0.12, 0.14]
+                        )
+
+                        table.auto_set_font_size(False)
+                        table.set_fontsize(9)
+                        table.scale(1, 1.6)
+
+                        for (row, col), cell in table.get_celld().items():
+                            cell.set_linewidth(0.6)
+                            if row == 0:
+                                cell.set_text_props(weight="bold", color="white")
+                                cell.set_facecolor("#4472C4")
+                            else:
+                                cell.set_facecolor("white")
+
+                        if page_num == total_pages - 1:
+                            fig.text(
+                                0.78, 0.06,
+                                f"ИТОГО: {format_money(total_invoice_sum)} ₸",
+                                ha="center", va="center",
+                                fontsize=12, fontweight="bold"
+                            )
+
+                        pdf.savefig(fig, bbox_inches="tight")
+                        plt.close(fig)
+
+                st.success("Накладная сохранена в Excel и PDF")
+                st.session_state.saved_invoice_ready = True
+                st.session_state.invoice_items = []
+
+            else:
+                st.warning("Накладная пустая")
+
+    if st.session_state.get("saved_invoice_ready", False):
+
+        c1, c2 = st.columns(2)
+
+        with c1:
+            with open("orders.xlsx", "rb") as f:
+                st.download_button(
+                    "Скачать Excel",
+                    data=f,
+                    file_name="orders.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+
+        with c2:
+            with open("orders.pdf", "rb") as f:
+                st.download_button(
+                    "Скачать PDF",
+                    data=f,
+                    file_name="orders.pdf",
+                    mime="application/pdf"
+                )
+
 
     # 👇 ВАЖНО: это уже ВНЕ with
 if st.button("+ Добавить в продажи (ОПТ)"):
