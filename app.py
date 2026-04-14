@@ -1103,7 +1103,7 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
             "Цена": "РРЦ"
         })
 
-        if "Комментарий" not in df_to_save.columns:
+if "Комментарий" not in df_to_save.columns:
     df_to_save["Комментарий"] = ""
 
 if "Количество" not in df_to_save.columns:
