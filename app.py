@@ -1143,8 +1143,8 @@ with tab2:
                 st.session_state.invoice_open = False
                 st.rerun()
 
-        if st.button("+ Добавить в продажи (ОПТ)") and not st.session_state.is_saving_sales:
-    st.session_state.is_saving_sales = True
+    if st.button("+ Добавить в продажи (ОПТ)") and not st.session_state.is_saving_sales:
+            st.session_state.is_saving_sales = True
 
     try:
         if not st.session_state.invoice_items:
