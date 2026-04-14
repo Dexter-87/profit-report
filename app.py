@@ -1122,76 +1122,84 @@ with tab2:
                     st.warning("Накладная пустая")
 
         # Текущая накладная
-        if st.session_state.invoice_items:
-            invoice_preview = pd.DataFrame(st.session_state.invoice_items)[
-                ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
-            ].copy()
+if st.session_state.invoice_items:
+    invoice_preview = pd.DataFrame(st.session_state.invoice_items)[
+        ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
+    ].copy()
 
-            st.markdown("### Текущая накладная")
+    st.markdown("### Текущая накладная")
 
-            table_html = """
-            <div class="section-box">
-            <table style="width:100%; border-collapse: collapse;">
+    rows_html = ""
+    for _, row in invoice_preview.iterrows():
+        rows_html += f"""
+        <tr style="border-top:1px solid #2f3747;">
+            <td style="padding:10px 8px;">{row['Дата']}</td>
+            <td style="padding:10px 8px;">{row['Бренд']}</td>
+            <td style="padding:10px 8px;">{row['Модель']}</td>
+            <td style="padding:10px 8px; text-align:center;">{row['Количество']}</td>
+            <td style="padding:10px 8px;">{format_money(row['Цена'])}</td>
+            <td style="padding:10px 8px; color:#34d399; font-weight:700;">{format_money(row['Сумма'])}</td>
+        </tr>
+        """
+
+    table_html = f"""
+    <div class="section-box">
+        <table style="width:100%; border-collapse: collapse;">
             <thead>
-            <tr style="color:#aab2bf; text-align:left; border-bottom:1px solid #2f3747;">
-                <th style="padding:10px 8px;">Дата</th>
-                <th style="padding:10px 8px;">Бренд</th>
-                <th style="padding:10px 8px;">Модель</th>
-                <th style="padding:10px 8px;">Кол-во</th>
-                <th style="padding:10px 8px;">Цена</th>
-                <th style="padding:10px 8px;">Сумма</th>
-            </tr>
+                <tr style="color:#aab2bf; text-align:left; border-bottom:1px solid #2f3747;">
+                    <th style="padding:10px 8px;">Дата</th>
+                    <th style="padding:10px 8px;">Бренд</th>
+                    <th style="padding:10px 8px;">Модель</th>
+                    <th style="padding:10px 8px;">Кол-во</th>
+                    <th style="padding:10px 8px;">Цена</th>
+                    <th style="padding:10px 8px;">Сумма</th>
+                </tr>
             </thead>
             <tbody>
-            """
+                {rows_html}
+            </tbody>
+        </table>
+    </div>
+    """
 
-            for _, row in invoice_preview.iterrows():
-                table_html += f"""
-                <tr style="border-top:1px solid #2f3747;">
-                    <td style="padding:10px 8px;">{row['Дата']}</td>
-                    <td style="padding:10px 8px;">{row['Бренд']}</td>
-                    <td style="padding:10px 8px;">{row['Модель']}</td>
-                    <td style="padding:10px 8px; text-align:center;">{row['Количество']}</td>
-                    <td style="padding:10px 8px;">{format_money(row['Цена'])}</td>
-                    <td style="padding:10px 8px; color:#34d399; font-weight:700;">{format_money(row['Сумма'])}</td>
-                </tr>
-                """
+    st.markdown(table_html, unsafe_allow_html=True)
 
-            table_html += "</tbody></table></div>"
-            st.markdown(table_html, unsafe_allow_html=True)
+    total_preview = pd.to_numeric(invoice_preview["Сумма"], errors="coerce").fillna(0).sum()
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Итого к оплате</div>
+        <div class="card-value">{format_money(total_preview)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-            total_preview = pd.to_numeric(invoice_preview["Сумма"], errors="coerce").fillna(0).sum()
-            st.markdown(f"""
-            <div class="card">
-                <div class="card-title">Итого к оплате</div>
-                <div class="card-value">{format_money(total_preview)} ₸</div>
-            </div>
-            """, unsafe_allow_html=True)
 
         # Скачать после сохранения
-        if st.session_state.saved_invoice_ready:
-            with open(ORDERS_FILE, "rb") as f:
-                st.download_button(
-                    "Скачать накладную",
-                    data=f,
-                    file_name="orders.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+if st.session_state.saved_invoice_ready:
+    st.success("Файл готов. Сначала можешь закрыть или сбросить накладную, потом скачать файл.")
 
-            c1, c2 = st.columns(2)
+    c1, c2 = st.columns(2)
 
-            with c1:
-                if st.button("Закрыть накладную"):
-                    st.session_state.invoice_items = []
-                    st.session_state.saved_invoice_ready = False
-                    st.session_state.invoice_open = False
-                    st.rerun()
+    with c1:
+        if st.button("Закрыть накладную"):
+            st.session_state.invoice_items = []
+            st.session_state.saved_invoice_ready = False
+            st.session_state.invoice_open = False
+            st.rerun()
 
-            with c2:
-                if st.button("Новая накладная"):
-                    st.session_state.invoice_items = []
-                    st.session_state.saved_invoice_ready = False
-                    st.rerun()
+    with c2:
+        if st.button("Новая накладная"):
+            st.session_state.invoice_items = []
+            st.session_state.saved_invoice_ready = False
+            st.rerun()
+
+    with open(ORDERS_FILE, "rb") as f:
+        st.download_button(
+            "Скачать накладную",
+            data=f,
+            file_name="orders.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
 
         # Добавить в продажи
         if st.button("+ Добавить в продажи (ОПТ)") and not st.session_state.is_saving_sales:
