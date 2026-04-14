@@ -1198,25 +1198,25 @@ with tab2:
                     df_to_save = df_to_save[save_columns].copy()
                     append_opt_sales_to_gsheet(df_to_save)
 
-st.success("Продажи добавлены")
-
-st.session_state.invoice_items = []
-st.session_state.saved_invoice_ready = False
-
-
-# 👇 ВОТ ЭТО ДОБАВЛЯЕШЬ СЮДА
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("Закрыть накладную"):
-        st.session_state.invoice_items = []
-        st.session_state.saved_invoice_ready = False
-        st.rerun()
-
-with col2:
-    if st.button("Новая накладная"):
-        st.session_state.invoice_items = []
-        st.session_state.saved_invoice_ready = False
-        st.rerun()
-
-
+                    st.success("Продажи добавлены")
+                    
+                    st.session_state.invoice_items = []
+                    st.session_state.saved_invoice_ready = False
+                    
+                    
+                    # 👇 ВОТ ЭТО ДОБАВЛЯЕШЬ СЮДА
+                    col1, col2 = st.columns(2)
+                    
+        with col1:
+                if st.button("Закрыть накладную"):
+                            st.session_state.invoice_items = []
+                            st.session_state.saved_invoice_ready = False
+                            st.rerun()
+                    
+        with col2:
+                if st.button("Новая накладная"):
+                            st.session_state.invoice_items = []
+                            st.session_state.saved_invoice_ready = False
+                            st.rerun()
+            
+            
