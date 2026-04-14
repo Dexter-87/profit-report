@@ -938,6 +938,7 @@ with tab2:
         "Количество": qty,
         "Цена": price,
         "Сумма": total_sum,
+        "Себестоимость": cost * qty
         "Комментарий": comment
     }
 
@@ -1103,30 +1104,36 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
         })
 
         if "Комментарий" not in df_to_save.columns:
-            df_to_save["Комментарий"] = ""
+    df_to_save["Комментарий"] = ""
 
-        if "Количество" not in df_to_save.columns:
-            df_to_save["Количество"] = 1
+if "Количество" not in df_to_save.columns:
+    df_to_save["Количество"] = 1
 
-        if "Номер заказа" not in df_to_save.columns:
-            df_to_save["Номер заказа"] = ""
+if "Номер заказа" not in df_to_save.columns:
+    df_to_save["Номер заказа"] = ""
 
-        df_to_save["Комиссия Kaspi"] = 0
-        df_to_save["Себестоимость"] = 0
+if "Комиссия Kaspi" not in df_to_save.columns:
+    df_to_save["Комиссия Kaspi"] = 0
 
-        df_to_save = df_to_save[
-            [
-                "Дата",
-                "Канал",
-                "Наименование",
-                "Номер заказа",
-                "Количество",
-                "РРЦ",
-                "Комиссия Kaspi",
-                "Себестоимость",
-                "Комментарий",
-            ]
-        ]
+if "Себестоимость" not in df_to_save.columns:
+    df_to_save["Себестоимость"] = 0
+
+df_to_save["РРЦ"] = pd.to_numeric(df_to_save["РРЦ"], errors="coerce").fillna(0)
+df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
+
+save_columns = [
+    "Дата",
+    "Канал",
+    "Наименование",
+    "Номер заказа",
+    "Себестоимость",
+    "РРЦ",
+    "Комиссия Kaspi",
+    "Комментарий"
+]
+
+df_to_save = df_to_save[save_columns].copy()
+
 
         try:
             append_opt_sales_to_gsheet(df_to_save)
