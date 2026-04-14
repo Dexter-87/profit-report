@@ -1135,11 +1135,11 @@ save_columns = [
 df_to_save = df_to_save[save_columns].copy()
 
 
-        try:
-            append_opt_sales_to_gsheet(df_to_save)
-            st.success("✅ Продажи добавлены в Google Sheets")
-        except Exception as e:
-            st.error(f"Ошибка записи в Google Sheets: {e}")
+try:
+    append_opt_sales_to_gsheet(df_to_save)
+    st.success("✅ Продажи добавлены в Google Sheets")
+    except Exception as e:
+    st.error(f"Ошибка записи в Google Sheets: {e}")
 
 
 
