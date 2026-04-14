@@ -868,21 +868,32 @@ with tab2:
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
     if not st.session_state.invoice_open:
-        st.info("Накладная закрыта.")
-        if st.button("Открыть новую накладную"):
-            st.session_state.invoice_open = True
-            st.rerun()
+        st.info("Накладная закрыта")
+
+        c_open1, c_open2 = st.columns(2)
+        with c_open1:
+            if st.button("Открыть новую накладную"):
+                st.session_state.invoice_items = []
+                st.session_state.saved_invoice_ready = False
+                st.session_state.invoice_open = True
+                st.rerun()
     else:
-        price_df = load_price().fillna("")
+        price_df = load_price().fillna("").copy()
 
         for col in ["Бренд", "Модель", "ТипЦены"]:
-            price_df[col] = (
-                price_df[col]
-                .astype(str)
-                .str.replace("\xa0", " ", regex=False)
-                .str.replace("\ufeff", "", regex=False)
-                .str.strip()
-            )
+            if col in price_df.columns:
+                price_df[col] = (
+                    price_df[col]
+                    .astype(str)
+                    .str.replace("\xa0", " ", regex=False)
+                    .str.replace("\ufeff", "", regex=False)
+                    .str.strip()
+                )
+
+        if "Цена" not in price_df.columns:
+            price_df["Цена"] = 0
+        if "Себестоимость" not in price_df.columns:
+            price_df["Себестоимость"] = 0
 
         price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
         price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
@@ -929,7 +940,6 @@ with tab2:
         """, unsafe_allow_html=True)
 
         qty = st.number_input("Количество", min_value=1, value=1, step=1)
-
         total_sum = price * qty if price else 0
 
         st.markdown(f"""
@@ -957,6 +967,7 @@ with tab2:
         with b1:
             if st.button("Добавить позицию"):
                 st.session_state.invoice_items.append(current_row.copy())
+                st.session_state.saved_invoice_ready = False
                 st.success("Позиция добавлена")
 
         with b2:
@@ -968,8 +979,7 @@ with tab2:
         with b3:
             if st.button("Сохранить накладную в Excel"):
                 if st.session_state.invoice_items:
-                    file_path = ORDERS_FILE
-                    invoice_df = pd.DataFrame(st.session_state.invoice_items)
+                    invoice_df = pd.DataFrame(st.session_state.invoice_items).copy()
 
                     final_columns = [
                         "Дата",
@@ -986,7 +996,7 @@ with tab2:
                             invoice_df[col] = ""
 
                     invoice_df = invoice_df[final_columns].copy()
-                    invoice_df["Количество"] = pd.to_numeric(invoice_df["Количество"], errors="coerce").fillna(0)
+                    invoice_df["Количество"] = pd.to_numeric(invoice_df["Количество"], errors="coerce").fillna(0).astype(int)
                     invoice_df["Цена"] = pd.to_numeric(invoice_df["Цена"], errors="coerce").fillna(0)
                     invoice_df["Сумма"] = pd.to_numeric(invoice_df["Сумма"], errors="coerce").fillna(0)
 
@@ -1004,6 +1014,7 @@ with tab2:
                     border_thin = Border(left=thin, right=thin, top=thin, bottom=thin)
                     border_medium = Border(left=medium, right=medium, top=medium, bottom=medium)
 
+                    # Шапка
                     ws.merge_cells("A1:G1")
                     ws["A1"] = "TechnoOpt"
                     ws["A1"].font = Font(size=16, bold=True, color="FFFFFF")
@@ -1017,19 +1028,16 @@ with tab2:
                     ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
 
                     today_str = pd.Timestamp.today().strftime("%d.%m.%Y")
-                    invoice_number = pd.Timestamp.now().strftime("%d%m%Y%H%M%S")
 
                     ws["A4"] = "Поставщик:"
                     ws["B4"] = "TechnoOpt"
-                    ws["E4"] = "№ накладной:"
-                    ws["F4"] = invoice_number
+                    ws["E4"] = "Дата:"
+                    ws["F4"] = today_str
 
-                    ws["A5"] = "Дата:"
-                    ws["B5"] = today_str
-                    ws["E5"] = "Покупатель:"
-                    ws["F5"] = ""
+                    ws["A5"] = "Покупатель:"
+                    ws["B5"] = ""
 
-                    for cell_ref in ["A4", "A5", "E4", "E5"]:
+                    for cell_ref in ["A4", "E4", "A5"]:
                         ws[cell_ref].font = Font(bold=True)
 
                     headers = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
@@ -1106,19 +1114,51 @@ with tab2:
                     ws.row_dimensions[2].height = 22
                     ws.row_dimensions[7].height = 22
 
-                    wb.save(file_path)
+                    wb.save(ORDERS_FILE)
 
                     st.success("Накладная сохранена")
                     st.session_state.saved_invoice_ready = True
                 else:
                     st.warning("Накладная пустая")
 
+        # Текущая накладная
         if st.session_state.invoice_items:
             invoice_preview = pd.DataFrame(st.session_state.invoice_items)[
                 ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
             ].copy()
+
             st.markdown("### Текущая накладная")
-            st.dataframe(invoice_preview, use_container_width=True)
+
+            table_html = """
+            <div class="section-box">
+            <table style="width:100%; border-collapse: collapse;">
+            <thead>
+            <tr style="color:#aab2bf; text-align:left; border-bottom:1px solid #2f3747;">
+                <th style="padding:10px 8px;">Дата</th>
+                <th style="padding:10px 8px;">Бренд</th>
+                <th style="padding:10px 8px;">Модель</th>
+                <th style="padding:10px 8px;">Кол-во</th>
+                <th style="padding:10px 8px;">Цена</th>
+                <th style="padding:10px 8px;">Сумма</th>
+            </tr>
+            </thead>
+            <tbody>
+            """
+
+            for _, row in invoice_preview.iterrows():
+                table_html += f"""
+                <tr style="border-top:1px solid #2f3747;">
+                    <td style="padding:10px 8px;">{row['Дата']}</td>
+                    <td style="padding:10px 8px;">{row['Бренд']}</td>
+                    <td style="padding:10px 8px;">{row['Модель']}</td>
+                    <td style="padding:10px 8px; text-align:center;">{row['Количество']}</td>
+                    <td style="padding:10px 8px;">{format_money(row['Цена'])}</td>
+                    <td style="padding:10px 8px; color:#34d399; font-weight:700;">{format_money(row['Сумма'])}</td>
+                </tr>
+                """
+
+            table_html += "</tbody></table></div>"
+            st.markdown(table_html, unsafe_allow_html=True)
 
             total_preview = pd.to_numeric(invoice_preview["Сумма"], errors="coerce").fillna(0).sum()
             st.markdown(f"""
@@ -1128,6 +1168,7 @@ with tab2:
             </div>
             """, unsafe_allow_html=True)
 
+        # Скачать после сохранения
         if st.session_state.saved_invoice_ready:
             with open(ORDERS_FILE, "rb") as f:
                 st.download_button(
@@ -1137,92 +1178,87 @@ with tab2:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-            if st.button("Закрыть накладную"):
-                st.session_state.invoice_items = []
-                st.session_state.saved_invoice_ready = False
-                st.session_state.invoice_open = False
-                st.rerun()
+            c1, c2 = st.columns(2)
 
-    if st.button("+ Добавить в продажи (ОПТ)") and not st.session_state.is_saving_sales:
+            with c1:
+                if st.button("Закрыть накладную"):
+                    st.session_state.invoice_items = []
+                    st.session_state.saved_invoice_ready = False
+                    st.session_state.invoice_open = False
+                    st.rerun()
+
+            with c2:
+                if st.button("Новая накладная"):
+                    st.session_state.invoice_items = []
+                    st.session_state.saved_invoice_ready = False
+                    st.rerun()
+
+        # Добавить в продажи
+        if st.button("+ Добавить в продажи (ОПТ)") and not st.session_state.is_saving_sales:
             st.session_state.is_saving_sales = True
 
-    try:
-        if not st.session_state.invoice_items:
-            st.warning("Накладная пустая")
-        else:
-            df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
+            try:
+                if not st.session_state.invoice_items:
+                    st.warning("Накладная пустая")
+                else:
+                    df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
 
-            df_to_save["Количество"] = pd.to_numeric(
-                df_to_save["Количество"], errors="coerce"
-            ).fillna(1).astype(int)
+                    df_to_save["Количество"] = pd.to_numeric(
+                        df_to_save["Количество"], errors="coerce"
+                    ).fillna(1).astype(int)
 
-            df_to_save = df_to_save.loc[
-                df_to_save.index.repeat(df_to_save["Количество"])
-            ].copy()
+                    df_to_save = df_to_save.loc[
+                        df_to_save.index.repeat(df_to_save["Количество"])
+                    ].copy()
 
-            df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
-            df_to_save["Канал"] = "ОПТ"
+                    df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
+                    df_to_save["Канал"] = "ОПТ"
 
-            df_to_save = df_to_save.rename(columns={
-                "Модель": "Наименование",
-                "Цена": "РРЦ"
-            })
+                    df_to_save = df_to_save.rename(columns={
+                        "Модель": "Наименование",
+                        "Цена": "РРЦ"
+                    })
 
-            if "Номер заказа" not in df_to_save.columns:
-                df_to_save["Номер заказа"] = ""
+                    if "Номер заказа" not in df_to_save.columns:
+                        df_to_save["Номер заказа"] = ""
 
-            if "Себестоимость" not in df_to_save.columns:
-                df_to_save["Себестоимость"] = 0
+                    if "Себестоимость" not in df_to_save.columns:
+                        df_to_save["Себестоимость"] = 0
 
-            df_to_save["Комиссия Kaspi"] = 0
+                    df_to_save["Комиссия Kaspi"] = 0
 
-            df_to_save["РРЦ"] = pd.to_numeric(df_to_save["РРЦ"], errors="coerce").fillna(0)
-            df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
-            df_to_save["Комиссия Kaspi"] = pd.to_numeric(df_to_save["Комиссия Kaspi"], errors="coerce").fillna(0)
+                    df_to_save["РРЦ"] = pd.to_numeric(df_to_save["РРЦ"], errors="coerce").fillna(0)
+                    df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
+                    df_to_save["Комиссия Kaspi"] = pd.to_numeric(df_to_save["Комиссия Kaspi"], errors="coerce").fillna(0)
 
-            df_to_save["Чистая прибыль"] = (
-                df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
-            )
+                    df_to_save["Чистая прибыль"] = (
+                        df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
+                    )
 
-            save_columns = [
-                "Дата",
-                "Канал",
-                "Наименование",
-                "Номер заказа",
-                "Себестоимость",
-                "РРЦ",
-                "Комиссия Kaspi",
-                "Чистая прибыль"
-            ]
+                    save_columns = [
+                        "Дата",
+                        "Канал",
+                        "Наименование",
+                        "Номер заказа",
+                        "Себестоимость",
+                        "РРЦ",
+                        "Комиссия Kaspi",
+                        "Чистая прибыль"
+                    ]
 
-            df_to_save = df_to_save[save_columns].copy()
-            append_opt_sales_to_gsheet(df_to_save)
+                    df_to_save = df_to_save[save_columns].copy()
+                    append_opt_sales_to_gsheet(df_to_save)
 
-            st.success("Продажи добавлены")
-            st.session_state.invoice_items = []
-            st.session_state.saved_invoice_ready = False
+                    st.success("Продажи добавлены")
+                    st.session_state.invoice_items = []
+                    st.session_state.saved_invoice_ready = False
 
-    except Exception as e:
-        st.error(f"Ошибка при добавлении в продажи: {e}")
+            except Exception as e:
+                st.error(f"Ошибка при добавлении в продажи: {e}")
 
-    finally:
-        st.session_state.is_saving_sales = False
+            finally:
+                st.session_state.is_saving_sales = Fals
 
-
-
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("Закрыть накладную"):
-        st.session_state.invoice_items = []
-        st.session_state.saved_invoice_ready = False
-        st.rerun()
-
-with col2:
-    if st.button("Новая накладная"):
-        st.session_state.invoice_items = []
-        st.session_state.saved_invoice_ready = False
-        st.rerun()
 
             
             
