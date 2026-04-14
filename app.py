@@ -996,14 +996,13 @@ with tab2:
 
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
+    PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+    PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
+
     @st.cache_data(ttl=60)
     def load_price():
-        df1 = pd.read_csv(
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
-        )
-        df2 = pd.read_csv(
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
-        )
+        df1 = pd.read_csv(PRICE_URL_TEEG)
+        df2 = pd.read_csv(PRICE_URL_ARISTON)
 
         df1.columns = df1.columns.str.strip()
         df2.columns = df2.columns.str.strip()
@@ -1011,6 +1010,7 @@ with tab2:
         df = pd.concat([df1, df2], ignore_index=True)
         df.columns = df.columns.str.strip()
         return df
+
 
     price_df = load_price().fillna("")
 
