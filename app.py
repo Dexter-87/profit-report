@@ -1150,8 +1150,7 @@ if st.button("+ Добавить в продажи (ОПТ)"):
         df_to_save = df_to_save[save_columns].copy()
 
         # 👉 СОХРАНЕНИЕ (у тебя уже есть функция/логика — оставь свою)
-        append_to_google_sheets(df_to_save)  # ← тут твоя функция
-
+  
         st.success("Продажи добавлены")
 
         # 👉 очищаем накладную
