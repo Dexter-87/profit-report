@@ -938,7 +938,7 @@ with tab2:
         "Количество": qty,
         "Цена": price,
         "Сумма": total_sum,
-        "Себестоимость": cost * qty,
+        "Себестоимость": cost,
         "Комментарий": comment
     }
 
@@ -1095,19 +1095,19 @@ if st.button("➕ Добавить в продажи (ОПТ)"):
     else:
         df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
 
-        df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
-        df_to_save["Канал"] = "ОПТ"
+df_to_save["Количество"] = pd.to_numeric(df_to_save["Количество"], errors="coerce").fillna(1).astype(int)
+df_to_save = df_to_save.loc[df_to_save.index.repeat(df_to_save["Количество"])].copy()
 
-        df_to_save = df_to_save.rename(columns={
-            "Модель": "Наименование",
-            "Цена": "РРЦ"
-        })
+df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
+df_to_save["Канал"] = "ОПТ"
+
+df_to_save = df_to_save.rename(columns={
+    "Модель": "Наименование",
+    "Цена": "РРЦ"
+})
 
 if "Комментарий" not in df_to_save.columns:
     df_to_save["Комментарий"] = ""
-
-if "Количество" not in df_to_save.columns:
-    df_to_save["Количество"] = 1
 
 if "Номер заказа" not in df_to_save.columns:
     df_to_save["Номер заказа"] = ""
@@ -1133,6 +1133,7 @@ save_columns = [
 ]
 
 df_to_save = df_to_save[save_columns].copy()
+
 
 
 try:
