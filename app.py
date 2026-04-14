@@ -1207,16 +1207,16 @@ with tab2:
                     # 👇 ВОТ ЭТО ДОБАВЛЯЕШЬ СЮДА
                     col1, col2 = st.columns(2)
                     
-        with col1:
-                if st.button("Закрыть накладную"):
-                            st.session_state.invoice_items = []
-                            st.session_state.saved_invoice_ready = False
-                            st.rerun()
+    with col1:
+            if st.button("Закрыть накладную"):
+                    st.session_state.invoice_items = []
+                    st.session_state.saved_invoice_ready = False
+                    st.rerun()
                     
-        with col2:
-                if st.button("Новая накладная"):
-                            st.session_state.invoice_items = []
-                            st.session_state.saved_invoice_ready = False
-                            st.rerun()
+    with col2:
+            if st.button("Новая накладная"):
+                    st.session_state.invoice_items = []
+                    st.session_state.saved_invoice_ready = False
+                    st.rerun()
             
             
