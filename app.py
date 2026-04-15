@@ -665,7 +665,7 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     # ЗАГРУЗКА
     # =========================
     sales_raw, expenses_raw = load_data()
-base_df = load_sales_dataframe(sales_raw)
+ba_df = load_sales_dataframe(sales_raw)
 base_exp = load_expenses_dataframe(expenses_raw)
 
 if base_df is None or base_df.empty:
