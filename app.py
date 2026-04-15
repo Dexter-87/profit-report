@@ -662,9 +662,10 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     return pdf_bytes
 
     # =========================
-    # ЗАГРУЗКА
-    # =========================
-    sales_raw, expenses_raw = load_data()
+# ЗАГРУЗКА
+# =========================
+sales_raw, expenses_raw = load_data()
+
 base_df = load_sales_dataframe(sales_raw)
 base_exp = load_expenses_dataframe(expenses_raw)
 
@@ -683,25 +684,17 @@ if valid_dates.empty:
     st.error("В продажах не распознаны даты.")
     st.stop()
 
+# =========================
+# ВКЛАДКИ
+# =========================
+tab1, tab2 = st.tabs(["Финансовая сводка", "Создать заказ"])
 
-    # =========================
-    # ВКЛАДКИ
-    # =========================
-    tab1, tab2 = st.tabs(["Финансовая сводка", "Создать заказ"])
-
-    # =========================
-    # ФИНАНСОВАЯ СВОДКА
-    # =========================
+# =========================
+# ФИНАНСОВАЯ СВОДКА
+# =========================
 with tab1:
     df = base_df.copy()
     exp = base_exp.copy()
-
-    st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Продажи ∙ Прибыль ∙ Рентабельность</div>', unsafe_allow_html=True)
-
-    if st.button("Обновить данные", key="refresh_main"):
-        st.cache_data.clear()
-        st.rerun()
 
     st.caption("Кэш обновляется примерно раз в 60 секунд")
 
@@ -719,63 +712,93 @@ with tab1:
 
     f1, f2 = st.columns(2)
 
-from datetime import date, timedelta
+    with f1:
+        selected_channel = st.selectbox(
+            "Канал",
+            channel_options,
+            index=0
+        )
 
-today = date.today()
+    with f2:
+        if st.button("Обновить данные", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
 
-if "quick_period" not in st.session_state:
-    st.session_state.quick_period = "30d"
+    today = date.today()
 
-if "date_from_filter" not in st.session_state:
-    st.session_state.date_from_filter = date(2026, 3, 16)
-
-if "date_to_filter" not in st.session_state:
-    st.session_state.date_to_filter = today
-
-st.markdown("### Фильтр периода")
-
-c1, c2, c3, c4 = st.columns(4)
-
-with c1:
-    if st.button("Сегодня", use_container_width=True):
-        st.session_state.quick_period = "today"
-        st.session_state.date_from_filter = today
-        st.session_state.date_to_filter = today
-
-with c2:
-    if st.button("7 дней", use_container_width=True):
-        st.session_state.quick_period = "7d"
-        st.session_state.date_from_filter = today - timedelta(days=6)
-        st.session_state.date_to_filter = today
-
-with c3:
-    if st.button("30 дней", use_container_width=True):
+    if "quick_period" not in st.session_state:
         st.session_state.quick_period = "30d"
-        st.session_state.date_from_filter = today - timedelta(days=29)
-        st.session_state.date_to_filter = today
 
-with c4:
-    if st.button("Всё", use_container_width=True):
-        st.session_state.quick_period = "all"
-        st.session_state.date_from_filter = date(2026, 3, 16)
-        st.session_state.date_to_filter = today
+    if "date_from_filter" not in st.session_state:
+        st.session_state.date_from_filter = min_date
 
-date_from = st.date_input(
-    "С",
-    value=st.session_state.date_from_filter,
-    max_value=today,
-    key="date_from_input"
-)
+    if "date_to_filter" not in st.session_state:
+        st.session_state.date_to_filter = min(today, max_date)
 
-date_to = st.date_input(
-    "По",
-    value=st.session_state.date_to_filter,
-    max_value=today,
-    key="date_to_input"
-)
+    st.markdown("### Фильтр периода")
 
-st.session_state.date_from_filter = date_from
-st.session_state.date_to_filter = date_to
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        if st.button("Сегодня", use_container_width=True):
+            safe_today = min(today, max_date)
+            st.session_state.quick_period = "today"
+            st.session_state.date_from_filter = safe_today
+            st.session_state.date_to_filter = safe_today
+
+    with c2:
+        if st.button("7 дней", use_container_width=True):
+            safe_today = min(today, max_date)
+            start_7 = safe_today - timedelta(days=6)
+            if start_7 < min_date:
+                start_7 = min_date
+            st.session_state.quick_period = "7d"
+            st.session_state.date_from_filter = start_7
+            st.session_state.date_to_filter = safe_today
+
+    with c3:
+        if st.button("30 дней", use_container_width=True):
+            safe_today = min(today, max_date)
+            start_30 = safe_today - timedelta(days=29)
+            if start_30 < min_date:
+                start_30 = min_date
+            st.session_state.quick_period = "30d"
+            st.session_state.date_from_filter = start_30
+            st.session_state.date_to_filter = safe_today
+
+    with c4:
+        if st.button("Всё", use_container_width=True):
+            safe_today = min(today, max_date)
+            st.session_state.quick_period = "all"
+            st.session_state.date_from_filter = min_date
+            st.session_state.date_to_filter = safe_today
+
+    date_from = st.date_input(
+        "С",
+        value=st.session_state.date_from_filter,
+        min_value=min_date,
+        max_value=max_date,
+        key="date_from_input"
+    )
+
+    date_to = st.date_input(
+        "По",
+        value=st.session_state.date_to_filter,
+        min_value=min_date,
+        max_value=max_date,
+        key="date_to_input"
+    )
+
+    if date_from > date_to:
+        date_from, date_to = date_to, date_from
+
+    st.session_state.date_from_filter = date_from
+    st.session_state.date_to_filter = date_to
+
+    # =========================
+    # ПРИМЕНЕНИЕ ФИЛЬТРОВ
+    # =========================
+
 
 
 
