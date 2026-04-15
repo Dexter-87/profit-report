@@ -665,13 +665,24 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     # ЗАГРУЗКА
     # =========================
     sales_raw, expenses_raw = load_data()
-    base_df = load_sales_dataframe(sales_raw)
-    base_exp = load_expenses_dataframe(expenses_raw)
+base_df = load_sales_dataframe(sales_raw)
+base_exp = load_expenses_dataframe(expenses_raw)
 
-    valid_dates = base_df["Дата"].dropna()
+if base_df is None or base_df.empty:
+    st.error("Не удалось загрузить продажи.")
+    st.stop()
+
+if "Дата" not in base_df.columns:
+    st.error("В таблице продаж нет колонки 'Дата'.")
+    st.write(base_df.columns.tolist())
+    st.stop()
+
+valid_dates = base_df["Дата"].dropna()
+
 if valid_dates.empty:
     st.error("В продажах не распознаны даты.")
     st.stop()
+
 
     # =========================
     # ВКЛАДКИ
