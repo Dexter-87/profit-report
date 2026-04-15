@@ -1077,9 +1077,23 @@ with tab2:
     brand = st.selectbox("Бренд", brands)
     
     models = sorted([
-        x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
-        if str(x).strip() != ""
-    ])
+    x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"]
+    if str(x).strip() != ""
+])
+
+search = st.text_input("🔍 Поиск модели", key="model_search")
+
+if search:
+    filtered_models = [m for m in models if search.lower() in str(m).lower()]
+else:
+    filtered_models = models
+
+if not filtered_models:
+    st.warning("Модель не найдена")
+    model = None
+else:
+    model = st.selectbox("Модель", filtered_models)
+
     search = st.text_input("🔍 Поиск модели")
 
 models = sorted(df_price["Наименование"].dropna().unique())
