@@ -1014,113 +1014,113 @@ with st.expander("Расходы"):
 # СОЗДАНИЕ ЗАКАЗА (НОВАЯ ЛОГИКА)
 # =========================
 with tab2:
-if "invoice_items" not in st.session_state:
-    st.session_state.invoice_items = []
+    if "invoice_items" not in st.session_state:
+        st.session_state.invoice_items = []
+        
+    if "saved_invoice_ready" not in st.session_state:
+        st.session_state.saved_invoice_ready = False
     
-if "saved_invoice_ready" not in st.session_state:
-    st.session_state.saved_invoice_ready = False
-
-if "invoice_pdf_bytes" not in st.session_state:
-    st.session_state.invoice_pdf_bytes = None
-
-st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
-
-PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
-PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
-
-@st.cache_data(ttl=60)
-def load_price():
-    df1 = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv")
-    df2 = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv")
-
-    df1.columns = df1.columns.str.strip()
-    df2.columns = df2.columns.str.strip()
-
-    df = pd.concat([df1, df2], ignore_index=True)
-    df.columns = df.columns.str.strip()
-    return df
-
-price_df = load_price().fillna("")
-
-for col in ["Бренд", "Модель", "ТипЦены"]:
-    price_df[col] = (
-        price_df[col]
-        .astype(str)
-        .str.replace("\xa0", " ", regex=False)
-        .str.replace("\ufeff", "", regex=False)
-        .str.strip()
-    )
-
-price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
-price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
-
-brands = sorted([
-    x for x in price_df["Бренд"].dropna().unique()
-    if str(x).strip() != ""
-])
-brand = st.selectbox("Бренд", brands)
-
-models = sorted([
-    x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
-    if str(x).strip() != ""
-])
-model = st.selectbox("Модель", models)
-
-price_types = sorted([
-    x for x in price_df.loc[
+    if "invoice_pdf_bytes" not in st.session_state:
+        st.session_state.invoice_pdf_bytes = None
+    
+    st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
+    
+    PRICE_URL_TEEG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+    PRICE_URL_ARISTON = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
+    
+    @st.cache_data(ttl=60)
+    def load_price():
+        df1 = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv")
+        df2 = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv")
+    
+        df1.columns = df1.columns.str.strip()
+        df2.columns = df2.columns.str.strip()
+    
+        df = pd.concat([df1, df2], ignore_index=True)
+        df.columns = df.columns.str.strip()
+        return df
+    
+    price_df = load_price().fillna("")
+    
+    for col in ["Бренд", "Модель", "ТипЦены"]:
+        price_df[col] = (
+            price_df[col]
+            .astype(str)
+            .str.replace("\xa0", " ", regex=False)
+            .str.replace("\ufeff", "", regex=False)
+            .str.strip()
+        )
+    
+    price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
+    price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
+    
+    brands = sorted([
+        x for x in price_df["Бренд"].dropna().unique()
+        if str(x).strip() != ""
+    ])
+    brand = st.selectbox("Бренд", brands)
+    
+    models = sorted([
+        x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
+        if str(x).strip() != ""
+    ])
+    model = st.selectbox("Модель", models)
+    
+    price_types = sorted([
+        x for x in price_df.loc[
+            (price_df["Бренд"] == brand) &
+            (price_df["Модель"] == model),
+            "ТипЦены"
+        ].dropna().unique()
+        if str(x).strip() != ""
+    ])
+    price_type = st.selectbox("Тип цены", price_types)
+    
+    selected_row = price_df[
         (price_df["Бренд"] == brand) &
-        (price_df["Модель"] == model),
-        "ТипЦены"
-    ].dropna().unique()
-    if str(x).strip() != ""
-])
-price_type = st.selectbox("Тип цены", price_types)
-
-selected_row = price_df[
-    (price_df["Бренд"] == brand) &
-    (price_df["Модель"] == model) &
-    (price_df["ТипЦены"] == price_type)
-].copy()
-
-if not selected_row.empty:
-    selected_row = selected_row[selected_row["Цена"] > 0]
-
-price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
-cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
-
-st.markdown(f"""
-<div class="card">
-    <div class="card-title">Цена</div>
-    <div class="card-value value-blue">{format_money(price)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
-
-qty = st.number_input("Количество", min_value=1, value=1)
-
-total_sum = price * qty if price else 0
-
-st.markdown(f"""
-<div class="card">
-    <div class="card-title">Сумма</div>
-    <div class="card-value">{format_money(total_sum)} ₸</div>
-</div>
-""", unsafe_allow_html=True)
-
-comment = st.text_input("Комментарий", value="")
-
-current_row = {
-    "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-    "Бренд": brand,
-    "Модель": model,
-    "Количество": qty,
-    "Цена": price,
-    "Сумма": total_sum,
-    "Себестоимость": cost,
-    "Комментарий": comment
-}
-
-
-b1, b2, b3 = st.columns(3)
+        (price_df["Модель"] == model) &
+        (price_df["ТипЦены"] == price_type)
+    ].copy()
+    
+    if not selected_row.empty:
+        selected_row = selected_row[selected_row["Цена"] > 0]
+    
+    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
+    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
+    
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Цена</div>
+        <div class="card-value value-blue">{format_money(price)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    qty = st.number_input("Количество", min_value=1, value=1)
+    
+    total_sum = price * qty if price else 0
+    
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Сумма</div>
+        <div class="card-value">{format_money(total_sum)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    comment = st.text_input("Комментарий", value="")
+    
+    current_row = {
+        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
+        "Бренд": brand,
+        "Модель": model,
+        "Количество": qty,
+        "Цена": price,
+        "Сумма": total_sum,
+        "Себестоимость": cost,
+        "Комментарий": comment
+    }
+    
+    
+    b1, b2, b3 = st.columns(3)
 
 with b1:
     if st.button("Добавить позицию"):
