@@ -1137,20 +1137,20 @@ with tab1:
             .tolist()
         )
     
-        if price_types:
+    if price_types:
             price_type = st.selectbox("Тип цены", price_types, key="order_price_type")
-        else:
+    else:
             price_type = None
             st.warning("Для этой модели не найден тип цены")
     
-        selected_row = (
-            price_df[
-                (price_df["Бренд"] == brand) &
-                (price_df["Модель"].astype(str).str.strip() == str(model).strip()) &
-                (price_df["ТипЦены"].astype(str).str.strip() == str(price_type).strip())
-            ].copy()
-            if price_type else pd.DataFrame()
-        )
+    selected_row = (
+        price_df[
+            (price_df["Бренд"] == brand) &
+            (price_df["Модель"].astype(str).str.strip() == str(model).strip()) &
+            (price_df["ТипЦены"].astype(str).str.strip() == str(price_type).strip())
+        ].copy()
+        if price_type else pd.DataFrame()
+    )
     
         if not selected_row.empty:
             selected_row = selected_row[selected_row["Цена"] > 0]
