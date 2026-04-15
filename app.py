@@ -542,146 +542,174 @@ def save_order_row(row: dict):
     updated = pd.concat([orders, pd.DataFrame([row])], ignore_index=True)
     updated.to_excel(ORDERS_FILE, index=False)
 def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
-    import tempfile
+    from io import BytesIO
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import mm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
     buffer = BytesIO()
 
-    font_path = "DejaVuSans.ttf"
-    pdfmetrics.registerFont(TTFont("CustomFont", font_path))
-    font_name = "CustomFont"
-
-    possible_fonts = [
-        r"C:\Windows\Fonts\arial.ttf",
-        r"C:\Windows\Fonts\ARIAL.TTF",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
-    ]
-
-    for font_path in possible_fonts:
-        if os.path.exists(font_path):
-            try:
-                pdfmetrics.registerFont(TTFont("CustomCyr", font_path))
-                font_name = "CustomCyr"
-                break
-            except Exception:
-                pass
-
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=A4,
-        rightMargin=12 * mm,
-        leftMargin=12 * mm,
-        topMargin=12 * mm,
-        bottomMargin=12 * mm,
+        pagesize=landscape(A4),
+        leftMargin=10 * mm,
+        rightMargin=10 * mm,
+        topMargin=10 * mm,
+        bottomMargin=10 * mm,
     )
 
     styles = getSampleStyleSheet()
 
     title_style = ParagraphStyle(
-        "title_style",
+        "TitleStyle",
         parent=styles["Title"],
-        fontName=font_name,
-        fontSize=16,
-        leading=18,
+        fontName="Helvetica-Bold",
+        fontSize=22,
+        leading=26,
         alignment=1,
+        textColor=colors.black,
         spaceAfter=8,
     )
 
-    text_style = ParagraphStyle(
-        "text_style",
+    sub_style = ParagraphStyle(
+        "SubStyle",
         parent=styles["Normal"],
-        fontName=font_name,
+        fontName="Helvetica",
+        fontSize=12,
+        leading=14,
+        alignment=0,
+        textColor=colors.black,
+        spaceAfter=10,
+    )
+
+    cell_style = ParagraphStyle(
+        "CellStyle",
+        parent=styles["Normal"],
+        fontName="Helvetica",
         fontSize=10,
         leading=12,
+        textColor=colors.black,
     )
 
-    small_style = ParagraphStyle(
-        "small_style",
-        parent=styles["Normal"],
-        fontName=font_name,
-        fontSize=9,
-        leading=11,
+    cell_center = ParagraphStyle(
+        "CellCenter",
+        parent=cell_style,
+        alignment=1,
     )
 
-    story = []
-
-    today_str = pd.Timestamp.today().strftime("%d.%m.%Y")
-
-    story.append(Paragraph("TechnoOpt", title_style))
-    story.append(Paragraph(f"Накладная от {today_str}", text_style))
-    story.append(Spacer(1, 6))
-
-    pdf_df = invoice_df.copy()
-
-    final_columns = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
-    for col in final_columns:
-        if col not in pdf_df.columns:
-            pdf_df[col] = ""
-
-    pdf_df = pdf_df[final_columns].copy()
-
-    total_invoice_sum = pd.to_numeric(pdf_df["Сумма"], errors="coerce").fillna(0).sum()
-
-    table_data = [[
-        Paragraph("<b>Дата</b>", small_style),
-        Paragraph("<b>Бренд</b>", small_style),
-        Paragraph("<b>Модель</b>", small_style),
-        Paragraph("<b>Кол-во</b>", small_style),
-        Paragraph("<b>Цена</b>", small_style),
-        Paragraph("<b>Сумма</b>", small_style),
-        Paragraph("<b>Комментарий</b>", small_style),
-    ]]
-
-    for _, row in pdf_df.iterrows():
-        table_data.append([
-            Paragraph(str(row["Дата"]), small_style),
-            Paragraph(str(row["Бренд"]), small_style),
-            Paragraph(str(row["Модель"]), small_style),
-            Paragraph(str(row["Количество"]), small_style),
-            Paragraph(format_money(row["Цена"]), small_style),
-            Paragraph(format_money(row["Сумма"]), small_style),
-            Paragraph(str(row["Комментарий"]), small_style),
-        ])
-
-    table_data.append([
-        Paragraph("<b>ИТОГО</b>", small_style),
-        "",
-        "",
-        "",
-        "",
-        Paragraph(f"<b>{format_money(total_invoice_sum)}</b>", small_style),
-        "",
-    ])
-    invoice_df["Модель"] = invoice_df["Модель"].astype(str).apply(
-        lambda x: x if len(x) <= 32 else x[:32] + "..."
-)
-
-    table = Table(
-        table_data,
-        colWidths=[45*mm, 52*mm, 155*mm, 42*mm, 58*mm, 62*mm, 70*mm],
-        repeatRows=1
+    cell_right = ParagraphStyle(
+        "CellRight",
+        parent=cell_style,
+        alignment=2,
     )
 
-    table.setStyle(TableStyle([
-    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4472C4")),
-    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-    ("FONTSIZE", (0, 0), (-1, -1), 9),
-    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-    ("BACKGROUND", (0, 1), (-1, -2), colors.whitesmoke),
-    ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#D9EAF7")),
-]))
+    # подстрахуемся по колонкам
+    df = invoice_df.copy()
 
+    needed_cols = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
+    for col in needed_cols:
+        if col not in df.columns:
+            df[col] = ""
 
-    story.append(table)
+    df = df[needed_cols].copy()
 
-    doc.build(story)
-    pdf_bytes = buffer.getvalue()
+    df["Дата"] = df["Дата"].astype(str)
+    df["Бренд"] = df["Бренд"].astype(str)
+    df["Модель"] = df["Модель"].astype(str)
+    df["Комментарий"] = df["Комментарий"].astype(str)
+    df["Количество"] = pd.to_numeric(df["Количество"], errors="coerce").fillna(0).astype(int)
+    df["Цена"] = pd.to_numeric(df["Цена"], errors="coerce").fillna(0)
+    df["Сумма"] = pd.to_numeric(df["Сумма"], errors="coerce").fillna(0)
+
+    total_sum = df["Сумма"].sum()
+
+    data = [
+        [
+            Paragraph("<b>Дата</b>", cell_style),
+            Paragraph("<b>Бренд</b>", cell_style),
+            Paragraph("<b>Модель</b>", cell_style),
+            Paragraph("<b>Кол-во</b>", cell_center),
+            Paragraph("<b>Цена</b>", cell_right),
+            Paragraph("<b>Сумма</b>", cell_right),
+            Paragraph("<b>Комментарий</b>", cell_style),
+        ]
+    ]
+
+    for _, row in df.iterrows():
+        data.append(
+            [
+                Paragraph(str(row["Дата"]), cell_style),
+                Paragraph(str(row["Бренд"]), cell_style),
+                Paragraph(str(row["Модель"]), cell_style),
+                Paragraph(str(row["Количество"]), cell_center),
+                Paragraph(f"{int(row['Цена']):,}".replace(",", " "), cell_right),
+                Paragraph(f"{int(row['Сумма']):,}".replace(",", " "), cell_right),
+                Paragraph(str(row["Комментарий"]), cell_style),
+            ]
+        )
+
+    data.append(
+        [
+            Paragraph("<b>ИТОГО</b>", cell_style),
+            "",
+            "",
+            "",
+            "",
+            Paragraph(f"<b>{int(total_sum):,}</b>".replace(",", " "), cell_right),
+            "",
+        ]
+    )
+
+    # Ширины под landscape A4
+    col_widths = [
+        32 * mm,  # Дата
+        28 * mm,  # Бренд
+        78 * mm,  # Модель
+        20 * mm,  # Кол-во
+        28 * mm,  # Цена
+        30 * mm,  # Сумма
+        42 * mm,  # Комментарий
+    ]
+
+    table = Table(data, colWidths=col_widths, repeatRows=1)
+
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4F79C7")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("LEADING", (0, 0), (-1, -1), 12),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#8A8A8A")),
+                ("BACKGROUND", (0, 1), (-1, -2), colors.whitesmoke),
+                ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#DCEAF7")),
+                ("SPAN", (0, -1), (4, -1)),
+                ("ALIGN", (3, 1), (3, -2), "CENTER"),
+                ("ALIGN", (4, 1), (5, -1), "RIGHT"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+
+    elements = [
+        Paragraph("TechnoOpt", title_style),
+        Paragraph(f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}", sub_style),
+        Spacer(1, 4),
+        table,
+    ]
+
+    doc.build(elements)
+    pdf = buffer.getvalue()
     buffer.close()
+    return pdf
 
-    return pdf_bytes
 
     # =========================
 # ЗАГРУЗКА
