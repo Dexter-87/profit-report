@@ -1014,7 +1014,7 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-        if not exp.empty and {{"Дата_рус", "Тип расхода", "Сумма"}}.issubset(exp.columns):
+        if not exp.empty and {"Дата_рус", "Тип расхода", "Сумма"}.issubset(exp.columns):
             recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
 
             st.markdown("**Последние расходы**")
