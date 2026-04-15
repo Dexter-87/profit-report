@@ -946,87 +946,88 @@ with tab1:
     else:
         st.info("Нет данных по товарам.")
 
-        # =========================
-        # БЫСТРЫЙ ОТЧЕТ
-        # =========================
-        start_date_text = date_from.strftime("%d.%m.%Y")
-        end_date_text = date_to.strftime("%d.%m.%Y")
-    
-        with st.expander("Быстрый отчет"):
-            st.markdown(f"""
-            <div class="section-box">
-                <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
-                    Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-                </div>
-    
-                <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
-                    Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-                </div>
-    
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span style="color:#aab2bf;">Стас чистый доход</span>
-                    <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-                </div>
-    
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span style="color:#aab2bf;">Алексей чистый доход</span>
-                    <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-                </div>
-    
-                <hr>
-    
-                <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-                    <span style="color:#f3f4f6;">Итого</span>
-                    <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-                </div>
+    # =========================
+    # БЫСТРЫЙ ОТЧЕТ
+    # =========================
+    start_date_text = date_from.strftime("%d.%m.%Y")
+    end_date_text = date_to.strftime("%d.%m.%Y")
+
+    with st.expander("Быстрый отчет"):
+        st.markdown(f"""
+        <div class="section-box">
+            <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
+                Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
             </div>
-            """, unsafe_allow_html=True)
-    
-        # =========================
-        # ПРОДАЖИ
-        # =========================
-        with st.expander("Продажи"):
-            st.markdown(f"""
-            <div class="section-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                    <span style="color:#aab2bf;">Количество продаж</span>
-                    <span style="font-weight:700;">{sales_count}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                    <span style="color:#aab2bf;">Средний чек</span>
-                    <span style="font-weight:700; color:#34d399;">{format_money(avg_check)} ₸</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:#aab2bf;">Средняя маржа</span>
-                    <span style="font-weight:700; color:#60a5fa;">{margin_percent:.1f}%</span>
-                </div>
+
+            <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
+                Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
             </div>
-            """, unsafe_allow_html=True)
-    
-        # =========================
-        # РАСХОДЫ
-        # =========================
-        with st.expander("Расходы"):
-            st.markdown(f"""
-            <div class="section-box">
-                <div style="font-size:14px; color:#aab2bf;">Общие расходы</div>
-                <div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(expenses)} ₸</div>
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span style="color:#aab2bf;">Стас чистый доход</span>
+                <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
             </div>
-            """, unsafe_allow_html=True)
-    
-            if not exp.empty and {"Дата_рус", "Тип расхода", "Сумма"}.issubset(exp.columns):
-                recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
-    
-                st.markdown("**Последние расходы**")
-    
-                for _, row in recent_exp.iterrows():
-                    st.markdown(f"""
-                    <div class="section-box">
-                        <div style="font-size:13px; color:#aab2bf;">{row["Дата_рус"]}</div>
-                        <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
-                        <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span style="color:#aab2bf;">Алексей чистый доход</span>
+                <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
+            </div>
+
+            <hr>
+
+            <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
+                <span style="color:#f3f4f6;">Итого</span>
+                <span style="color:#34d399;">{format_money(total_net)} ₸</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # =========================
+    # ПРОДАЖИ
+    # =========================
+    with st.expander("Продажи"):
+        st.markdown(f"""
+        <div class="section-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <span style="color:#aab2bf;">Количество продаж</span>
+                <span style="font-weight:700;">{sales_count}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <span style="color:#aab2bf;">Средний чек</span>
+                <span style="font-weight:700; color:#34d399;">{format_money(avg_check)} ₸</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:#aab2bf;">Средняя маржа</span>
+                <span style="font-weight:700; color:#60a5fa;">{margin_percent:.1f}%</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # =========================
+    # РАСХОДЫ
+    # =========================
+    with st.expander("Расходы"):
+        st.markdown(f"""
+        <div class="section-box">
+            <div style="font-size:14px; color:#aab2bf;">Общие расходы</div>
+            <div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(expenses)} ₸</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if not exp.empty and {{"Дата_рус", "Тип расхода", "Сумма"}}.issubset(exp.columns):
+            recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
+
+            st.markdown("**Последние расходы**")
+
+            for _, row in recent_exp.iterrows():
+                st.markdown(f"""
+                <div class="section-box">
+                    <div style="font-size:13px; color:#aab2bf;">{row["Дата_рус"]}</div>
+                    <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
+                    <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
+                </div>
+                """, unsafe_allow_html=True)
+
 
 # =========================
 # СОЗДАНИЕ ЗАКАЗА
