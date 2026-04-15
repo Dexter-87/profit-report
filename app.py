@@ -532,7 +532,9 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
 
     buffer = BytesIO()
 
-    font_name = "Helvetica"
+    font_path = "DejaVuSans.ttf"
+    pdfmetrics.registerFont(TTFont("CustomFont", font_path))
+    font_name = "CustomFont"
 
     possible_fonts = [
         r"C:\Windows\Fonts\arial.ttf",
