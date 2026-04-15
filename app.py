@@ -712,15 +712,15 @@ from datetime import date, timedelta
 
     today = date.today()
 
-if "quick_period" not in st.session_state:
+    if "quick_period" not in st.session_state:
     st.session_state.quick_period = "30d"
 
-if "date_from_filter" not in st.session_state:
+    if "date_from_filter" not in st.session_state:
     st.session_state.date_from_filter = date(2026, 3, 16)   # можешь заменить на свою стартовую дату
-if "date_to_filter" not in st.session_state:
+    if "date_to_filter" not in st.session_state:
     st.session_state.date_to_filter = today
 
-st.markdown("### Фильтр периода")
+    st.markdown("### Фильтр периода")
 
     c1, c2, c3, c4 = st.columns(4)
 
