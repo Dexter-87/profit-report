@@ -1065,9 +1065,7 @@ with tab2:
 
     
     price_df = load_price().fillna("")
-    st.write("Бренды:", sorted(price_df["Бренд"].astype(str).str.strip().unique().tolist()))
-    st.write("Строк с Ariston:", len(price_df[price_df["Бренд"].astype(str).str.strip().str.lower() == "ariston"]))
-
+    
 
     for col in ["Бренд", "Модель", "ТипЦены"]:
         if col in price_df.columns:
