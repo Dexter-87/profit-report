@@ -726,74 +726,52 @@ with tab1:
 
     safe_today = date.today()
 
-    if "quick_period" not in st.session_state:
-        st.session_state.quick_period = "30d"
+if "date_from_filter" not in st.session_state:
+    st.session_state["date_from_filter"] = min_date
 
-    if "date_from_filter" not in st.session_state:
-        st.session_state.date_from_filter = min_date
+if "date_to_filter" not in st.session_state:
+    st.session_state["date_to_filter"] = min(safe_today, max_date)
 
-    if "date_to_filter" not in st.session_state:
-        st.session_state.date_to_filter = min(safe_today, max_date)
+st.markdown("### Фильтр периода")
 
-    st.markdown("### Фильтр периода")
+c1, c2, c3, c4 = st.columns(4)
 
-    c1, c2, c3, c4 = st.columns(4)
+if c1.button("Сегодня", use_container_width=True):
+    st.session_state["date_from_filter"] = min(max_date, safe_today)
+    st.session_state["date_to_filter"] = min(max_date, safe_today)
+    st.rerun()
 
-    with c1:
-        if st.button("Сегодня", use_container_width=True):
-            safe_today = min(safe_today, max_date)
-            st.session_state.quick_period = "_safe_today"
-            st.session_state.date_from_filter = safe_today
-            st.session_state.date_to_filter = safe_today
+if c2.button("7 дней", use_container_width=True):
+    end_date = min(max_date, safe_today)
+    start_date = max(min_date, end_date - timedelta(days=6))
+    st.session_state["date_from_filter"] = start_date
+    st.session_state["date_to_filter"] = end_date
+    st.rerun()
 
-    with c2:
-        if st.button("7 дней", use_container_width=True):
-            safe_today = min(safe_today, max_date)
-            start_7 = safe_today - timedelta(days=6)
-            if start_7 < min_date:
-                start_7 = min_date
-            st.session_state.quick_period = "7d"
-            st.session_state.date_from_filter = start_7
-            st.session_state.date_to_filter = safe_today
+if c3.button("30 дней", use_container_width=True):
+    end_date = min(max_date, safe_today)
+    start_date = max(min_date, end_date - timedelta(days=29))
+    st.session_state["date_from_filter"] = start_date
+    st.session_state["date_to_filter"] = end_date
+    st.rerun()
 
-    with c3:
-        if st.button("30 дней", use_container_width=True):
-            safe_today = min(safe_today, max_date)
-            start_30 = safe_today - timedelta(days=29)
-            if start_30 < min_date:
-                start_30 = min_date
-            st.session_state.quick_period = "30d"
-            st.session_state.date_from_filter = start_30
-            st.session_state.date_to_filter = safe_today
+if c4.button("Всё", use_container_width=True):
+    st.session_state["date_from_filter"] = min_date
+    st.session_state["date_to_filter"] = max_date
+    st.rerun()
 
-    with c4:
-        if st.button("Всё", use_container_width=True):
-            safe_today = min(safe_today, max_date)
-            st.session_state.quick_period = "all"
-            st.session_state.date_from_filter = min_date
-            st.session_state.date_to_filter = safe_today
+date_from = st.date_input(
+    "С",
+    key="date_from_filter",
+    format="YYYY/MM/DD"
+)
 
-    date_from = st.date_input(
-        "С",
-        value=st.session_state.date_from_filter,
-        min_value=min_date,
-        max_value=max_date,
-        key="date_from_input"
-    )
+date_to = st.date_input(
+    "По",
+    key="date_to_filter",
+    format="YYYY/MM/DD"
+)
 
-    date_to = st.date_input(
-        "По",
-        value=st.session_state.date_to_filter,
-        min_value=min_date,
-        max_value=max_date,
-        key="date_to_input"
-    )
-
-    if date_from > date_to:
-        date_from, date_to = date_to, date_from
-
-    st.session_state.date_from_filter = date_from
-    st.session_state.date_to_filter = date_to
 
     # =========================
     # ПРИМЕНЕНИЕ ФИЛЬТРОВ
