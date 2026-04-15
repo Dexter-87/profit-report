@@ -1081,48 +1081,64 @@ with tab2:
 
     brand = st.selectbox("Бренд", brands, key="order_brand")
 
-    models = sorted([
-        x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"]
-        if str(x).strip() != ""
-    ])
+    models = sorted(
+    price_df.loc[
+        price_df["Бренд"] == brand,
+        "Модель"
+    ]
+    .dropna()
+    .astype(str)
+    .str.strip()
+    .unique()
+    .tolist()
+)
 
-    search = st.text_input("🔍 Поиск модели", key="order_model_search")
+search = st.text_input("🔍 Поиск модели", key="order_model_search").strip()
 
-    if search:
-        filtered_models = [m for m in models if search.lower() in str(m).lower()]
+if search:
+    filtered_models = [
+        m for m in models
+        if search.lower() in m.lower()
+    ]
+else:
+    filtered_models = models
+
+if not search:
+    model = st.selectbox("Модель", filtered_models, key="order_model")
+elif filtered_models:
+    model = st.selectbox("Модель", filtered_models, key="order_model")
+else:
+    model = None
+    st.warning("Модель не найдена")
+
+if model:
+    price_types = sorted(
+        price_df.loc[
+            (price_df["Бренд"] == brand) &
+            (price_df["Модель"].astype(str).str.strip() == str(model).strip()),
+            "ТипЦены"
+        ]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .unique()
+        .tolist()
+    )
+
+    if price_types:
+        price_type = st.selectbox("Тип цены", price_types, key="order_price_type")
     else:
-        filtered_models = models
+        price_type = None
+        st.warning("Для этой модели не найден тип цены")
 
-    if not filtered_models:
-        st.warning("Модель не найдена")
-        model = None
-    else:
-        model = st.selectbox("Модель", filtered_models, key="order_model")
-
-    if model:
-        price_types = sorted([
-            x for x in price_df.loc[
-                (price_df["Бренд"] == brand) &
-                (price_df["Модель"] == model),
-                "ТипЦены"
-            ].dropna().unique()
-            if str(x).strip() != ""
-        ])
-
-        if price_types:
-            price_type = st.selectbox("Тип цены", price_types, key="order_price_type")
-        else:
-            price_type = None
-            st.warning("Для этой модели не найден тип цены")
-
-        selected_row = (
-            price_df[
-                (price_df["Бренд"] == brand) &
-                (price_df["Модель"] == model) &
-                (price_df["ТипЦены"] == price_type)
-            ].copy()
-            if price_type else pd.DataFrame()
-        )
+    selected_row = (
+        price_df[
+            (price_df["Бренд"] == brand) &
+            (price_df["Модель"].astype(str).str.strip() == str(model).strip()) &
+            (price_df["ТипЦены"].astype(str).str.strip() == str(price_type).strip())
+        ].copy()
+        if price_type else pd.DataFrame()
+    )
 
         if not selected_row.empty:
             selected_row = selected_row[selected_row["Цена"] > 0]
