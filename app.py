@@ -737,19 +737,19 @@ st.markdown("### Фильтр периода")
 c1, c2, c3, c4 = st.columns(4)
 
 if c1.button("Сегодня", use_container_width=True):
-    st.session_state["date_from_filter"] = min(max_date, safe_today)
-    st.session_state["date_to_filter"] = min(max_date, safe_today)
+    st.session_state["date_from_filter"] = safe_today
+    st.session_state["date_to_filter"] = safe_today
     st.rerun()
 
 if c2.button("7 дней", use_container_width=True):
-    end_date = min(max_date, safe_today)
+    end_date = safe_today
     start_date = max(min_date, end_date - timedelta(days=6))
     st.session_state["date_from_filter"] = start_date
     st.session_state["date_to_filter"] = end_date
     st.rerun()
 
 if c3.button("30 дней", use_container_width=True):
-    end_date = min(max_date, safe_today)
+    end_date = safe_today
     start_date = max(min_date, end_date - timedelta(days=29))
     st.session_state["date_from_filter"] = start_date
     st.session_state["date_to_filter"] = end_date
@@ -763,12 +763,16 @@ if c4.button("Всё", use_container_width=True):
 date_from = st.date_input(
     "С",
     key="date_from_filter",
+    min_value=min_date,
+    max_value=safe_today,
     format="YYYY/MM/DD"
 )
 
 date_to = st.date_input(
     "По",
     key="date_to_filter",
+    min_value=min_date,
+    max_value=safe_today,
     format="YYYY/MM/DD"
 )
 
