@@ -1273,30 +1273,30 @@ with b3:
     
     # 👇 ВАЖНО: это уже ВНЕ with
     if st.button("+ Добавить в продажи (ОПТ)"):
-    if not st.session_state.invoice_items:
-        st.warning("Накладная пустая")
-    else:
-        df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
-    
-        # 👉 Количество → число
-        df_to_save["Количество"] = pd.to_numeric(
-            df_to_save["Количество"], errors="coerce"
-        ).fillna(1).astype(int)
-    
-        # 👉 Разворачиваем строки по количеству
-        df_to_save = df_to_save.loc[
-            df_to_save.index.repeat(df_to_save["Количество"])
-        ].copy()
-    
-        # 👉 Дата и канал
-        df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
-        df_to_save["Канал"] = "ОПТ"
-    
-        # 👉 Переименование колонок
-        df_to_save = df_to_save.rename(columns={
-            "Модель": "Наименование",
-            "Цена": "РРЦ"
-        })
+        if not st.session_state.invoice_items:
+            st.warning("Накладная пустая")
+        else:
+            df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
+        
+            # 👉 Количество → число
+            df_to_save["Количество"] = pd.to_numeric(
+                df_to_save["Количество"], errors="coerce"
+            ).fillna(1).astype(int)
+        
+            # 👉 Разворачиваем строки по количеству
+            df_to_save = df_to_save.loc[
+                df_to_save.index.repeat(df_to_save["Количество"])
+            ].copy()
+        
+            # 👉 Дата и канал
+            df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
+            df_to_save["Канал"] = "ОПТ"
+        
+            # 👉 Переименование колонок
+            df_to_save = df_to_save.rename(columns={
+                "Модель": "Наименование",
+                "Цена": "РРЦ"
+            })
     
         # 👉 Обязательные колонки
         if "Номер заказа" not in df_to_save.columns:
