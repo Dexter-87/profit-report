@@ -1324,29 +1324,29 @@ with tab2:
                 st.warning("Накладная пустая")
 
         if st.session_state.invoice_items:
-        st.markdown("### Позиции в накладной")
-
-        preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
-        preview_df["Количество"] = pd.to_numeric(
-            preview_df["Количество"], errors="coerce"
-        ).fillna(0).astype(int)
-
-        for _, row in preview_df.iterrows():
-            st.markdown(
-                f"""
-                <div class="section-box" style="margin-bottom:12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
-                        <div style="flex:1; color:#f3f4f6; font-size:18px; line-height:1.4;">
-                            {row["Модель"]}
-                        </div>
-                        <div style="min-width:70px; text-align:center; color:#34d399; font-size:28px; font-weight:700;">
-                            {row["Количество"]}
+            st.markdown("### Позиции в накладной")
+    
+            preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
+            preview_df["Количество"] = pd.to_numeric(
+                preview_df["Количество"], errors="coerce"
+            ).fillna(0).astype(int)
+    
+            for _, row in preview_df.iterrows():
+                st.markdown(
+                    f"""
+                    <div class="section-box" style="margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+                            <div style="flex:1; color:#f3f4f6; font-size:18px; line-height:1.4;">
+                                {row["Модель"]}
+                            </div>
+                            <div style="min-width:70px; text-align:center; color:#34d399; font-size:28px; font-weight:700;">
+                                {row["Количество"]}
+                            </div>
                         </div>
                     </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+                    """,
+                    unsafe_allow_html=True,
+                )
 
 
 
