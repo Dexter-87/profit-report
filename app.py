@@ -655,7 +655,7 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
 
     table = Table(
         table_data,
-        colWidths=[55*mm, 55*mm, 190*mm, 45*mm, 65*mm, 70*mm, 95*mm],
+        colWidths=[26*mm, 55*mm, 80*mm, 20*mm, 20*mm, 20*mm, 50*mm],
         repeatRows=1
     )
 
