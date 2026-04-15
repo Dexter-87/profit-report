@@ -1081,113 +1081,112 @@ with tab1:
         ])
     
         brand = st.selectbox("Бренд", brands, key="order_brand")
-    
-        models = sorted(
-        price_df.loc[
-            price_df["Бренд"] == brand,
-            "Модель"
-        ]
-        .dropna()
-        .astype(str)
-        .str.strip()
-        .unique()
-        .tolist()
+
+    models = sorted(
+        set(
+            price_df.loc[
+                price_df["Бренд"].astype(str).str.strip() == str(brand).strip(),
+                "Модель"
+            ]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .tolist()
+        )
     )
-    
+
     search = st.text_input("🔍 Поиск модели", key="order_model_search")
-    
-    models = sorted(set([
-        str(x).strip()
-        for x in price_df.loc[price_df["Бренд"] == brand, "Модель"]
-        if str(x).strip() != ""
-    ]))
-    
-    # 🔥 нормальный поиск (умный)
-    if search:
-        search_clean = search.lower().strip()
-        search_parts = search_clean.split()
-    
+
+    if search.strip():
+        search_parts = search.lower().strip().split()
         filtered_models = [
             m for m in models
             if all(part in m.lower() for part in search_parts)
         ]
     else:
         filtered_models = models
-    
-    
-    # если ничего не найдено — НЕ ломаем выбор
-    if not filtered_models:
-        st.warning("Модель не найдена")
+
+    if not models:
+        st.warning("Для этого бренда нет моделей")
         model = None
     else:
-        model = st.selectbox("Модель", filtered_models, key="order_model")
-    
-    
+        if search.strip() and not filtered_models:
+            st.warning("Модель не найдена. Ниже показан полный список моделей бренда.")
+            model_options = models
+        else:
+            model_options = filtered_models
+
+        model = st.selectbox("Модель", model_options, key="order_model")
+
     if model:
         price_types = sorted(
-            price_df.loc[
-                (price_df["Бренд"] == brand) &
-                (price_df["Модель"].astype(str).str.strip() == str(model).strip()),
-                "ТипЦены"
-            ]
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .unique()
-            .tolist()
+            set(
+                price_df.loc[
+                    (price_df["Бренд"].astype(str).str.strip() == str(brand).strip()) &
+                    (price_df["Модель"].astype(str).str.strip() == str(model).strip()),
+                    "ТипЦены"
+                ]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .tolist()
+            )
         )
-    
-    if price_types:
-            price_type = st.selectbox("Тип цены", price_types, key="order_price_type")
     else:
-            price_type = None
-            st.warning("Для этой модели не найден тип цены")
-    
-    selected_row = (
-        price_df[
-            (price_df["Бренд"] == brand) &
+        price_types = []
+
+    if price_types:
+        price_type = st.selectbox("Тип цены", price_types, key="order_price_type")
+    else:
+        price_type = None
+        st.warning("Для этой модели не найден тип цены")
+
+    if model and price_type:
+        selected_row = price_df[
+            (price_df["Бренд"].astype(str).str.strip() == str(brand).strip()) &
             (price_df["Модель"].astype(str).str.strip() == str(model).strip()) &
             (price_df["ТипЦены"].astype(str).str.strip() == str(price_type).strip())
         ].copy()
-        if price_type else pd.DataFrame()
-    )
-    
+    else:
+        selected_row = pd.DataFrame()
+
     if not selected_row.empty:
         selected_row = selected_row[selected_row["Цена"] > 0]
-    
-        price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
-        cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
-    
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Цена</div>
-            <div class="card-value value-blue">{format_money(price)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-        qty = st.number_input("Количество", min_value=1, value=1, step=1, key="order_qty")
-    
-        total_sum = price * qty if price else 0
-    
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Сумма</div>
-            <div class="card-value">{format_money(total_sum)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-        comment = st.text_input("Комментарий", value="", key="order_comment")
-    
-        current_row = {
-            "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-            "Бренд": brand,
-            "Модель": model,
-            "Количество": qty,
-            "Цена": price,
-            "Сумма": total_sum,
-            "Себестоимость": cost,
-            "Комментарий": comment,
-        }
+
+    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
+    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
+
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Цена</div>
+        <div class="card-value value-blue">{format_money(price)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    qty = st.number_input("Количество", min_value=1, value=1, step=1, key="order_qty")
+
+    total_sum = price * qty if price else 0
+
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Сумма</div>
+        <div class="card-value">{format_money(total_sum)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    comment = st.text_input("Комментарий", value="", key="order_comment")
+
+    current_row = {
+        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
+        "Бренд": brand,
+        "Модель": model if model else "",
+        "Количество": qty,
+        "Цена": price,
+        "Сумма": total_sum,
+        "Себестоимость": cost,
+        "Комментарий": comment,
+    }
+
     
         b1, b2, b3 = st.columns(3)
     
