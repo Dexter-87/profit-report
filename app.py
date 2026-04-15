@@ -1248,27 +1248,27 @@ with b3:
 
     if st.session_state.saved_invoice_ready:
     
-    d1, d2 = st.columns(2)
-    
-    with d1:
-        with open("orders.xlsx", "rb") as f:
-            st.download_button(
-                "Скачать Excel",
-                data=f,
-                file_name="orders.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
-            )
-    
-    with d2:
-        if st.session_state.invoice_pdf_bytes is not None:
-            st.download_button(
-                "Скачать PDF",
-                data=st.session_state.invoice_pdf_bytes,
-                file_name="orders.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
+        d1, d2 = st.columns(2)
+        
+        with d1:
+            with open("orders.xlsx", "rb") as f:
+                st.download_button(
+                    "Скачать Excel",
+                    data=f,
+                    file_name="orders.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
+        
+        with d2:
+            if st.session_state.invoice_pdf_bytes is not None:
+                st.download_button(
+                    "Скачать PDF",
+                    data=st.session_state.invoice_pdf_bytes,
+                    file_name="orders.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
     
     
     # 👇 ВАЖНО: это уже ВНЕ with
