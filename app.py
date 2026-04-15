@@ -1348,11 +1348,15 @@ with tab2:
                             <th style="padding:14px; text-align:center; color:#aab2bf; font-weight:600; width:110px;">Кол-во</th>
                         </tr>
                     </thead>
+                    <tbody>
+                        {rows_html}
+                    </tbody>
                 </table>
             </div>
             """,
             unsafe_allow_html=True,
         )
+
 
 
     if st.session_state.saved_invoice_ready:
