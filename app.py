@@ -1080,7 +1080,23 @@ with tab2:
         x for x in price_df.loc[price_df["Бренд"] == brand, "Модель"].dropna().unique()
         if str(x).strip() != ""
     ])
-    model = st.selectbox("Модель", models)
+    search = st.text_input("🔍 Поиск модели")
+
+models = sorted(df_price["Наименование"].dropna().unique())
+
+# фильтрация по вводу
+if search:
+    filtered_models = [
+        m for m in models if search.lower() in m.lower()
+    ]
+else:
+    filtered_models = models
+
+model = st.selectbox(
+    "Выберите модель",
+    options=filtered_models,
+)
+
     
     price_types = sorted([
         x for x in price_df.loc[
