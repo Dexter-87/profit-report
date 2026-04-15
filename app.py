@@ -1325,8 +1325,38 @@ with tab2:
 
     if st.session_state.invoice_items:
         st.markdown("### Позиции в накладной")
-        invoice_preview_df = pd.DataFrame(st.session_state.invoice_items)
-        st.dataframe(invoice_preview_df, use_container_width=True, hide_index=True)
+
+        preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
+        preview_df["Количество"] = pd.to_numeric(preview_df["Количество"], errors="coerce").fillna(0).astype(int)
+
+        rows_html = ""
+        for _, row in preview_df.iterrows():
+            rows_html += f"""
+            <tr>
+                <td style="padding:12px 14px; border-bottom:1px solid #2f3747; color:#f3f4f6;">{row["Модель"]}</td>
+                <td style="padding:12px 14px; border-bottom:1px solid #2f3747; color:#34d399; text-align:center; font-weight:700;">{row["Количество"]}</td>
+            </tr>
+            """
+
+        st.markdown(
+            f"""
+            <div class="section-box" style="padding:0; overflow:hidden;">
+                <table style="width:100%; border-collapse:collapse; background:#151922;">
+                    <thead>
+                        <tr style="background:#1b2230;">
+                            <th style="padding:14px; text-align:left; color:#aab2bf; font-weight:600;">Модель</th>
+                            <th style="padding:14px; text-align:center; color:#aab2bf; font-weight:600; width:110px;">Кол-во</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows_html}
+                    </tbody>
+                </table>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
 
     if st.session_state.saved_invoice_ready:
         d1, d2 = st.columns(2)
