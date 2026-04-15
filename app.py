@@ -1323,16 +1323,16 @@ with tab2:
             else:
                 st.warning("Накладная пустая")
 
-    if st.session_state.invoice_items:
-    st.markdown("### Позиции в накладной")
-
-    preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
-    preview_df["Количество"] = pd.to_numeric(
-        preview_df["Количество"], errors="coerce"
-    ).fillna(0).astype(int)
-
-    # ВАЖНО: объявление ДО цикла
-    rows_html = ""
+        if st.session_state.invoice_items:
+        st.markdown("### Позиции в накладной")
+    
+        preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
+        preview_df["Количество"] = pd.to_numeric(
+            preview_df["Количество"], errors="coerce"
+        ).fillna(0).astype(int)
+    
+        # ВАЖНО: объявление ДО цикла
+        rows_html = ""
 
     for _, row in preview_df.iterrows():
         model = str(row["Модель"])
