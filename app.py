@@ -1400,6 +1400,4 @@ with tab1:
             st.session_state.invoice_items = []
             st.session_state.saved_invoice_ready = False
             st.session_state.invoice_pdf_bytes = None
-        else:
-            st.info("Выберите модель")
-
+00
