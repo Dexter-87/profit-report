@@ -661,26 +661,26 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
 
     return pdf_bytes
 
-# =========================
-# ЗАГРУЗКА
-# =========================
-sales_raw, expenses_raw = load_data()
-base_df = load_sales_dataframe(sales_raw)
-base_exp = load_expenses_dataframe(expenses_raw)
+    # =========================
+    # ЗАГРУЗКА
+    # =========================
+    sales_raw, expenses_raw = load_data()
+    base_df = load_sales_dataframe(sales_raw)
+    base_exp = load_expenses_dataframe(expenses_raw)
 
-valid_dates = base_df["Дата"].dropna()
+    valid_dates = base_df["Дата"].dropna()
 if valid_dates.empty:
     st.error("В продажах не распознаны даты.")
     st.stop()
 
-# =========================
-# ВКЛАДКИ
-# =========================
-tab1, tab2 = st.tabs(["Финансовая сводка", "Создать заказ"])
+    # =========================
+    # ВКЛАДКИ
+    # =========================
+    tab1, tab2 = st.tabs(["Финансовая сводка", "Создать заказ"])
 
-# =========================
-# ФИНАНСОВАЯ СВОДКА
-# =========================
+    # =========================
+    # ФИНАНСОВАЯ СВОДКА
+    # =========================
 with tab1:
     df = base_df.copy()
     exp = base_exp.copy()
@@ -688,7 +688,7 @@ with tab1:
     st.markdown('<div class="main-title">Финансовая сводка</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Продажи ∙ Прибыль ∙ Рентабельность</div>', unsafe_allow_html=True)
 
-    if st.button("Обновить данные", key="refresh_main"):
+if st.button("Обновить данные", key="refresh_main"):
         st.cache_data.clear()
         st.rerun()
 
@@ -708,9 +708,9 @@ with tab1:
 
     f1, f2 = st.columns(2)
 
-    from datetime import date, timedelta
+from datetime import date, timedelta
 
-today = date.today()
+    today = date.today()
 
 if "quick_period" not in st.session_state:
     st.session_state.quick_period = "30d"
@@ -722,7 +722,7 @@ if "date_to_filter" not in st.session_state:
 
 st.markdown("### Фильтр периода")
 
-c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4 = st.columns(4)
 
 with c1:
     if st.button("Сегодня", use_container_width=True):
@@ -769,15 +769,15 @@ st.session_state.date_to_filter = date_to
     # =========================
     # ПРИМЕНЕНИЕ ФИЛЬТРОВ
     # =========================
-    df = df[
+df = df[
         (df["Дата"].dt.date >= date_from) &
         (df["Дата"].dt.date <= date_to)
     ].copy()
 
-    if selected_channel != "Все":
+if selected_channel != "Все":
         df = df[df["Канал"].astype(str).str.strip() == selected_channel].copy()
 
-    exp = exp[
+exp = exp[
         (exp["Дата"].dt.date >= date_from) &
         (exp["Дата"].dt.date <= date_to)
     ].copy()
