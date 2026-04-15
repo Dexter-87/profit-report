@@ -18,7 +18,7 @@ from reportlab.pdfbase import pdfmetrics
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
-]save
+]
 
 @st.cache_resource
 def get_gsheet_client():
