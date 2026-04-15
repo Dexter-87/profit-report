@@ -1098,61 +1098,61 @@ model = st.selectbox(
 )
 
     
-    price_types = sorted([
-        x for x in price_df.loc[
-            (price_df["Бренд"] == brand) &
-            (price_df["Модель"] == model),
-            "ТипЦены"
-        ].dropna().unique()
-        if str(x).strip() != ""
-    ])
-    price_type = st.selectbox("Тип цены", price_types)
-    
-    selected_row = price_df[
+price_types = sorted([
+    x for x in price_df.loc[
         (price_df["Бренд"] == brand) &
-        (price_df["Модель"] == model) &
-        (price_df["ТипЦены"] == price_type)
-    ].copy()
-    
-    if not selected_row.empty:
-        selected_row = selected_row[selected_row["Цена"] > 0]
-    
-    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
-    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
-    
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Цена</div>
-        <div class="card-value value-blue">{format_money(price)} ₸</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    qty = st.number_input("Количество", min_value=1, value=1)
-    
-    total_sum = price * qty if price else 0
-    
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Сумма</div>
-        <div class="card-value">{format_money(total_sum)} ₸</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    comment = st.text_input("Комментарий", value="")
-    
-    current_row = {
-        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-        "Бренд": brand,
-        "Модель": model,
-        "Количество": qty,
-        "Цена": price,
-        "Сумма": total_sum,
-        "Себестоимость": cost,
-        "Комментарий": comment
-    }
-    
-    
-    b1, b2, b3 = st.columns(3)
+        (price_df["Модель"] == model),
+        "ТипЦены"
+    ].dropna().unique()
+    if str(x).strip() != ""
+])
+price_type = st.selectbox("Тип цены", price_types)
+
+selected_row = price_df[
+    (price_df["Бренд"] == brand) &
+    (price_df["Модель"] == model) &
+    (price_df["ТипЦены"] == price_type)
+].copy()
+
+if not selected_row.empty:
+    selected_row = selected_row[selected_row["Цена"] > 0]
+
+price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
+cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
+
+st.markdown(f"""
+<div class="card">
+    <div class="card-title">Цена</div>
+    <div class="card-value value-blue">{format_money(price)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
+
+qty = st.number_input("Количество", min_value=1, value=1)
+
+total_sum = price * qty if price else 0
+
+st.markdown(f"""
+<div class="card">
+    <div class="card-title">Сумма</div>
+    <div class="card-value">{format_money(total_sum)} ₸</div>
+</div>
+""", unsafe_allow_html=True)
+
+comment = st.text_input("Комментарий", value="")
+
+current_row = {
+    "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
+    "Бренд": brand,
+    "Модель": model,
+    "Количество": qty,
+    "Цена": price,
+    "Сумма": total_sum,
+    "Себестоимость": cost,
+    "Комментарий": comment
+}
+
+
+b1, b2, b3 = st.columns(3)
 
 with b1:
     if st.button("Добавить позицию"):
