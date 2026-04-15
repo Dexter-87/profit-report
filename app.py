@@ -14,7 +14,27 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+@st.cache_data(ttl=60)
+def load_price():
+    teeg_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+    ariston_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv"
 
+    frames = []
+
+    df1 = pd.read_csv(teeg_url)
+    df1.columns = df1.columns.str.strip()
+    frames.append(df1)
+
+    try:
+        df2 = pd.read_csv(ariston_url)
+        df2.columns = df2.columns.str.strip()
+        frames.append(df2)
+    except Exception:
+        st.warning("Прайс Ariston пока не загрузился. Проверь ссылку CSV.")
+
+    df_all = pd.concat(frames, ignore_index=True)
+    df_all.columns = df_all.columns.str.strip()
+    return df_all
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
@@ -1043,29 +1063,7 @@ with tab2:
 
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
-    @st.cache_data(ttl=60)
-def load_price():
-    teeg_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
-    ariston_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSvIXvCQ4-uSvrHyM0QqXpMO83hn2K7b2tCVGJ8hOR9R199Sd2pKwTCRvVQ/pub?gid=1662607201&single=true&output=csv"
-
-    frames = []
-
-    df1 = pd.read_csv(teeg_url)
-    df1.columns = df1.columns.str.strip()
-    frames.append(df1)
-
-    try:
-        df2 = pd.read_csv(ariston_url)
-        df2.columns = df2.columns.str.strip()
-        frames.append(df2)
-    except Exception:
-        st.warning("Прайс Ariston пока не загрузился. Проверь ссылку CSV.")
-
-    df_all = pd.concat(frames, ignore_index=True)
-    df_all.columns = df_all.columns.str.strip()
-    return df_all
-
-
+    
     price_df = load_price().fillna("")
     st.write("Бренды:", sorted(price_df["Бренд"].astype(str).str.strip().unique().tolist()))
     st.write("Строк с Ariston:", len(price_df[price_df["Бренд"].astype(str).str.strip().str.lower() == "ariston"]))
