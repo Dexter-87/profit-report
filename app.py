@@ -652,6 +652,9 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
         Paragraph(f"<b>{format_money(total_invoice_sum)}</b>", small_style),
         "",
     ])
+    invoice_df["Модель"] = invoice_df["Модель"].astype(str).apply(
+        lambda x: x if len(x) <= 32 else x[:32] + "..."
+)
 
     table = Table(
         table_data,
