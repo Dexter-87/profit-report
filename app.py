@@ -551,8 +551,15 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
 
-    pdfmetrics.registerFont(TTFont("CustomFont", "DejaVuSans.ttf"))
-    pdfmetrics.registerFont(TTFont("CustomFont-Bold", "DejaVuSans-Bold.ttf"))
+    import os
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    font_path = os.path.join(BASE_DIR, "DejaVuSans.ttf")
+
+    pdfmetrics.registerFont(TTFont("CustomFont", font_path))
+    pdfmetrics.registerFont(TTFont("CustomFont-Bold", font_path))
+
 
 
     buffer = BytesIO()
