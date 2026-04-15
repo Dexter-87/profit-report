@@ -1324,47 +1324,50 @@ with tab2:
                 st.warning("Накладная пустая")
 
     if st.session_state.invoice_items:
-        st.markdown("### Позиции в накладной")
+    st.markdown("### Позиции в накладной")
 
-        preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
-        preview_df["Количество"] = pd.to_numeric(preview_df["Количество"], errors="coerce").fillna(0).astype(int)
+    preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
+    preview_df["Количество"] = pd.to_numeric(
+        preview_df["Количество"], errors="coerce"
+    ).fillna(0).astype(int)
 
-        rows_html += ""
+    # ВАЖНО: объявление ДО цикла
+    rows_html = ""
 
-        for _, row in preview_df.iterrows():
-            model = str(row["Модель"])
-            qty = int(row["Количество"])
+    for _, row in preview_df.iterrows():
+        model = str(row["Модель"])
+        qty = int(row["Количество"])
 
-            rows_html += f"""
-            <tr>
-                <td style="padding:12px; border-bottom:1px solid #2f3747;">
-                    {model}
-                </td>
-                <td style="padding:12px; text-align:center; color:#34d399; font-weight:700; border-bottom:1px solid #2f3747;">
-                    {qty}
-                </td>
-                </tr>
-            """
+        rows_html += f"""
+        <tr>
+            <td style="padding:12px; border-bottom:1px solid #2f3747;">
+                {model}
+            </td>
+            <td style="padding:12px; text-align:center; color:#34d399; font-weight:700; border-bottom:1px solid #2f3747;">
+                {qty}
+            </td>
+        </tr>
+        """
 
+    st.markdown(
+        f"""
+        <div class="section-box" style="padding:0; overflow:hidden;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:12px;">Модель</th>
+                        <th style="text-align:center; padding:12px;">Кол-во</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        st.markdown(
-            f"""
-            <div class="section-box" style="padding:0; overflow:hidden;">
-                <table style="width:100%; border-collapse:collapse; background:#151922;">
-                    <thead>
-                        <tr style="background:#1b2230;">
-                            <th style="padding:14px; text-align:left; color:#aab2bf; font-weight:600;">Модель</th>
-                            <th style="padding:14px; text-align:center; color:#aab2bf; font-weight:600; width:110px;">Кол-во</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows_html}
-                    </tbody>
-                </table>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
 
 
