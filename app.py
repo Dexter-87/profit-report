@@ -18,7 +18,7 @@ from reportlab.pdfbase import pdfmetrics
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
-]
+]save
 
 @st.cache_resource
 def get_gsheet_client():
@@ -1302,8 +1302,8 @@ if st.button("+ Добавить в продажи (ОПТ)"):
             "Себестоимость",
             "РРЦ",
             "Комиссия Kaspi",
-            "Комментарий",
-            "Чистая прибыль"
+            "Чистая прибыль",
+            "Комментарий"
         ]
 
         df_to_save = df_to_save[save_columns].copy()
