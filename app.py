@@ -1330,13 +1330,22 @@ with tab2:
         preview_df["Количество"] = pd.to_numeric(preview_df["Количество"], errors="coerce").fillna(0).astype(int)
 
         rows_html = ""
+
         for _, row in preview_df.iterrows():
+            model = str(row["Модель"])
+            qty = int(row["Количество"])
+
             rows_html += f"""
             <tr>
-                <td style="padding:12px 14px; border-bottom:1px solid #2f3747; color:#f3f4f6;">{row["Модель"]}</td>
-                <td style="padding:12px 14px; border-bottom:1px solid #2f3747; color:#34d399; text-align:center; font-weight:700;">{row["Количество"]}</td>
-            </tr>
+                <td style="padding:12px; border-bottom:1px solid #2f3747;">
+                    {model}
+                </td>
+                <td style="padding:12px; text-align:center; color:#34d399; font-weight:700; border-bottom:1px solid #2f3747;">
+                    {qty}
+                </td>
+                </tr>
             """
+
 
         st.markdown(
             f"""
