@@ -1028,59 +1028,70 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
 
+# =========================
+# СОЗДАНИЕ ЗАКАЗА
+# =========================
+with tab2:
+    if "invoice_items" not in st.session_state:
+        st.session_state.invoice_items = []
 
-    # =========================
-    # СОЗДАНИЕ ЗАКАЗА
-    # =========================
-    with tab2:
-        if "invoice_items" not in st.session_state:
-            st.session_state.invoice_items = []
-    
-        if "saved_invoice_ready" not in st.session_state:
-            st.session_state.saved_invoice_ready = False
-    
-        if "invoice_pdf_bytes" not in st.session_state:
-            st.session_state.invoice_pdf_bytes = None
-    
-        st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
-    
-        @st.cache_data(ttl=60)
-        def load_price():
-            df1 = pd.read_csv(
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
-            )
+    if "saved_invoice_ready" not in st.session_state:
+        st.session_state.saved_invoice_ready = False
+
+    if "invoice_pdf_bytes" not in st.session_state:
+        st.session_state.invoice_pdf_bytes = None
+
+    st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
+
+    @st.cache_data(ttl=60)
+    def load_price():
+        teeg_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
+        ariston_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIpFNDSv1XvQC4-uSvrHyM0QqXpM83hn2K7b2tCVGj8h0R9R199Sd2PkwTCRVVQ/pub?gid=0&single=true&output=csv"
+
+        frames = []
+
+        try:
+            df1 = pd.read_csv(teeg_url)
             df1.columns = df1.columns.str.strip()
-            return df1
-    
-    
-            df1.columns = df1.columns.str.strip()
+            frames.append(df1)
+        except Exception:
+            pass
+
+        try:
+            df2 = pd.read_csv(ariston_url)
             df2.columns = df2.columns.str.strip()
-    
-            df_all = pd.concat([df1, df2], ignore_index=True)
-            df_all.columns = df_all.columns.str.strip()
-            return df_all
-    
-        price_df = load_price().fillna("")
-    
-        for col in ["Бренд", "Модель", "ТипЦены"]:
-            if col in price_df.columns:
-                price_df[col] = (
-                    price_df[col]
-                    .astype(str)
-                    .str.replace("\xa0", " ", regex=False)
-                    .str.replace("\ufeff", "", regex=False)
-                    .str.strip()
-                )
-    
-        price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
-        price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
-    
-        brands = sorted([
-            x for x in price_df["Бренд"].dropna().unique()
-            if str(x).strip() != ""
-        ])
-    
-        brand = st.selectbox("Бренд", brands, key="order_brand")
+            frames.append(df2)
+        except Exception:
+            pass
+
+        if not frames:
+            return pd.DataFrame(columns=["Бренд", "Модель", "ТипЦены", "Цена", "Себестоимость"])
+
+        df_all = pd.concat(frames, ignore_index=True)
+        df_all.columns = df_all.columns.str.strip()
+        return df_all
+
+    price_df = load_price().fillna("")
+
+    for col in ["Бренд", "Модель", "ТипЦены"]:
+        if col in price_df.columns:
+            price_df[col] = (
+                price_df[col]
+                .astype(str)
+                .str.replace("\xa0", " ", regex=False)
+                .str.replace("\ufeff", "", regex=False)
+                .str.strip()
+            )
+
+    price_df["Цена"] = pd.to_numeric(price_df.get("Цена", 0), errors="coerce").fillna(0)
+    price_df["Себестоимость"] = pd.to_numeric(price_df.get("Себестоимость", 0), errors="coerce").fillna(0)
+
+    brands = sorted([
+        x for x in price_df["Бренд"].dropna().unique()
+        if str(x).strip() != ""
+    ])
+
+    brand = st.selectbox("Бренд", brands, key="order_brand")
 
     models = sorted(
         set(
@@ -1187,13 +1198,19 @@ with tab1:
         "Комментарий": comment,
     }
 
-    
     b1, b2, b3 = st.columns(3)
 
     with b1:
         if st.button("Добавить позицию", use_container_width=True, key="add_invoice_row"):
-            st.session_state.invoice_items.append(current_row.copy())
-            st.success("Позиция добавлена")
+            if not model:
+                st.warning("Сначала выбери модель")
+            elif not price_type:
+                st.warning("Сначала выбери тип цены")
+            elif price <= 0:
+                st.warning("Для выбранной позиции не найдена цена")
+            else:
+                st.session_state.invoice_items.append(current_row.copy())
+                st.success("Позиция добавлена")
 
     with b2:
         if st.button("Очистить накладную", use_container_width=True, key="clear_invoice"):
@@ -1400,4 +1417,3 @@ with tab1:
             st.session_state.invoice_items = []
             st.session_state.saved_invoice_ready = False
             st.session_state.invoice_pdf_bytes = None
-00
