@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import date, timedelta
 
 import pandas as pd
 import streamlit as st
@@ -724,7 +724,7 @@ with tab1:
             st.cache_data.clear()
             st.rerun()
 
-    today = date.today()
+    safe_today = date.today()
 
     if "quick_period" not in st.session_state:
         st.session_state.quick_period = "30d"
@@ -733,7 +733,7 @@ with tab1:
         st.session_state.date_from_filter = min_date
 
     if "date_to_filter" not in st.session_state:
-        st.session_state.date_to_filter = min(today, max_date)
+        st.session_state.date_to_filter = min(safe_today, max_date)
 
     st.markdown("### Фильтр периода")
 
@@ -741,14 +741,14 @@ with tab1:
 
     with c1:
         if st.button("Сегодня", use_container_width=True):
-            safe_today = min(today, max_date)
-            st.session_state.quick_period = "today"
+            safe_today = min(safe_today, max_date)
+            st.session_state.quick_period = "_safe_today"
             st.session_state.date_from_filter = safe_today
             st.session_state.date_to_filter = safe_today
 
     with c2:
         if st.button("7 дней", use_container_width=True):
-            safe_today = min(today, max_date)
+            safe_today = min(safe_today, max_date)
             start_7 = safe_today - timedelta(days=6)
             if start_7 < min_date:
                 start_7 = min_date
@@ -758,7 +758,7 @@ with tab1:
 
     with c3:
         if st.button("30 дней", use_container_width=True):
-            safe_today = min(today, max_date)
+            safe_today = min(safe_today, max_date)
             start_30 = safe_today - timedelta(days=29)
             if start_30 < min_date:
                 start_30 = min_date
@@ -768,7 +768,7 @@ with tab1:
 
     with c4:
         if st.button("Всё", use_container_width=True):
-            safe_today = min(today, max_date)
+            safe_today = min(safe_today, max_date)
             st.session_state.quick_period = "all"
             st.session_state.date_from_filter = min_date
             st.session_state.date_to_filter = safe_today
