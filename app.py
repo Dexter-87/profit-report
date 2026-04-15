@@ -593,7 +593,7 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
 
     today_str = pd.Timestamp.today().strftime("%d.%m.%Y")
 
-    story.append(Paragraph("Королевство бойлеров", title_style))
+    story.append(Paragraph("TechnoOpt", title_style))
     story.append(Paragraph(f"Накладная от {today_str}", text_style))
     story.append(Spacer(1, 6))
 
