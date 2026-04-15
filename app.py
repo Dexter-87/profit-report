@@ -1329,7 +1329,7 @@ with tab2:
         preview_df = pd.DataFrame(st.session_state.invoice_items)[["Модель", "Количество"]].copy()
         preview_df["Количество"] = pd.to_numeric(preview_df["Количество"], errors="coerce").fillna(0).astype(int)
 
-        rows_html = ""
+        rows_html += ""
 
         for _, row in preview_df.iterrows():
             model = str(row["Модель"])
