@@ -45,6 +45,30 @@ st.set_page_config(page_title="Финансовая сводка", layout="wide"
 # =========================
 st.markdown("""
 <style>
+
+/* Убираем белые кнопки */
+.stDownloadButton button {
+    background-color: #1f2a3a !important;
+    color: white !important;
+    border-radius: 12px !important;
+    border: 1px solid #2e3b4e !important;
+    font-weight: 600;
+}
+
+/* При наведении */
+.stDownloadButton button:hover {
+    background-color: #2a3a50 !important;
+    color: #00ffae !important;
+}
+
+/* Делаем текст всегда видимым */
+.stDownloadButton button p {
+    color: white !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 .stApp {
     background: #151922;
     color: #f3f4f6;
@@ -1109,7 +1133,7 @@ with tab2:
             st.success("Накладная очищена")
 
     with b3:
-        if st.button("Сохранить накладную в Excel"):
+        if st.button("Сохранить накладную"):
 
             if st.session_state.invoice_items:
 
@@ -1281,6 +1305,9 @@ if st.button("+ Добавить в продажи (ОПТ)"):
         if "Себестоимость" not in df_to_save.columns:
             df_to_save["Себестоимость"] = 0
 
+        if "Комментарий" not in df_to_save.columns:
+            df_to_save["Комментарий"] = ""
+
         # 👉 Комиссия для ОПТ
         df_to_save["Комиссия Kaspi"] = 0
 
@@ -1289,12 +1316,12 @@ if st.button("+ Добавить в продажи (ОПТ)"):
         df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
         df_to_save["Комиссия Kaspi"] = pd.to_numeric(df_to_save["Комиссия Kaspi"], errors="coerce").fillna(0)
 
-        # 👉 Считаем прибыль (ГЛАВНОЕ)
+        # 👉 Считаем прибыль
         df_to_save["Чистая прибыль"] = (
             df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
         )
 
-        # 👉 Итоговый порядок колонок (как в Google Sheets)
+        # 👉 Итоговый порядок колонок
         save_columns = [
             "Дата",
             "Канал",
@@ -1303,17 +1330,18 @@ if st.button("+ Добавить в продажи (ОПТ)"):
             "Себестоимость",
             "РРЦ",
             "Комиссия Kaspi",
+            "Комментарий",
             "Чистая прибыль"
         ]
 
         df_to_save = df_to_save[save_columns].copy()
         append_opt_sales_to_gsheet(df_to_save)
-        # 👉 СОХРАНЕНИЕ (у тебя уже есть функция/логика — оставь свою)
-  
+
         st.success("Продажи добавлены")
 
         # 👉 очищаем накладную
         st.session_state.invoice_items = []
+
 
 
 
