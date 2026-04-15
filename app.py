@@ -1104,13 +1104,15 @@ models = sorted(set([
 # 🔥 нормальный поиск (умный)
 if search:
     search_clean = search.lower().strip()
+    search_parts = search_clean.split()
 
     filtered_models = [
         m for m in models
-        if search_clean in m.lower()
+        if all(part in m.lower() for part in search_parts)
     ]
 else:
     filtered_models = models
+
 
 # если ничего не найдено — НЕ ломаем выбор
 if not filtered_models:
