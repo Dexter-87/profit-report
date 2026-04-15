@@ -1057,12 +1057,10 @@ with tab2:
         except Exception:
             pass
 
-        try:
-            df2 = pd.read_csv(ariston_url)
-            df2.columns = df2.columns.str.strip()
-            frames.append(df2)
-        except Exception:
-            pass
+        df2 = pd.read_csv(ariston_url)
+        df2.columns = df2.columns.str.strip()
+        frames.append(df2)
+
 
         if not frames:
             return pd.DataFrame(columns=["Бренд", "Модель", "ТипЦены", "Цена", "Себестоимость"])
