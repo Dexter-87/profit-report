@@ -1246,102 +1246,102 @@ with b3:
             st.warning("Накладная пустая")
 
 
-if st.session_state.saved_invoice_ready:
-
-d1, d2 = st.columns(2)
-
-with d1:
-    with open("orders.xlsx", "rb") as f:
-        st.download_button(
-            "Скачать Excel",
-            data=f,
-            file_name="orders.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
+    if st.session_state.saved_invoice_ready:
+    
+    d1, d2 = st.columns(2)
+    
+    with d1:
+        with open("orders.xlsx", "rb") as f:
+            st.download_button(
+                "Скачать Excel",
+                data=f,
+                file_name="orders.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+    
+    with d2:
+        if st.session_state.invoice_pdf_bytes is not None:
+            st.download_button(
+                "Скачать PDF",
+                data=st.session_state.invoice_pdf_bytes,
+                file_name="orders.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+    
+    
+    # 👇 ВАЖНО: это уже ВНЕ with
+    if st.button("+ Добавить в продажи (ОПТ)"):
+    if not st.session_state.invoice_items:
+        st.warning("Накладная пустая")
+    else:
+        df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
+    
+        # 👉 Количество → число
+        df_to_save["Количество"] = pd.to_numeric(
+            df_to_save["Количество"], errors="coerce"
+        ).fillna(1).astype(int)
+    
+        # 👉 Разворачиваем строки по количеству
+        df_to_save = df_to_save.loc[
+            df_to_save.index.repeat(df_to_save["Количество"])
+        ].copy()
+    
+        # 👉 Дата и канал
+        df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
+        df_to_save["Канал"] = "ОПТ"
+    
+        # 👉 Переименование колонок
+        df_to_save = df_to_save.rename(columns={
+            "Модель": "Наименование",
+            "Цена": "РРЦ"
+        })
+    
+        # 👉 Обязательные колонки
+        if "Номер заказа" not in df_to_save.columns:
+            df_to_save["Номер заказа"] = ""
+    
+        if "Себестоимость" not in df_to_save.columns:
+            df_to_save["Себестоимость"] = 0
+    
+        if "Комментарий" not in df_to_save.columns:
+            df_to_save["Комментарий"] = ""
+    
+        # 👉 Комиссия для ОПТ
+        df_to_save["Комиссия Kaspi"] = 0
+    
+        # 👉 Приведение к числам
+        df_to_save["РРЦ"] = pd.to_numeric(df_to_save["РРЦ"], errors="coerce").fillna(0)
+        df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
+        df_to_save["Комиссия Kaspi"] = pd.to_numeric(df_to_save["Комиссия Kaspi"], errors="coerce").fillna(0)
+    
+        # 👉 Считаем прибыль
+        df_to_save["Чистая прибыль"] = (
+            df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
         )
-
-with d2:
-    if st.session_state.invoice_pdf_bytes is not None:
-        st.download_button(
-            "Скачать PDF",
-            data=st.session_state.invoice_pdf_bytes,
-            file_name="orders.pdf",
-            mime="application/pdf",
-            use_container_width=True
-        )
-
-
-# 👇 ВАЖНО: это уже ВНЕ with
-if st.button("+ Добавить в продажи (ОПТ)"):
-if not st.session_state.invoice_items:
-    st.warning("Накладная пустая")
-else:
-    df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
-
-    # 👉 Количество → число
-    df_to_save["Количество"] = pd.to_numeric(
-        df_to_save["Количество"], errors="coerce"
-    ).fillna(1).astype(int)
-
-    # 👉 Разворачиваем строки по количеству
-    df_to_save = df_to_save.loc[
-        df_to_save.index.repeat(df_to_save["Количество"])
-    ].copy()
-
-    # 👉 Дата и канал
-    df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
-    df_to_save["Канал"] = "ОПТ"
-
-    # 👉 Переименование колонок
-    df_to_save = df_to_save.rename(columns={
-        "Модель": "Наименование",
-        "Цена": "РРЦ"
-    })
-
-    # 👉 Обязательные колонки
-    if "Номер заказа" not in df_to_save.columns:
-        df_to_save["Номер заказа"] = ""
-
-    if "Себестоимость" not in df_to_save.columns:
-        df_to_save["Себестоимость"] = 0
-
-    if "Комментарий" not in df_to_save.columns:
-        df_to_save["Комментарий"] = ""
-
-    # 👉 Комиссия для ОПТ
-    df_to_save["Комиссия Kaspi"] = 0
-
-    # 👉 Приведение к числам
-    df_to_save["РРЦ"] = pd.to_numeric(df_to_save["РРЦ"], errors="coerce").fillna(0)
-    df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
-    df_to_save["Комиссия Kaspi"] = pd.to_numeric(df_to_save["Комиссия Kaspi"], errors="coerce").fillna(0)
-
-    # 👉 Считаем прибыль
-    df_to_save["Чистая прибыль"] = (
-        df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
-    )
-
-    # 👉 Итоговый порядок колонок
-    save_columns = [
-        "Дата",
-        "Канал",
-        "Наименование",
-        "Номер заказа",
-        "Себестоимость",
-        "РРЦ",
-        "Комиссия Kaspi",
-        "Чистая прибыль",
-        "Комментарий"
-    ]
-
-    df_to_save = df_to_save[save_columns].copy()
-    df_to_save["Комментарий"] = "'" + df_to_save["Комментарий"].astype(str)
-    append_opt_sales_to_gsheet(df_to_save)
-
-    st.success("Продажи добавлены")
-
-    # 👉 очищаем накладную
-    st.session_state.invoice_items = []
+    
+        # 👉 Итоговый порядок колонок
+        save_columns = [
+            "Дата",
+            "Канал",
+            "Наименование",
+            "Номер заказа",
+            "Себестоимость",
+            "РРЦ",
+            "Комиссия Kaspi",
+            "Чистая прибыль",
+            "Комментарий"
+        ]
+    
+        df_to_save = df_to_save[save_columns].copy()
+        df_to_save["Комментарий"] = "'" + df_to_save["Комментарий"].astype(str)
+        append_opt_sales_to_gsheet(df_to_save)
+    
+        st.success("Продажи добавлены")
+    
+        # 👉 очищаем накладную
+        st.session_state.invoice_items = []
 
 
 
