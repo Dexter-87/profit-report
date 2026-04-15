@@ -548,6 +548,12 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import mm
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    pdfmetrics.registerFont(TTFont("CustomFont", "fonts/DejaVuSans.ttf"))
+    pdfmetrics.registerFont(TTFont("CustomFont-Bold", "fonts/DejaVuSans-Bold.ttf"))
+
 
     buffer = BytesIO()
 
