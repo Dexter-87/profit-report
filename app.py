@@ -655,23 +655,22 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
 
     table = Table(
         table_data,
-        colWidths=[10*mm, 55*mm, 80*mm, 15*mm, 20*mm, 20*mm, 20*mm],
+        colWidths=[45*mm, 52*mm, 155*mm, 42*mm, 58*mm, 62*mm, 70*mm],
         repeatRows=1
     )
 
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4472C4")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, -1), font_name),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("ALIGN", (3, 1), (5, -1), "CENTER"),
-        ("BACKGROUND", (0, 1), (-1, -2), colors.whitesmoke),
-        ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#D9EAF7")),
-        ("TOPPADDING", (0, 0), (-1, -1), 5),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-    ]))
+    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4472C4")),
+    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+    ("FONTSIZE", (0, 0), (-1, -1), 9),
+    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+    ("BACKGROUND", (0, 1), (-1, -2), colors.whitesmoke),
+    ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#D9EAF7")),
+]))
+
 
     story.append(table)
 
