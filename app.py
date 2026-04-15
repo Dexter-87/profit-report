@@ -1138,7 +1138,7 @@ if model:
             (price_df["ТипЦены"].astype(str).str.strip() == str(price_type).strip())
         ].copy()
         if price_type else pd.DataFrame()
-    )
+        )
 
         if not selected_row.empty:
             selected_row = selected_row[selected_row["Цена"] > 0]
