@@ -726,27 +726,27 @@ c1, c2, c3, c4 = st.columns(4)
 
 with c1:
 if st.button("Сегодня", use_container_width=True):
-    st.session_state.quick_period = "today"
-    st.session_state.date_from_filter = today
-    st.session_state.date_to_filter = today
+st.session_state.quick_period = "today"
+st.session_state.date_from_filter = today
+st.session_state.date_to_filter = today
 
 with c2:
 if st.button("7 дней", use_container_width=True):
-    st.session_state.quick_period = "7d"
-    st.session_state.date_from_filter = today - timedelta(days=6)
-    st.session_state.date_to_filter = today
+st.session_state.quick_period = "7d"
+st.session_state.date_from_filter = today - timedelta(days=6)
+st.session_state.date_to_filter = today
 
 with c3:
 if st.button("30 дней", use_container_width=True):
-    st.session_state.quick_period = "30d"
-    st.session_state.date_from_filter = today - timedelta(days=29)
-    st.session_state.date_to_filter = today
+st.session_state.quick_period = "30d"
+st.session_state.date_from_filter = today - timedelta(days=29)
+st.session_state.date_to_filter = today
 
 with c4:
 if st.button("Всё", use_container_width=True):
-    st.session_state.quick_period = "all"
-    st.session_state.date_from_filter = date(2026, 3, 16)   # та же стартовая дата
-    st.session_state.date_to_filter = today
+st.session_state.quick_period = "all"
+st.session_state.date_from_filter = date(2026, 3, 16)   # та же стартовая дата
+st.session_state.date_to_filter = today
 
 date_from = st.date_input(
 "С",
@@ -766,21 +766,21 @@ st.session_state.date_from_filter = date_from
 st.session_state.date_to_filter = date_to
 
 
-    # =========================
-    # ПРИМЕНЕНИЕ ФИЛЬТРОВ
-    # =========================
+# =========================
+# ПРИМЕНЕНИЕ ФИЛЬТРОВ
+# =========================
 df = df[
-        (df["Дата"].dt.date >= date_from) &
-        (df["Дата"].dt.date <= date_to)
-    ].copy()
+    (df["Дата"].dt.date >= date_from) &
+    (df["Дата"].dt.date <= date_to)
+].copy()
 
 if selected_channel != "Все":
-        df = df[df["Канал"].astype(str).str.strip() == selected_channel].copy()
+    df = df[df["Канал"].astype(str).str.strip() == selected_channel].copy()
 
 exp = exp[
-        (exp["Дата"].dt.date >= date_from) &
-        (exp["Дата"].dt.date <= date_to)
-    ].copy()
+    (exp["Дата"].dt.date >= date_from) &
+    (exp["Дата"].dt.date <= date_to)
+].copy()
 
     # =========================
     # РАСЧЕТЫ
