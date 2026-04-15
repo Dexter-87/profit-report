@@ -1335,38 +1335,38 @@ with tab2:
             rows_html = ""
     
             for _, row in preview_df.iterrows():
-            model = str(row["Модель"])
-            qty = int(row["Количество"])
-    
-            rows_html += f"""
-            <tr>
-                <td style="padding:12px; border-bottom:1px solid #2f3747;">
-                    {model}
-                </td>
-                <td style="padding:12px; text-align:center; color:#34d399; font-weight:700; border-bottom:1px solid #2f3747;">
-                    {qty}
-                </td>
-            </tr>
-            """
-    
-        st.markdown(
-            f"""
-            <div class="section-box" style="padding:0; overflow:hidden;">
-                <table style="width:100%; border-collapse:collapse;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left; padding:12px;">Модель</th>
-                            <th style="text-align:center; padding:12px;">Кол-во</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows_html}
-                    </tbody>
-                </table>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                model = str(row["Модель"])
+                qty = int(row["Количество"])
+        
+                rows_html += f"""
+                <tr>
+                    <td style="padding:12px; border-bottom:1px solid #2f3747;">
+                        {model}
+                    </td>
+                    <td style="padding:12px; text-align:center; color:#34d399; font-weight:700; border-bottom:1px solid #2f3747;">
+                        {qty}
+                    </td>
+                </tr>
+                """
+        
+            st.markdown(
+                f"""
+                <div class="section-box" style="padding:0; overflow:hidden;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left; padding:12px;">Модель</th>
+                                <th style="text-align:center; padding:12px;">Кол-во</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows_html}
+                        </tbody>
+                    </table>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 
