@@ -716,7 +716,8 @@ if "quick_period" not in st.session_state:
     st.session_state.quick_period = "30d"
 
 if "date_from_filter" not in st.session_state:
-    st.session_state.date_from_filter = date(2026, 3, 16)   # можешь заменить на свою стартовую дату
+    st.session_state.date_from_filter = date(2026, 3, 16)
+
 if "date_to_filter" not in st.session_state:
     st.session_state.date_to_filter = today
 
@@ -725,45 +726,46 @@ st.markdown("### Фильтр периода")
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
-if st.button("Сегодня", use_container_width=True):
-    st.session_state.quick_period = "today"
-    st.session_state.date_from_filter = today
-    st.session_state.date_to_filter = today
+    if st.button("Сегодня", use_container_width=True):
+        st.session_state.quick_period = "today"
+        st.session_state.date_from_filter = today
+        st.session_state.date_to_filter = today
 
 with c2:
-if st.button("7 дней", use_container_width=True):
-    st.session_state.quick_period = "7d"
-    st.session_state.date_from_filter = today - timedelta(days=6)
-    st.session_state.date_to_filter = today
+    if st.button("7 дней", use_container_width=True):
+        st.session_state.quick_period = "7d"
+        st.session_state.date_from_filter = today - timedelta(days=6)
+        st.session_state.date_to_filter = today
 
 with c3:
-if st.button("30 дней", use_container_width=True):
-    st.session_state.quick_period = "30d"
-    st.session_state.date_from_filter = today - timedelta(days=29)
-    st.session_state.date_to_filter = today
+    if st.button("30 дней", use_container_width=True):
+        st.session_state.quick_period = "30d"
+        st.session_state.date_from_filter = today - timedelta(days=29)
+        st.session_state.date_to_filter = today
 
 with c4:
-if st.button("Всё", use_container_width=True):
-    st.session_state.quick_period = "all"
-    st.session_state.date_from_filter = date(2026, 3, 16)   # та же стартовая дата
-    st.session_state.date_to_filter = today
+    if st.button("Всё", use_container_width=True):
+        st.session_state.quick_period = "all"
+        st.session_state.date_from_filter = date(2026, 3, 16)
+        st.session_state.date_to_filter = today
 
-    date_from = st.date_input(
+date_from = st.date_input(
     "С",
     value=st.session_state.date_from_filter,
     max_value=today,
     key="date_from_input"
-    )
-    
-    date_to = st.date_input(
+)
+
+date_to = st.date_input(
     "По",
     value=st.session_state.date_to_filter,
     max_value=today,
     key="date_to_input"
-    )
-    
-    st.session_state.date_from_filter = date_from
-    st.session_state.date_to_filter = date_to
+)
+
+st.session_state.date_from_filter = date_from
+st.session_state.date_to_filter = date_to
+
 
 
 # =========================
