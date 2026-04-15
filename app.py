@@ -1093,23 +1093,32 @@ with tab2:
     .tolist()
 )
 
-search = st.text_input("🔍 Поиск модели", key="order_model_search").strip()
+search = st.text_input("🔍 Поиск модели", key="order_model_search")
 
+models = sorted(set([
+    str(x).strip()
+    for x in price_df.loc[price_df["Бренд"] == brand, "Модель"]
+    if str(x).strip() != ""
+]))
+
+# 🔥 нормальный поиск (умный)
 if search:
+    search_clean = search.lower().strip()
+
     filtered_models = [
         m for m in models
-        if search.lower() in m.lower()
+        if search_clean in m.lower()
     ]
 else:
     filtered_models = models
 
-if not search:
-    model = st.selectbox("Модель", filtered_models, key="order_model")
-elif filtered_models:
-    model = st.selectbox("Модель", filtered_models, key="order_model")
-else:
-    model = None
+# если ничего не найдено — НЕ ломаем выбор
+if not filtered_models:
     st.warning("Модель не найдена")
+    model = None
+else:
+    model = st.selectbox("Модель", filtered_models, key="order_model")
+
 
 if model:
     price_types = sorted(
