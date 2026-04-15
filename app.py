@@ -46,29 +46,7 @@ st.set_page_config(page_title="Финансовая сводка", layout="wide"
 st.markdown("""
 <style>
 
-/* Убираем белые кнопки */
-.stDownloadButton button {
-    background-color: #1f2a3a !important;
-    color: white !important;
-    border-radius: 12px !important;
-    border: 1px solid #2e3b4e !important;
-    font-weight: 600;
-}
-
-/* При наведении */
-.stDownloadButton button:hover {
-    background-color: #2a3a50 !important;
-    color: #00ffae !important;
-}
-
-/* Делаем текст всегда видимым */
-.stDownloadButton button p {
-    color: white !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
+/* ОСНОВА */
 .stApp {
     background: #151922;
     color: #f3f4f6;
@@ -89,6 +67,7 @@ h1, h2, h3 {
     letter-spacing: 0.2px;
 }
 
+/* ЗАГОЛОВКИ */
 .main-title {
     font-size: 40px;
     font-weight: 800;
@@ -104,6 +83,7 @@ h1, h2, h3 {
     margin-bottom: 18px;
 }
 
+/* КАРТОЧКИ */
 .section-box {
     background: #1d2330;
     border: 1px solid #2f3747;
@@ -135,17 +115,10 @@ h1, h2, h3 {
     line-height: 1.1;
 }
 
-.value-green {
-    color: #34d399;
-}
-
-.value-red {
-    color: #f87171;
-}
-
-.value-blue {
-    color: #60a5fa;
-}
+/* ЦВЕТА */
+.value-green { color: #34d399; }
+.value-red { color: #f87171; }
+.value-blue { color: #60a5fa; }
 
 .small-label {
     font-size: 20px;
@@ -161,7 +134,7 @@ hr {
     margin: 14px 0;
 }
 
-/* Кнопка */
+/* ОБЫЧНЫЕ КНОПКИ */
 .stButton > button {
     background: #1d2330 !important;
     color: #f3f4f6 !important;
@@ -176,7 +149,26 @@ hr {
     color: #ffffff !important;
 }
 
-/* Поля */
+/* 🔥 КНОПКИ СКАЧИВАНИЯ (ИСПРАВЛЕНО) */
+.stDownloadButton > button {
+    background: #1d2330 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #2f3747 !important;
+    border-radius: 14px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+}
+
+.stDownloadButton > button:hover {
+    border-color: #4b5568 !important;
+    color: #ffffff !important;
+}
+
+.stDownloadButton > button p {
+    color: #f3f4f6 !important;
+}
+
+/* ПОЛЯ */
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div,
 div[data-testid="stDateInput"] > div,
@@ -201,7 +193,7 @@ div[data-baseweb="select"] span {
     color: #f3f4f6 !important;
 }
 
-/* Выпадающий список */
+/* ВЫПАДАЮЩИЕ СПИСКИ */
 div[data-baseweb="popover"] {
     background: #1d2330 !important;
     border-radius: 12px !important;
@@ -233,35 +225,14 @@ div[data-testid="stExpander"] details {
 div[data-testid="stExpander"] details summary {
     background: #1d2330 !important;
     color: #f3f4f6 !important;
-    border: none !important;
-    box-shadow: none !important;
     padding: 14px 18px !important;
 }
 
 div[data-testid="stExpander"] details[open] summary {
-    background: #1d2330 !important;
-    color: #f3f4f6 !important;
     border-bottom: 1px solid #2f3747 !important;
 }
 
-div[data-testid="stExpander"] details summary:hover {
-    background: #1d2330 !important;
-    color: #ffffff !important;
-}
-
-div[data-testid="stExpander"] details summary span {
-    color: #f3f4f6 !important;
-}
-
-div[data-testid="stExpander"] > div {
-    background: transparent !important;
-}
-
-div[data-testid="stExpander"] details summary svg {
-    fill: #9ca3af !important;
-    color: #9ca3af !important;
-}
-
+/* TABS */
 div[data-testid="stTabs"] button {
     color: #cbd5e1 !important;
     font-weight: 700 !important;
@@ -271,6 +242,7 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     color: #ffffff !important;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
     .block-container {
         padding-top: calc(4.2rem + env(safe-area-inset-top));
@@ -278,12 +250,10 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
 
     .main-title {
         font-size: 28px;
-        margin-top: 0;
     }
 
     .sub-title {
         font-size: 14px;
-        margin-bottom: 14px;
     }
 
     .card-value {
@@ -291,9 +261,11 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     }
 }
 
+/* Убираем курсор в дате */
 div[data-testid="stDateInput"] input {
     caret-color: transparent !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
