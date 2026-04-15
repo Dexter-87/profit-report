@@ -1152,8 +1152,8 @@ with tab1:
         if price_type else pd.DataFrame()
     )
     
-        if not selected_row.empty:
-            selected_row = selected_row[selected_row["Цена"] > 0]
+    if not selected_row.empty:
+        selected_row = selected_row[selected_row["Цена"] > 0]
     
         price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
         cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
