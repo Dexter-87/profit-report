@@ -1250,54 +1250,30 @@ with tab2:
     st.markdown("---")
     st.markdown("### Текущий заказ")
 
-    # ---------- показ текущего заказа ----------
-    if st.session_state.order_items:
-        rows_for_df = []
-        total_order_sum = 0.0
-
-        for i, item in enumerate(st.session_state.order_items):
-            rc1, rc2, rc3, rc4, rc5, rc6, rc7 = st.columns([1.3, 2.6, 1, 1.2, 1.2, 1.2, 0.8])
-
-            rc1.write(item.get("Бренд", ""))
-            rc2.write(item.get("Модель", ""))
-            rc3.write(item.get("Количество", 0))
-            rc4.write(format_money(float(item.get("Цена", 0))))
-            rc5.write(format_money(float(item.get("Сумма", 0))))
-            rc6.write(item.get("Комментарий", ""))
-
-            if rc7.button("❌", key=f"delete_order_item_{i}"):
+    for i, item in enumerate(st.session_state.order_items):
+    
+        col1, col2 = st.columns([5, 1])
+    
+        with col1:
+            st.markdown(f"""
+            <div style="
+                padding:12px;
+                border-radius:12px;
+                background:#111827;
+                margin-bottom:10px;
+            ">
+                <b>{item.get("Бренд","")} — {item.get("Модель","")}</b><br>
+                Кол-во: {item.get("Количество",0)}<br>
+                Цена: {format_money(item.get("Цена",0))} ₸<br>
+                Сумма: <b>{format_money(item.get("Сумма",0))} ₸</b>
+            </div>
+            """, unsafe_allow_html=True)
+    
+        with col2:
+            if st.button("❌", key=f"del_{i}"):
                 st.session_state.order_items.pop(i)
                 st.rerun()
 
-            rows_for_df.append({
-                "Бренд": item.get("Бренд", ""),
-                "Модель": item.get("Модель", ""),
-                "Количество": item.get("Количество", 0),
-                "Цена": item.get("Цена", 0),
-                "Сумма": item.get("Сумма", 0),
-                "Себестоимость": item.get("Себестоимость", 0),
-                "Комментарий": item.get("Комментарий", ""),
-            })
-
-            total_order_sum += float(item.get("Сумма", 0))
-
-        st.markdown(
-            f"""
-            <div class="card">
-                <div class="card-title">Итого по заказу</div>
-                <div class="card-value">{format_money(total_order_sum)} ₸</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        preview_df = pd.DataFrame(rows_for_df)
-
-        st.dataframe(
-            preview_df,
-            use_container_width=True,
-            hide_index=True
-        )
 
         st.markdown("---")
 
