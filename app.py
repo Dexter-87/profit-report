@@ -1252,203 +1252,204 @@ with tab2:
 
     b1, b2, b3 = st.columns(3)
 
-    with b1:
-        if st.button("Добавить позицию", use_container_width=True, key="add_invoice_row"):
-            if not model:
-                st.warning("Сначала выбери модель")
-            elif not price_type:
-                st.warning("Сначала выбери тип цены")
-            elif price <= 0:
-                st.warning("Для выбранной позиции не найдена цена")
-            else:
-                st.session_state.invoice_items.append(current_row.copy())
-                st.session_state.saved_invoice_ready = False
-                st.session_state.invoice_pdf_bytes = None
-                st.rerun()
-
-    with b2:
-        if st.button("Очистить накладную", use_container_width=True, key="clear_invoice"):
-            st.session_state.invoice_items = []
+with b1:
+    if st.button("Добавить позицию", use_container_width=True, key="add_invoice_row"):
+        if not model:
+            st.warning("Сначала выбери модель")
+        elif not price_type:
+            st.warning("Сначала выбери тип цены")
+        elif price <= 0:
+            st.warning("Для выбранной позиции не найдена цена")
+        else:
+            st.session_state.invoice_items.append(current_row.copy())
             st.session_state.saved_invoice_ready = False
             st.session_state.invoice_pdf_bytes = None
             st.rerun()
 
-    with b3:
-        if st.button("Сохранить накладную", use_container_width=True, key="save_invoice"):
-            if st.session_state.invoice_items:
-                file_path = "orders.xlsx"
-                invoice_df = pd.DataFrame(st.session_state.invoice_items).copy()
+with b2:
+    if st.button("Очистить накладную", use_container_width=True, key="clear_invoice"):
+        st.session_state.invoice_items = []
+        st.session_state.saved_invoice_ready = False
+        st.session_state.invoice_pdf_bytes = None
+        st.rerun()
 
-                final_columns = [
-                    "Дата",
-                    "Бренд",
-                    "Модель",
-                    "Количество",
-                    "Цена",
-                    "Сумма",
-                    "Комментарий",
-                ]
+with b3:
+    if st.button("Сохранить накладную", use_container_width=True, key="save_invoice"):
+        if st.session_state.invoice_items:
+            file_path = "orders.xlsx"
+            invoice_df = pd.DataFrame(st.session_state.invoice_items).copy()
 
-                for col in final_columns:
-                    if col not in invoice_df.columns:
-                        invoice_df[col] = ""
+            final_columns = [
+                "Дата",
+                "Бренд",
+                "Модель",
+                "Количество",
+                "Цена",
+                "Сумма",
+                "Комментарий",
+            ]
 
-                invoice_df = invoice_df[final_columns].copy()
-                invoice_df["Количество"] = pd.to_numeric(invoice_df["Количество"], errors="coerce").fillna(1).astype(int)
-                invoice_df["Цена"] = pd.to_numeric(invoice_df["Цена"], errors="coerce").fillna(0)
-                invoice_df["Сумма"] = pd.to_numeric(invoice_df["Сумма"], errors="coerce").fillna(0)
+            for col in final_columns:
+                if col not in invoice_df.columns:
+                    invoice_df[col] = ""
 
-                total_invoice_sum = invoice_df["Сумма"].sum()
+            invoice_df = invoice_df[final_columns].copy()
+            invoice_df["Количество"] = pd.to_numeric(invoice_df["Количество"], errors="coerce").fillna(1).astype(int)
+            invoice_df["Цена"] = pd.to_numeric(invoice_df["Цена"], errors="coerce").fillna(0)
+            invoice_df["Сумма"] = pd.to_numeric(invoice_df["Сумма"], errors="coerce").fillna(0)
 
-                from openpyxl import Workbook
-                from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+            total_invoice_sum = invoice_df["Сумма"].sum()
 
-                wb = Workbook()
-                ws = wb.active
-                ws.title = "Накладная"
+            from openpyxl import Workbook
+            from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
-                ws.merge_cells("A1:G1")
-                ws["A1"] = "Королевство бойлеров"
-                ws["A1"].font = Font(size=16, bold=True, color="FFFFFF")
-                ws["A1"].fill = PatternFill("solid", fgColor="1F4E78")
-                ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Накладная"
 
-                ws.merge_cells("A2:G2")
-                ws["A2"] = f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}"
-                ws["A2"].font = Font(size=11, bold=True, color="FFFFFF")
-                ws["A2"].fill = PatternFill("solid", fgColor="4F81BD")
-                ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
+            ws.merge_cells("A1:G1")
+            ws["A1"] = "Королевство бойлеров"
+            ws["A1"].font = Font(size=16, bold=True, color="FFFFFF")
+            ws["A1"].fill = PatternFill("solid", fgColor="1F4E78")
+            ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
 
-                headers = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
-                header_row = 4
+            ws.merge_cells("A2:G2")
+            ws["A2"] = f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}"
+            ws["A2"].font = Font(size=11, bold=True, color="FFFFFF")
+            ws["A2"].fill = PatternFill("solid", fgColor="4F81BD")
+            ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
 
-                thin = Side(style="thin", color="BFBFBF")
-                border = Border(left=thin, right=thin, top=thin, bottom=thin)
+            headers = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
+            header_row = 4
 
-                for col_num, header in enumerate(headers, 1):
-                    cell = ws.cell(row=header_row, column=col_num, value=header)
-                    cell.font = Font(bold=True, color="FFFFFF")
-                    cell.fill = PatternFill("solid", fgColor="4472C4")
-                    cell.alignment = Alignment(horizontal="center", vertical="center")
+            thin = Side(style="thin", color="BFBFBF")
+            border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=header_row, column=col_num, value=header)
+                cell.font = Font(bold=True, color="FFFFFF")
+                cell.fill = PatternFill("solid", fgColor="4472C4")
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+                cell.border = border
+
+            start_row = 5
+            for row_idx, row in enumerate(invoice_df.itertuples(index=False), start_row):
+                values = list(row)
+                for col_num, value in enumerate(values, 1):
+                    cell = ws.cell(row=row_idx, column=col_num, value=value)
                     cell.border = border
+                    if col_num == 4:
+                        cell.alignment = Alignment(horizontal="center")
+                    elif col_num in [5, 6]:
+                        cell.alignment = Alignment(horizontal="right")
+                    else:
+                        cell.alignment = Alignment(horizontal="left")
 
-                start_row = 5
-                for row_idx, row in enumerate(invoice_df.itertuples(index=False), start_row):
-                    values = list(row)
-                    for col_num, value in enumerate(values, 1):
-                        cell = ws.cell(row=row_idx, column=col_num, value=value)
-                        cell.border = border
-                        if col_num == 4:
-                            cell.alignment = Alignment(horizontal="center")
-                        elif col_num in [5, 6]:
-                            cell.alignment = Alignment(horizontal="right")
-                        else:
-                            cell.alignment = Alignment(horizontal="left")
+            total_row = start_row + len(invoice_df)
 
-                total_row = start_row + len(invoice_df)
+            ws.cell(row=total_row, column=1, value="ИТОГО")
+            ws.cell(row=total_row, column=6, value=total_invoice_sum)
 
-                ws.cell(row=total_row, column=1, value="ИТОГО")
-                ws.cell(row=total_row, column=6, value=total_invoice_sum)
+            for col_num in range(1, 8):
+                cell = ws.cell(row=total_row, column=col_num)
+                cell.font = Font(bold=True)
+                cell.fill = PatternFill("solid", fgColor="D9EAF7")
+                cell.border = border
 
-                for col_num in range(1, 8):
-                    cell = ws.cell(row=total_row, column=col_num)
-                    cell.font = Font(bold=True)
-                    cell.fill = PatternFill("solid", fgColor="D9EAF7")
-                    cell.border = border
+            ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="center")
+            ws.cell(row=total_row, column=6).alignment = Alignment(horizontal="right")
 
-                ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="center")
-                ws.cell(row=total_row, column=6).alignment = Alignment(horizontal="right")
+            widths = {
+                "A": 14,
+                "B": 16,
+                "C": 38,
+                "D": 14,
+                "E": 14,
+                "F": 16,
+                "G": 22,
+            }
 
-                widths = {
-                    "A": 14,
-                    "B": 16,
-                    "C": 38,
-                    "D": 14,
-                    "E": 14,
-                    "F": 16,
-                    "G": 22,
-                }
+            for col_letter, width in widths.items():
+                ws.column_dimensions[col_letter].width = width
 
-                for col_letter, width in widths.items():
-                    ws.column_dimensions[col_letter].width = width
+            ws.row_dimensions[1].height = 24
+            ws.row_dimensions[2].height = 20
 
-                ws.row_dimensions[1].height = 24
-                ws.row_dimensions[2].height = 20
+            wb.save(file_path)
 
-                wb.save(file_path)
+            st.session_state.invoice_pdf_bytes = build_invoice_pdf(invoice_df)
+            st.session_state.saved_invoice_ready = True
+            st.success("Накладная сохранена")
+        else:
+            st.warning("Накладная пустая")
 
-                st.session_state.invoice_pdf_bytes = build_invoice_pdf(invoice_df)
-                st.session_state.saved_invoice_ready = True
-                st.success("Накладная сохранена")
-            else:
-                st.warning("Накладная пустая")
+st.markdown("---")
+st.markdown("### Позиции в накладной")
 
-    st.markdown("---")
-    st.markdown("### Позиции в накладной")
+if st.session_state.invoice_items:
+    total_invoice_sum = 0.0
 
-    if st.session_state.invoice_items:
-        total_invoice_sum = 0.0
+    for i in range(len(st.session_state.invoice_items)):
+        item = st.session_state.invoice_items[i]
 
-        for i in range(len(st.session_state.invoice_items)):
-            item = st.session_state.invoice_items[i]
+        current_qty = parse_int_text(item.get("Количество", 1), default=1)
+        current_price = parse_float_text(item.get("Цена", 0))
+        current_sum = current_price * current_qty
+        st.session_state.invoice_items[i]["Количество"] = current_qty
+        st.session_state.invoice_items[i]["Сумма"] = current_sum
 
-            current_qty = parse_int_text(item.get("Количество", 1), default=1)
-            current_price = parse_float_text(item.get("Цена", 0))
-            current_sum = current_price * current_qty
-            st.session_state.invoice_items[i]["Количество"] = current_qty
-            st.session_state.invoice_items[i]["Сумма"] = current_sum
+        box1, box2, box3 = st.columns([6, 2, 1])
 
-            box1, box2, box3 = st.columns([6, 2, 1])
-
-            with box1:
-                st.markdown(f"""
-                <div class="section-box" style="margin-bottom:10px;">
-                    <div style="font-size:18px; font-weight:700; color:#f3f4f6; margin-bottom:6px;">
-                        {item.get("Бренд", "")} — {item.get("Модель", "")}
-                    </div>
-                    <div style="font-size:15px; color:#cbd5e1;">
-                        Цена: <b>{format_money(current_price)} ₸</b>
-                    </div>
-                    <div style="font-size:15px; color:#cbd5e1;">
-                        Сумма: <b>{format_money(current_sum)} ₸</b>
-                    </div>
+        with box1:
+            st.markdown(f"""
+            <div class="section-box" style="margin-bottom:10px;">
+                <div style="font-size:18px; font-weight:700; color:#f3f4f6; margin-bottom:6px;">
+                    {item.get("Бренд", "")} — {item.get("Модель", "")}
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="font-size:15px; color:#cbd5e1;">
+                    Цена: <b>{format_money(current_price)} ₸</b>
+                </div>
+                <div style="font-size:15px; color:#cbd5e1;">
+                    Сумма: <b>{format_money(current_sum)} ₸</b>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-            with box2:
-                new_qty = st.number_input(
-                    "Кол-во",
-                    min_value=1,
-                    value=current_qty,
-                    step=1,
-                    key=f"invoice_qty_{i}"
-                )
-                if new_qty != current_qty:
-                    st.session_state.invoice_items[i]["Количество"] = int(new_qty)
-                    st.session_state.invoice_items[i]["Сумма"] = float(current_price) * int(new_qty)
-                    st.session_state.saved_invoice_ready = False
-                    st.session_state.invoice_pdf_bytes = None
-                    st.rerun()
+        with box2:
+            new_qty = st.number_input(
+                "Кол-во",
+                min_value=1,
+                value=current_qty,
+                step=1,
+                key=f"invoice_qty_{i}"
+            )
+            if new_qty != current_qty:
+                st.session_state.invoice_items[i]["Количество"] = int(new_qty)
+                st.session_state.invoice_items[i]["Сумма"] = float(current_price) * int(new_qty)
+                st.session_state.saved_invoice_ready = False
+                st.session_state.invoice_pdf_bytes = None
+                st.rerun()
 
-            with box3:
-                st.write("")
-                st.write("")
-                if st.button("🗑️", key=f"delete_invoice_item_{i}", use_container_width=True):
-                    st.session_state.invoice_items.pop(i)
-                    st.session_state.saved_invoice_ready = False
-                    st.session_state.invoice_pdf_bytes = None
-                    st.rerun()
+        with box3:
+            st.write("")
+            st.write("")
+            if st.button("🗑️", key=f"delete_invoice_item_{i}", use_container_width=True):
+                st.session_state.invoice_items.pop(i)
+                st.session_state.saved_invoice_ready = False
+                st.session_state.invoice_pdf_bytes = None
+                st.rerun()
 
-            total_invoice_sum += st.session_state.invoice_items[i]["Сумма"]
+        total_invoice_sum += st.session_state.invoice_items[i]["Сумма"]
 
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Итого по накладной</div>
-            <div class="card-value">{format_money(total_invoice_sum)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.info("Пока нет добавленных позиций")
+    st.markdown(f"""
+    <div class="card">
+        <div class="card-title">Итого по накладной</div>
+        <div class="card-value">{format_money(total_invoice_sum)} ₸</div>
+    </div>
+    """, unsafe_allow_html=True)
+else:
+    st.info("Пока нет добавленных позиций")
+
 
     if st.session_state.saved_invoice_ready:
         d1, d2 = st.columns(2)
