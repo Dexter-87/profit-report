@@ -1094,443 +1094,144 @@ with tab1:
 # СОЗДАНИЕ ЗАКАЗА
 # =========================
 with tab2:
+
+    # ===== STATE =====
     if "invoice_items" not in st.session_state:
         st.session_state.invoice_items = []
 
-    if "saved_invoice_ready" not in st.session_state:
-        st.session_state.saved_invoice_ready = False
-
-    if "invoice_pdf_bytes" not in st.session_state:
-        st.session_state.invoice_pdf_bytes = None
-
     st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
 
-    price_df = load_price().fillna("").copy()
+    price_df = load_price().fillna("")
 
+    # чистка
     for col in ["Бренд", "Модель", "ТипЦены"]:
         if col in price_df.columns:
-            price_df[col] = (
-                price_df[col]
-                .astype(str)
-                .str.replace("\xa0", " ", regex=False)
-                .str.replace("\ufeff", "", regex=False)
-                .str.strip()
-            )
+            price_df[col] = price_df[col].astype(str).str.strip()
 
-    if "Цена" in price_df.columns:
-        price_df["Цена"] = pd.to_numeric(price_df["Цена"], errors="coerce").fillna(0)
-    else:
-        price_df["Цена"] = 0
+    price_df["Цена"] = pd.to_numeric(price_df.get("Цена", 0), errors="coerce").fillna(0)
+    price_df["Себестоимость"] = pd.to_numeric(price_df.get("Себестоимость", 0), errors="coerce").fillna(0)
 
-    if "Себестоимость" in price_df.columns:
-        price_df["Себестоимость"] = pd.to_numeric(price_df["Себестоимость"], errors="coerce").fillna(0)
-    else:
-        price_df["Себестоимость"] = 0
+    # ===== ВЫБОР =====
+    brands = sorted(price_df["Бренд"].dropna().unique())
+    brand = st.selectbox("Бренд", brands)
 
-    brands = sorted([
-        x for x in price_df["Бренд"].dropna().unique()
-        if str(x).strip() != ""
-    ])
+    models = price_df[price_df["Бренд"] == brand]["Модель"].dropna().unique()
+    model = st.selectbox("Модель", sorted(models))
 
-    brand = st.selectbox("Бренд", brands, key="order_brand")
+    price_types = price_df[
+        (price_df["Бренд"] == brand) &
+        (price_df["Модель"] == model)
+    ]["ТипЦены"].dropna().unique()
 
-    models = sorted(
-        set(
-            price_df.loc[
-                price_df["Бренд"].astype(str).str.strip() == str(brand).strip(),
-                "Модель"
-            ]
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .tolist()
-        )
-    )
+    price_type = st.selectbox("Тип цены", sorted(price_types))
 
-    search = st.text_input("🔍 Поиск модели", key="order_model_search")
+    selected = price_df[
+        (price_df["Бренд"] == brand) &
+        (price_df["Модель"] == model) &
+        (price_df["ТипЦены"] == price_type)
+    ]
 
-    if search.strip():
-        search_parts = search.lower().strip().split()
-        filtered_models = [
-            m for m in models
-            if all(part in m.lower() for part in search_parts)
-        ]
-    else:
-        filtered_models = models
+    price = float(selected["Цена"].iloc[0]) if not selected.empty else 0
+    cost = float(selected["Себестоимость"].iloc[0]) if not selected.empty else 0
 
-    if not models:
-        st.warning("Для этого бренда нет моделей")
-        model = None
-    else:
-        if search.strip() and not filtered_models:
-            st.warning("Модель не найдена. Ниже показан полный список моделей бренда.")
-            model_options = models
+    qty = st.number_input("Количество", 1, 1000, 1)
+
+    total = price * qty
+
+    st.write(f"💰 Цена: {format_money(price)} ₸")
+    st.write(f"📦 Сумма: {format_money(total)} ₸")
+
+    comment = st.text_input("Комментарий")
+
+    # ===== ДОБАВИТЬ =====
+    if st.button("Добавить позицию"):
+
+        if price <= 0:
+            st.warning("Нет цены")
         else:
-            model_options = filtered_models
-
-        model = st.selectbox("Модель", model_options, key="order_model")
-
-    if model:
-        price_types = sorted(
-            set(
-                price_df.loc[
-                    (price_df["Бренд"].astype(str).str.strip() == str(brand).strip()) &
-                    (price_df["Модель"].astype(str).str.strip() == str(model).strip()),
-                    "ТипЦены"
-                ]
-                .dropna()
-                .astype(str)
-                .str.strip()
-                .tolist()
-            )
-        )
-    else:
-        price_types = []
-
-    if price_types:
-        price_type = st.selectbox("Тип цены", price_types, key="order_price_type")
-    else:
-        price_type = None
-        st.warning("Для этой модели не найден тип цены")
-
-    if model and price_type:
-        selected_row = price_df[
-            (price_df["Бренд"].astype(str).str.strip() == str(brand).strip()) &
-            (price_df["Модель"].astype(str).str.strip() == str(model).strip()) &
-            (price_df["ТипЦены"].astype(str).str.strip() == str(price_type).strip())
-        ].copy()
-    else:
-        selected_row = pd.DataFrame()
-
-    if not selected_row.empty:
-        selected_row = selected_row[selected_row["Цена"] > 0]
-
-    price = float(selected_row["Цена"].iloc[0]) if not selected_row.empty else 0
-    cost = float(selected_row["Себестоимость"].iloc[0]) if not selected_row.empty else 0
-
-    qty = st.number_input("Количество", min_value=1, value=1, step=1, key="order_qty")
-    total_sum = price * qty if price else 0
-
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Цена</div>
-            <div class="card-value value-blue">{format_money(price)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c2:
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Себестоимость</div>
-            <div class="card-value">{format_money(cost)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c3:
-        st.markdown(f"""
-        <div class="card">
-            <div class="card-title">Сумма</div>
-            <div class="card-value">{format_money(total_sum)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    comment = st.text_input("Комментарий", value="", key="order_comment")
-
-    current_row = {
-        "Дата": pd.Timestamp.today().strftime("%d.%m.%Y"),
-        "Бренд": brand,
-        "Модель": model if model else "",
-        "Количество": int(qty),
-        "Цена": float(price),
-        "Сумма": float(total_sum),
-        "Себестоимость": float(cost),
-        "Комментарий": comment,
-    }
-
-    b1, b2, b3 = st.columns(3)
-
-with b1:
-    if st.button("Добавить позицию", use_container_width=True, key="add_invoice_row"):
-        if not model:
-            st.warning("Сначала выбери модель")
-        elif not price_type:
-            st.warning("Сначала выбери тип цены")
-        elif price <= 0:
-            st.warning("Для выбранной позиции не найдена цена")
-        else:
-            st.session_state.invoice_items.append(current_row.copy())
-            st.session_state.saved_invoice_ready = False
-            st.session_state.invoice_pdf_bytes = None
-            st.rerun()
-
-with b2:
-    if st.button("Очистить накладную", use_container_width=True, key="clear_invoice"):
-        st.session_state.invoice_items = []
-        st.session_state.saved_invoice_ready = False
-        st.session_state.invoice_pdf_bytes = None
-        st.rerun()
-
-with b3:
-    if st.button("Сохранить накладную", use_container_width=True, key="save_invoice"):
-        if st.session_state.invoice_items:
-            file_path = "orders.xlsx"
-            invoice_df = pd.DataFrame(st.session_state.invoice_items).copy()
-
-            final_columns = [
-                "Дата",
-                "Бренд",
-                "Модель",
-                "Количество",
-                "Цена",
-                "Сумма",
-                "Комментарий",
-            ]
-
-            for col in final_columns:
-                if col not in invoice_df.columns:
-                    invoice_df[col] = ""
-
-            invoice_df = invoice_df[final_columns].copy()
-            invoice_df["Количество"] = pd.to_numeric(invoice_df["Количество"], errors="coerce").fillna(1).astype(int)
-            invoice_df["Цена"] = pd.to_numeric(invoice_df["Цена"], errors="coerce").fillna(0)
-            invoice_df["Сумма"] = pd.to_numeric(invoice_df["Сумма"], errors="coerce").fillna(0)
-
-            total_invoice_sum = invoice_df["Сумма"].sum()
-
-            from openpyxl import Workbook
-            from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
-
-            wb = Workbook()
-            ws = wb.active
-            ws.title = "Накладная"
-
-            ws.merge_cells("A1:G1")
-            ws["A1"] = "Королевство бойлеров"
-            ws["A1"].font = Font(size=16, bold=True, color="FFFFFF")
-            ws["A1"].fill = PatternFill("solid", fgColor="1F4E78")
-            ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
-
-            ws.merge_cells("A2:G2")
-            ws["A2"] = f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}"
-            ws["A2"].font = Font(size=11, bold=True, color="FFFFFF")
-            ws["A2"].fill = PatternFill("solid", fgColor="4F81BD")
-            ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
-
-            headers = ["Дата", "Бренд", "Модель", "Количество", "Цена", "Сумма", "Комментарий"]
-            header_row = 4
-
-            thin = Side(style="thin", color="BFBFBF")
-            border = Border(left=thin, right=thin, top=thin, bottom=thin)
-
-            for col_num, header in enumerate(headers, 1):
-                cell = ws.cell(row=header_row, column=col_num, value=header)
-                cell.font = Font(bold=True, color="FFFFFF")
-                cell.fill = PatternFill("solid", fgColor="4472C4")
-                cell.alignment = Alignment(horizontal="center", vertical="center")
-                cell.border = border
-
-            start_row = 5
-            for row_idx, row in enumerate(invoice_df.itertuples(index=False), start_row):
-                values = list(row)
-                for col_num, value in enumerate(values, 1):
-                    cell = ws.cell(row=row_idx, column=col_num, value=value)
-                    cell.border = border
-                    if col_num == 4:
-                        cell.alignment = Alignment(horizontal="center")
-                    elif col_num in [5, 6]:
-                        cell.alignment = Alignment(horizontal="right")
-                    else:
-                        cell.alignment = Alignment(horizontal="left")
-
-            total_row = start_row + len(invoice_df)
-
-            ws.cell(row=total_row, column=1, value="ИТОГО")
-            ws.cell(row=total_row, column=6, value=total_invoice_sum)
-
-            for col_num in range(1, 8):
-                cell = ws.cell(row=total_row, column=col_num)
-                cell.font = Font(bold=True)
-                cell.fill = PatternFill("solid", fgColor="D9EAF7")
-                cell.border = border
-
-            ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="center")
-            ws.cell(row=total_row, column=6).alignment = Alignment(horizontal="right")
-
-            widths = {
-                "A": 14,
-                "B": 16,
-                "C": 38,
-                "D": 14,
-                "E": 14,
-                "F": 16,
-                "G": 22,
-            }
-
-            for col_letter, width in widths.items():
-                ws.column_dimensions[col_letter].width = width
-
-            ws.row_dimensions[1].height = 24
-            ws.row_dimensions[2].height = 20
-
-            wb.save(file_path)
-
-            st.session_state.invoice_pdf_bytes = build_invoice_pdf(invoice_df)
-            st.session_state.saved_invoice_ready = True
-            st.success("Накладная сохранена")
-        else:
-            st.warning("Накладная пустая")
-
-st.markdown("---")
-st.markdown("### Позиции в накладной")
-
-if st.session_state.invoice_items:
-    total_invoice_sum = 0.0
-
-    for i in range(len(st.session_state.invoice_items)):
-        item = st.session_state.invoice_items[i]
-
-        current_qty = parse_int_text(item.get("Количество", 1), default=1)
-        current_price = parse_float_text(item.get("Цена", 0))
-        current_sum = current_price * current_qty
-        st.session_state.invoice_items[i]["Количество"] = current_qty
-        st.session_state.invoice_items[i]["Сумма"] = current_sum
-
-        box1, box2, box3 = st.columns([6, 2, 1])
-
-        with box1:
-            st.markdown(f"""
-            <div class="section-box" style="margin-bottom:10px;">
-                <div style="font-size:18px; font-weight:700; color:#f3f4f6; margin-bottom:6px;">
-                    {item.get("Бренд", "")} — {item.get("Модель", "")}
-                </div>
-                <div style="font-size:15px; color:#cbd5e1;">
-                    Цена: <b>{format_money(current_price)} ₸</b>
-                </div>
-                <div style="font-size:15px; color:#cbd5e1;">
-                    Сумма: <b>{format_money(current_sum)} ₸</b>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with box2:
-            new_qty = st.number_input(
-                "Кол-во",
-                min_value=1,
-                value=current_qty,
-                step=1,
-                key=f"invoice_qty_{i}"
-            )
-            if new_qty != current_qty:
-                st.session_state.invoice_items[i]["Количество"] = int(new_qty)
-                st.session_state.invoice_items[i]["Сумма"] = float(current_price) * int(new_qty)
-                st.session_state.saved_invoice_ready = False
-                st.session_state.invoice_pdf_bytes = None
-                st.rerun()
-
-        with box3:
-            st.write("")
-            st.write("")
-            if st.button("🗑️", key=f"delete_invoice_item_{i}", use_container_width=True):
-                st.session_state.invoice_items.pop(i)
-                st.session_state.saved_invoice_ready = False
-                st.session_state.invoice_pdf_bytes = None
-                st.rerun()
-
-        total_invoice_sum += st.session_state.invoice_items[i]["Сумма"]
-
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Итого по накладной</div>
-        <div class="card-value">{format_money(total_invoice_sum)} ₸</div>
-    </div>
-    """, unsafe_allow_html=True)
-else:
-    st.info("Пока нет добавленных позиций")
-
-
-    if st.session_state.saved_invoice_ready:
-        d1, d2 = st.columns(2)
-
-        with d1:
-            with open("orders.xlsx", "rb") as f:
-                st.download_button(
-                    "Скачать Excel",
-                    data=f,
-                    file_name="orders.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True,
-                    key="download_invoice_excel"
-                )
-
-        with d2:
-            if st.session_state.invoice_pdf_bytes is not None:
-                st.download_button(
-                    "Скачать PDF",
-                    data=st.session_state.invoice_pdf_bytes,
-                    file_name="orders.pdf",
-                    mime="application/pdf",
-                    use_container_width=True,
-                    key="download_invoice_pdf"
-                )
-
-    if st.button("+ Добавить в продажи (ОПТ)", use_container_width=True, key="add_invoice_to_sales"):
-        if not st.session_state.invoice_items:
-            st.warning("Накладная пустая")
-        else:
-            df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
-
-            df_to_save["Количество"] = pd.to_numeric(
-                df_to_save["Количество"], errors="coerce"
-            ).fillna(1).astype(int)
-
-            df_to_save["Цена"] = pd.to_numeric(df_to_save["Цена"], errors="coerce").fillna(0)
-            df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
-
-            df_to_save["Дата"] = pd.to_datetime("today").strftime("%d.%m.%Y")
-            df_to_save["Канал"] = "ОПТ"
-
-            df_to_save = df_to_save.rename(columns={
-                "Модель": "Наименование",
-                "Цена": "РРЦ",
+            st.session_state.invoice_items.append({
+                "Бренд": brand,
+                "Модель": model,
+                "Количество": qty,
+                "Цена": price,
+                "Сумма": total,
+                "Комментарий": comment
             })
-
-            if "Номер заказа" not in df_to_save.columns:
-                df_to_save["Номер заказа"] = ""
-
-            if "Комментарий" not in df_to_save.columns:
-                df_to_save["Комментарий"] = ""
-
-            df_to_save["Комиссия Kaspi"] = 0
-            df_to_save["РРЦ"] = df_to_save["РРЦ"] * df_to_save["Количество"]
-            df_to_save["Себестоимость"] = df_to_save["Себестоимость"] * df_to_save["Количество"]
-
-            df_to_save["Чистая прибыль"] = (
-                df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
-            )
-
-            save_columns = [
-                "Дата",
-                "Канал",
-                "Наименование",
-                "Номер заказа",
-                "Себестоимость",
-                "РРЦ",
-                "Комиссия Kaspi",
-                "Чистая прибыль",
-                "Комментарий",
-            ]
-
-            df_to_save = df_to_save[save_columns].copy()
-            df_to_save["Комментарий"] = "'" + df_to_save["Комментарий"].astype(str)
-
-            append_opt_sales_to_gsheet(df_to_save)
-
-            st.success("Продажи добавлены")
-            st.session_state.invoice_items = []
-            st.session_state.saved_invoice_ready = False
-            st.session_state.invoice_pdf_bytes = None
             st.rerun()
+
+    # ===== СПИСОК =====
+    st.markdown("### Позиции")
+
+    if not st.session_state.invoice_items:
+        st.info("Пусто")
+    else:
+
+        total_sum = 0
+
+        for i, item in enumerate(st.session_state.invoice_items):
+
+            c1, c2, c3 = st.columns([5, 2, 1])
+
+            with c1:
+                st.write(f"**{item['Модель']}**")
+                st.caption(f"{format_money(item['Цена'])} ₸")
+
+            with c2:
+                new_qty = st.number_input(
+                    "шт",
+                    value=int(item["Количество"]),
+                    key=f"qty_{i}"
+                )
+                item["Количество"] = new_qty
+                item["Сумма"] = new_qty * item["Цена"]
+
+            with c3:
+                if st.button("🗑️", key=f"del_{i}"):
+                    st.session_state.invoice_items.pop(i)
+                    st.rerun()
+
+            st.write(f"Сумма: {format_money(item['Сумма'])} ₸")
+            st.markdown("---")
+
+            total_sum += item["Сумма"]
+
+        st.markdown(f"## Итого: {format_money(total_sum)} ₸")
+
+    # ===== КНОПКИ =====
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("Очистить"):
+            st.session_state.invoice_items = []
+            st.rerun()
+
+    with col2:
+        if st.button("Добавить в продажи"):
+
+            if not st.session_state.invoice_items:
+                st.warning("Пусто")
+            else:
+                df = pd.DataFrame(st.session_state.invoice_items)
+
+                df = df.loc[df.index.repeat(df["Количество"])]
+
+                df["Дата"] = pd.Timestamp.today().strftime("%d.%m.%Y")
+                df["Канал"] = "ОПТ"
+                df["Наименование"] = df["Модель"]
+                df["РРЦ"] = df["Цена"]
+                df["Комиссия Kaspi"] = 0
+
+                df["Чистая прибыль"] = df["РРЦ"] - df.get("Себестоимость", 0)
+
+                save_cols = [
+                    "Дата", "Канал", "Наименование",
+                    "РРЦ", "Комиссия Kaspi", "Чистая прибыль"
+                ]
+
+                append_opt_sales_to_gsheet(df[save_cols])
+
+                st.success("Отправлено")
+                st.session_state.invoice_items = []
+                st.rerun()
+
 
