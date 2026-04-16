@@ -1207,7 +1207,7 @@ with tab2:
 
     with col2:
         if st.button("+ Добавить в продажи (ОПТ)", use_container_width=True, key="add_invoice_to_sales"):
-    if not st.session_state.invoice_items:
+        if not st.session_state.invoice_items:
         st.warning("Накладная пустая")
     else:
         df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
