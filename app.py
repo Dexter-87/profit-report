@@ -1206,32 +1206,66 @@ with tab2:
             st.rerun()
 
     with col2:
-        if st.button("Добавить в продажи"):
+        if st.button("+ Добавить в продажи (ОПТ)", use_container_width=True, key="add_invoice_to_sales"):
+    if not st.session_state.invoice_items:
+        st.warning("Накладная пустая")
+    else:
+        df_to_save = pd.DataFrame(st.session_state.invoice_items).copy()
 
-            if not st.session_state.invoice_items:
-                st.warning("Пусто")
-            else:
-                df = pd.DataFrame(st.session_state.invoice_items)
+        df_to_save["Количество"] = pd.to_numeric(
+            df_to_save["Количество"], errors="coerce"
+        ).fillna(1).astype(int)
 
-                df = df.loc[df.index.repeat(df["Количество"])]
+        df_to_save["Цена"] = pd.to_numeric(df_to_save["Цена"], errors="coerce").fillna(0)
+        df_to_save["Себестоимость"] = pd.to_numeric(df_to_save["Себестоимость"], errors="coerce").fillna(0)
 
-                df["Дата"] = pd.Timestamp.today().strftime("%d.%m.%Y")
-                df["Канал"] = "ОПТ"
-                df["Наименование"] = df["Модель"]
-                df["РРЦ"] = df["Цена"]
-                df["Комиссия Kaspi"] = 0
+        df_to_save["Дата"] = pd.Timestamp.today().strftime("%d.%m.%Y")
+        df_to_save["Канал"] = "ОПТ"
 
-                df["Чистая прибыль"] = df["РРЦ"] - df.get("Себестоимость", 0)
+        df_to_save = df_to_save.rename(columns={
+            "Модель": "Наименование",
+            "Цена": "РРЦ",
+        })
 
-                save_cols = [
-                    "Дата", "Канал", "Наименование",
-                    "РРЦ", "Комиссия Kaspi", "Чистая прибыль"
-                ]
+        if "Номер заказа" not in df_to_save.columns:
+            df_to_save["Номер заказа"] = ""
 
-                append_opt_sales_to_gsheet(df[save_cols])
+        if "Комментарий" not in df_to_save.columns:
+            df_to_save["Комментарий"] = ""
 
-                st.success("Отправлено")
-                st.session_state.invoice_items = []
-                st.rerun()
+        df_to_save["Комиссия Kaspi"] = 0
+
+        # РРЦ и себестоимость считаем с учетом количества
+        df_to_save["РРЦ"] = df_to_save["РРЦ"] * df_to_save["Количество"]
+        df_to_save["Себестоимость"] = df_to_save["Себестоимость"] * df_to_save["Количество"]
+
+        df_to_save["Чистая прибыль"] = (
+            df_to_save["РРЦ"] - df_to_save["Себестоимость"] - df_to_save["Комиссия Kaspi"]
+        )
+
+        # ВАЖНО: порядок колонок должен совпадать с Google Sheets
+        save_columns = [
+            "Дата",
+            "Канал",
+            "Наименование",
+            "Номер заказа",
+            "РРЦ",
+            "Себестоимость",
+            "Комиссия Kaspi",
+            "Комментарий",
+            "Чистая прибыль",
+        ]
+
+        df_to_save = df_to_save[save_columns].copy()
+        df_to_save["Комментарий"] = df_to_save["Комментарий"].fillna("").astype(str)
+
+        append_opt_sales_to_gsheet(df_to_save)
+
+        st.success("Продажи добавлены")
+        st.session_state.invoice_items = []
+        st.session_state.saved_invoice_ready = False
+        st.session_state.invoice_pdf_bytes = None
+        st.rerun()
+
 
 
