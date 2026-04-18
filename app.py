@@ -14,6 +14,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+
+
 @st.cache_data(ttl=60)
 def load_price():
     teeg_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTs6jLT1iBie0Fcm28dPQ_x98Pm61yDGxBnHt85bPjyAUw_144eS0HaIEuejDQwYQ/pub?gid=115078867&single=true&output=csv"
@@ -35,16 +37,20 @@ def load_price():
     df_all = pd.concat(frames, ignore_index=True)
     df_all.columns = df_all.columns.str.strip()
     return df_all
+
+
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
+
 
 @st.cache_resource
 def get_gsheet_client():
     creds_dict = dict(st.secrets["gcp_service_account"])
     credentials = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
     return gspread.authorize(credentials)
+
 
 def append_opt_sales_to_gsheet(df: pd.DataFrame):
     gc = get_gsheet_client()
@@ -58,92 +64,11 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     rows = df.fillna("").values.tolist()
     ws.append_rows(rows, value_input_option="USER_ENTERED")
 
+
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
-if st.session_state["nav"] == "home":
 
-    st.markdown('<div class="main-title">Привет, Стас!</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Панель управления бизнесом</div>', unsafe_allow_html=True)
-
-    st.text_input("🔍 Поиск по товарам и заказам", key="global_search_main")
-
-    st.markdown("### Быстрые действия")
-
-    col1, col2 = st.columns(2)
-
-    # ===== РЯД 1 =====
-    with col1:
-        if st.button("Создать заказ", key="btn_order", use_container_width=True):
-            st.session_state["nav"] = "order"
-            st.rerun()
-
-        st.markdown("""
-        <div style="
-            background:#1f3a8a;
-            border-radius:20px;
-            padding:16px;
-            margin-top:-70px;
-            height:140px;
-            pointer-events:none;
-        ">
-            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Добавить новый</div>
-            <div style="font-size:22px; font-weight:800; color:white;">Создать заказ</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.button("Остатки", key="btn_stock", use_container_width=True)
-
-        st.markdown("""
-        <div style="
-            background:#0f6b4b;
-            border-radius:20px;
-            padding:16px;
-            margin-top:-70px;
-            height:140px;
-            pointer-events:none;
-        ">
-            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Проверить склад</div>
-            <div style="font-size:22px; font-weight:800; color:white;">Остатки</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    col3, col4 = st.columns(2)
-
-    # ===== РЯД 2 =====
-    with col3:
-        st.button("Продажи", key="btn_sales", use_container_width=True)
-
-        st.markdown("""
-        <div style="
-            background:#6d28d9;
-            border-radius:20px;
-            padding:16px;
-            margin-top:-70px;
-            height:140px;
-            pointer-events:none;
-        ">
-            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Смотреть данные</div>
-            <div style="font-size:22px; font-weight:800; color:white;">Продажи</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col4:
-        st.button("Аналитика", key="btn_analytics", use_container_width=True)
-
-        st.markdown("""
-        <div style="
-            background:#a64b0f;
-            border-radius:20px;
-            padding:16px;
-            margin-top:-70px;
-            height:140px;
-            pointer-events:none;
-        ">
-            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Графики и отчёты</div>
-            <div style="font-size:22px; font-weight:800; color:white;">Аналитика</div>
-        </div>
-        """, unsafe_allow_html=True)
-
+if "nav" not in st.session_state:
+    st.session_state["nav"] = "home"
 
 # =========================
 # СТИЛИ
@@ -153,12 +78,12 @@ st.markdown("""
 
 /* ОСНОВА */
 .stApp {
-    background: #151922;
+    background: linear-gradient(180deg, #08101f 0%, #091427 45%, #0a162b 100%);
     color: #f3f4f6;
 }
 
 .block-container {
-    padding-top: calc(2.8rem + env(safe-area-inset-top));
+    padding-top: calc(2.4rem + env(safe-area-inset-top));
     padding-bottom: 2rem;
     max-width: 1400px;
 }
@@ -174,7 +99,7 @@ h1, h2, h3 {
 
 /* ЗАГОЛОВКИ */
 .main-title {
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 800;
     color: #f9fafb;
     margin-top: 0;
@@ -188,24 +113,23 @@ h1, h2, h3 {
     margin-bottom: 18px;
 }
 
-
 /* КАРТОЧКИ */
 .section-box {
-    background: #1d2330;
-    border: 1px solid #2f3747;
+    background: #101b31;
+    border: 1px solid #22304b;
     border-radius: 18px;
     padding: 14px 16px;
     margin-bottom: 14px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.22);
 }
 
 .card {
-    background: #1d2330;
-    border: 1px solid #2f3747;
+    background: #101b31;
+    border: 1px solid #22304b;
     border-radius: 20px;
-    padding: 18px 18px;
+    padding: 18px;
     margin-bottom: 14px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.22);
 }
 
 .card-title {
@@ -236,37 +160,38 @@ h1, h2, h3 {
 hr {
     border: none;
     height: 1px;
-    background: #2f3747;
+    background: #22304b;
     margin: 14px 0;
 }
 
 /* ОБЫЧНЫЕ КНОПКИ */
 .stButton > button {
-    background: #1d2330 !important;
+    background: #101b31 !important;
     color: #f3f4f6 !important;
-    border: 1px solid #2f3747 !important;
-    border-radius: 14px !important;
+    border: 1px solid #22304b !important;
+    border-radius: 16px !important;
     font-weight: 600 !important;
     padding: 10px 18px !important;
+    min-height: 48px !important;
 }
 
 .stButton > button:hover {
-    border-color: #4b5568 !important;
+    border-color: #36507a !important;
     color: #ffffff !important;
 }
 
-/* 🔥 КНОПКИ СКАЧИВАНИЯ (ИСПРАВЛЕНО) */
+/* КНОПКИ СКАЧИВАНИЯ */
 .stDownloadButton > button {
-    background: #1d2330 !important;
+    background: #101b31 !important;
     color: #f3f4f6 !important;
-    border: 1px solid #2f3747 !important;
+    border: 1px solid #22304b !important;
     border-radius: 14px !important;
     font-weight: 600 !important;
     padding: 10px 18px !important;
 }
 
 .stDownloadButton > button:hover {
-    border-color: #4b5568 !important;
+    border-color: #36507a !important;
     color: #ffffff !important;
 }
 
@@ -281,9 +206,9 @@ div[data-testid="stDateInput"] > div,
 div[data-testid="stSelectbox"] > div,
 div[data-testid="stTextInput"] > div,
 div[data-testid="stTextArea"] > div {
-    background: #1d2330 !important;
-    border: 1px solid #2f3747 !important;
-    border-radius: 14px !important;
+    background: #101b31 !important;
+    border: 1px solid #22304b !important;
+    border-radius: 16px !important;
     color: #f3f4f6 !important;
 }
 
@@ -301,41 +226,41 @@ div[data-baseweb="select"] span {
 
 /* ВЫПАДАЮЩИЕ СПИСКИ */
 div[data-baseweb="popover"] {
-    background: #1d2330 !important;
+    background: #101b31 !important;
     border-radius: 12px !important;
 }
 
 ul[role="listbox"] {
-    background: #1d2330 !important;
+    background: #101b31 !important;
     color: #f3f4f6 !important;
-    border: 1px solid #2f3747 !important;
+    border: 1px solid #22304b !important;
 }
 
 ul[role="listbox"] li {
     color: #f3f4f6 !important;
-    background: #1d2330 !important;
+    background: #101b31 !important;
 }
 
 ul[role="listbox"] li:hover {
-    background: #263042 !important;
+    background: #18243b !important;
 }
 
 /* EXPANDER */
 div[data-testid="stExpander"] details {
-    background: #1d2330 !important;
-    border: 1px solid #2f3747 !important;
+    background: #101b31 !important;
+    border: 1px solid #22304b !important;
     border-radius: 18px !important;
     overflow: hidden !important;
 }
 
 div[data-testid="stExpander"] details summary {
-    background: #1d2330 !important;
+    background: #101b31 !important;
     color: #f3f4f6 !important;
     padding: 14px 18px !important;
 }
 
 div[data-testid="stExpander"] details[open] summary {
-    border-bottom: 1px solid #2f3747 !important;
+    border-bottom: 1px solid #22304b !important;
 }
 
 /* TABS */
@@ -348,10 +273,80 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     color: #ffffff !important;
 }
 
+/* СЕТКА ГЛАВНОГО ЭКРАНА */
+.home-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.home-card-btn {
+    display: block;
+    text-decoration: none !important;
+}
+
+.home-card {
+    border-radius: 22px;
+    padding: 18px;
+    min-height: 162px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+.card-blue {
+    background: linear-gradient(180deg, #2d49a7 0%, #284297 100%);
+}
+
+.card-green {
+    background: linear-gradient(180deg, #0f7958 0%, #0c6b4e 100%);
+}
+
+.card-purple {
+    background: linear-gradient(180deg, #6f2cdd 0%, #6323ca 100%);
+}
+
+.card-orange {
+    background: linear-gradient(180deg, #b25712 0%, #9d490d 100%);
+}
+
+.home-card-top {
+    font-size: 14px;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.25;
+}
+
+.home-card-title {
+    font-size: 23px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    margin-top: 10px;
+}
+
+.home-card-bottom {
+    font-size: 13px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.25;
+}
+
+/* КНОПКИ ПОД СЕТКОЙ */
+.home-actions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
     .block-container {
-        padding-top: calc(4.2rem + env(safe-area-inset-top));
+        padding-top: calc(4.0rem + env(safe-area-inset-top));
     }
 
     .main-title {
@@ -365,11 +360,30 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     .card-value {
         font-size: 26px;
     }
+
+    .home-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .home-card {
+        min-height: 146px;
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .home-card-title {
+        font-size: 20px;
+    }
+
+    .home-card-top {
+        font-size: 13px;
+    }
+
+    .home-card-bottom {
+        font-size: 12px;
+    }
 }
-
-/* Убираем курсор в дате */
-
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -390,6 +404,7 @@ def format_money(value: float) -> str:
     except Exception:
         return "0"
 
+
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df.columns = (
@@ -400,6 +415,7 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     )
     return df
 
+
 def find_column(df: pd.DataFrame, variants: list[str]) -> str | None:
     lower_map = {str(col).strip().lower(): col for col in df.columns}
     for variant in variants:
@@ -407,6 +423,7 @@ def find_column(df: pd.DataFrame, variants: list[str]) -> str | None:
         if found is not None:
             return found
     return None
+
 
 def parse_mixed_dates(series: pd.Series) -> pd.Series:
     s = series.astype(str).str.strip()
@@ -424,6 +441,7 @@ def parse_mixed_dates(series: pd.Series) -> pd.Series:
     )
     return parsed_dayfirst
 
+
 def parse_float_text(value: str) -> float:
     if value is None:
         return 0.0
@@ -434,6 +452,7 @@ def parse_float_text(value: str) -> float:
         return float(text)
     except Exception:
         return 0.0
+
 
 def parse_int_text(value: str, default: int = 1) -> int:
     if value is None:
@@ -447,11 +466,13 @@ def parse_int_text(value: str, default: int = 1) -> int:
     except Exception:
         return default
 
+
 @st.cache_data(ttl=60)
 def load_data():
     sales_df = pd.read_csv(SALES_URL)
     expenses_df = pd.read_csv(EXPENSES_URL)
     return normalize_columns(sales_df), normalize_columns(expenses_df)
+
 
 def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     df = normalize_columns(data)
@@ -518,7 +539,6 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
     df["Каспий_маркер"] = pd.to_numeric(df[kaspiy_marker_col], errors="coerce").fillna(0)
 
-    # Автоопределение канала, если колонка пустая
     if df["Канал"].eq("").all():
         kaspi_mask = pd.Series(False, index=df.index)
 
@@ -557,6 +577,7 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+
 def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     exp = normalize_columns(data)
 
@@ -582,6 +603,7 @@ def load_expenses_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     exp["Дата_рус"] = exp["Дата"].dt.strftime("%d.%m.%Y")
     return exp
 
+
 def ensure_orders_file():
     if not os.path.exists(ORDERS_FILE):
         pd.DataFrame(columns=[
@@ -595,6 +617,7 @@ def ensure_orders_file():
             "Общая сумма",
             "Комментарий",
         ]).to_excel(ORDERS_FILE, index=False)
+
 
 def load_orders_dataframe() -> pd.DataFrame:
     ensure_orders_file()
@@ -622,11 +645,14 @@ def load_orders_dataframe() -> pd.DataFrame:
             "Комментарий",
         ])
 
+
 def save_order_row(row: dict):
     ensure_orders_file()
     orders = load_orders_dataframe()
     updated = pd.concat([orders, pd.DataFrame([row])], ignore_index=True)
     updated.to_excel(ORDERS_FILE, index=False)
+
+
 def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     from io import BytesIO
     from reportlab.lib import colors
@@ -804,8 +830,7 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     return pdf
 
 
-
-    # =========================
+# =========================
 # ЗАГРУЗКА
 # =========================
 sales_raw, expenses_raw = load_data()
@@ -837,50 +862,77 @@ tab1, tab2 = st.tabs(["Финансовая сводка", "Создать за�
 # ФИНАНСОВАЯ СВОДКА
 # =========================
 with tab1:
+    if st.session_state["nav"] == "home":
+        st.markdown('<div class="main-title">Привет, Стас!</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-title">Панель управления бизнесом</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="main-title">Привет, Стас!</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Панель управления бизнесом</div>', unsafe_allow_html=True)
+        st.text_input("🔍 Поиск по товарам и заказам", key="global_search_main")
 
-    # 🔍 Поиск
-    st.text_input("🔍 Поиск по товарам и заказам", key="global_search")
+        st.markdown("### Быстрые действия", unsafe_allow_html=True)
 
-    st.markdown("### Быстрые действия")
+        st.markdown("""
+        <div class="home-grid">
+            <div class="home-card card-blue">
+                <div>
+                    <div class="home-card-top">Добавить новый заказ</div>
+                    <div class="home-card-title">Создать заказ</div>
+                </div>
+                <div class="home-card-bottom">Оформить накладную</div>
+            </div>
 
-    # 🔥 2x2 сетка как в макете
-    c1, c2 = st.columns(2)
-    c3, c4 = st.columns(2)
+            <div class="home-card card-green">
+                <div>
+                    <div class="home-card-top">Проверить склад</div>
+                    <div class="home-card-title">Остатки</div>
+                </div>
+                <div class="home-card-bottom">Наличие товаров</div>
+            </div>
 
-    def action_card(title, subtitle, color):
-        st.markdown(f"""
-        <div style="
-            background:{color};
-            border-radius:20px;
-            padding:18px;
-            height:120px;
-            margin-bottom:12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        ">
-            <div style="font-size:14px; opacity:0.8;">{subtitle}</div>
-            <div style="font-size:20px; font-weight:700; margin-top:6px;">
-                {title}
+            <div class="home-card card-purple">
+                <div>
+                    <div class="home-card-top">Смотреть данные</div>
+                    <div class="home-card-title">Продажи</div>
+                </div>
+                <div class="home-card-bottom">История продаж</div>
+            </div>
+
+            <div class="home-card card-orange">
+                <div>
+                    <div class="home-card-top">Графики и отчёты</div>
+                    <div class="home-card-title">Аналитика</div>
+                </div>
+                <div class="home-card-bottom">Прибыль и динамика</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-    with c1:
-        if st.button("Создать заказ", use_container_width=True):
-            st.session_state["nav"] = "order"
+        btn1, btn2 = st.columns(2)
+        btn3, btn4 = st.columns(2)
 
-        action_card("Создать заказ", "Добавить новый", "#1f3a8a")
+        with btn1:
+            if st.button("Создать заказ", use_container_width=True, key="go_order"):
+                st.session_state["nav"] = "order"
+                st.rerun()
 
-    with c2:
-        action_card("Остатки", "Проверить склад", "#065f46")
+        with btn2:
+            st.button("Остатки", use_container_width=True, key="go_stock")
 
-    with c3:
-        action_card("Продажи", "Смотреть данные", "#5b21b6")
+        with btn3:
+            st.button("Продажи", use_container_width=True, key="go_sales")
 
-    with c4:
-        action_card("Аналитика", "Графики и отчёты", "#92400e")
+        with btn4:
+            st.button("Аналитика", use_container_width=True, key="go_analytics")
+
+    elif st.session_state["nav"] == "order":
+        st.markdown('<div class="main-title">Создать заказ</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-title">Быстрое оформление накладной</div>', unsafe_allow_html=True)
+
+        if st.button("⬅ Назад", key="back_home_from_order"):
+            st.session_state["nav"] = "home"
+            st.rerun()
+
+        st.info("Экран заказа здесь пока заглушка. Ниже оставляй свою вкладку 'Создать заказ' как есть.")
+
 
 
 
