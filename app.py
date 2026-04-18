@@ -754,11 +754,7 @@ with tab1:
     df = base_df.copy()
     exp = base_exp.copy()
 
-    st.caption("Кэш обновляется примерно раз в 60 секунд")
-    st.markdown('<div class="small-label">Фильтры</div>', unsafe_allow_html=True)
-
     min_date = valid_dates.min().date()
-    max_date = valid_dates.max().date()
     safe_today = date.today()
 
     channel_values = sorted([
@@ -767,6 +763,91 @@ with tab1:
         if str(x).strip() != ""
     ])
     channel_options = ["Все"] + channel_values
+
+    if "date_from_filter" not in st.session_state:
+        st.session_state["date_from_filter"] = min_date
+
+    if "date_to_filter" not in st.session_state:
+        st.session_state["date_to_filter"] = safe_today
+
+    # =========================
+    # ШАПКА
+    # =========================
+    left_head, right_head = st.columns([3, 1])
+
+    with left_head:
+        st.markdown('<div class="main-title">Панель управления</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-title">Продажи • Доход • Заказы</div>', unsafe_allow_html=True)
+
+    with right_head:
+        st.caption("Кэш ~ 60 сек")
+        if st.button("Обновить", use_container_width=True, key="refresh_report"):
+            st.cache_data.clear()
+            st.rerun()
+
+    search_text = st.text_input("🔍 Поиск по товарам", key="home_search")
+
+    # =========================
+    # БЫСТРЫЕ ДЕЙСТВИЯ
+    # =========================
+    st.markdown("### Быстрые действия")
+
+    a1, a2, a3 = st.columns(3)
+    with a1:
+        st.markdown("""
+        <div class="card">
+            <div class="card-title">📦 Остатки</div>
+            <div class="card-value" style="font-size:22px;">Склад</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with a2:
+        st.markdown("""
+        <div class="card">
+            <div class="card-title">🧾 Заказы</div>
+            <div class="card-value" style="font-size:22px;">Накладные</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with a3:
+        st.markdown("""
+        <div class="card">
+            <div class="card-title">📊 Аналитика</div>
+            <div class="card-value" style="font-size:22px;">Сводка</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    a4, a5, a6 = st.columns(3)
+    with a4:
+        st.markdown("""
+        <div class="card">
+            <div class="card-title">🚚 Продажи</div>
+            <div class="card-value" style="font-size:22px;">Движение</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with a5:
+        st.markdown("""
+        <div class="card">
+            <div class="card-title">💰 Доход</div>
+            <div class="card-value" style="font-size:22px;">Финансы</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with a6:
+        st.markdown("""
+        <div class="card">
+            <div class="card-title">⚙️ Настройки</div>
+            <div class="card-value" style="font-size:22px;">Параметры</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # =========================
+    # ФИЛЬТРЫ
+    # =========================
+    st.markdown("### Фильтры")
 
     f1, f2 = st.columns(2)
 
@@ -779,17 +860,7 @@ with tab1:
         )
 
     with f2:
-        if st.button("Обновить данные", use_container_width=True, key="refresh_report"):
-            st.cache_data.clear()
-            st.rerun()
-
-    if "date_from_filter" not in st.session_state:
-        st.session_state["date_from_filter"] = min_date
-
-    if "date_to_filter" not in st.session_state:
-        st.session_state["date_to_filter"] = safe_today
-
-    st.markdown("### Фильтр периода")
+        st.markdown("&nbsp;", unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -821,21 +892,25 @@ with tab1:
             st.session_state["date_to_filter"] = safe_today
             st.rerun()
 
-    date_from = st.date_input(
-        "С",
-        key="date_from_filter",
-        min_value=min_date,
-        max_value=safe_today,
-        format="YYYY/MM/DD"
-    )
+    d1, d2 = st.columns(2)
 
-    date_to = st.date_input(
-        "По",
-        key="date_to_filter",
-        min_value=min_date,
-        max_value=safe_today,
-        format="YYYY/MM/DD"
-    )
+    with d1:
+        date_from = st.date_input(
+            "С",
+            key="date_from_filter",
+            min_value=min_date,
+            max_value=safe_today,
+            format="YYYY/MM/DD"
+        )
+
+    with d2:
+        date_to = st.date_input(
+            "По",
+            key="date_to_filter",
+            min_value=min_date,
+            max_value=safe_today,
+            format="YYYY/MM/DD"
+        )
 
     # =========================
     # ПРИМЕНЕНИЕ ФИЛЬТРОВ
@@ -852,6 +927,13 @@ with tab1:
         (exp["Дата"].dt.date >= date_from) &
         (exp["Дата"].dt.date <= date_to)
     ].copy()
+
+    # Поиск по товару
+    if search_text.strip():
+        search_lower = search_text.strip().lower()
+        df = df[
+            df["Наименование"].astype(str).str.lower().str.contains(search_lower, na=False)
+        ].copy()
 
     # =========================
     # РАСЧЕТЫ
@@ -881,13 +963,17 @@ with tab1:
     revenue_sum = df["РРЦ"].sum() if "РРЦ" in df.columns else 0
     margin_percent = (gross_profit / revenue_sum * 100) if revenue_sum > 0 else 0
 
-    # =========================
-    # ВЕРХНИЕ КАРТОЧКИ
-    # =========================
-    k1, k2 = st.columns(2)
-    k3, k4 = st.columns(2)
+    kaspi_count = len(df[df["Канал"].astype(str).str.strip() == "Каспий"])
+    opt_count = len(df[df["Канал"].astype(str).str.strip() == "ОПТ"])
 
-    with k1:
+    # =========================
+    # СВОДКА КАК В МАКЕТЕ
+    # =========================
+    st.markdown("### Сводка")
+
+    s1, s2, s3, s4 = st.columns(4)
+
+    with s1:
         st.markdown(f"""
         <div class="card">
             <div class="card-title">Чистая прибыль</div>
@@ -895,7 +981,33 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-    with k2:
+    with s2:
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">Продаж</div>
+            <div class="card-value">{sales_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with s3:
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">Каспий</div>
+            <div class="card-value value-blue">{kaspi_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with s4:
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">ОПТ</div>
+            <div class="card-value">{opt_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    s5, s6, s7 = st.columns(3)
+
+    with s5:
         st.markdown(f"""
         <div class="card">
             <div class="card-title">Стас чистый доход</div>
@@ -903,7 +1015,7 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-    with k3:
+    with s6:
         st.markdown(f"""
         <div class="card">
             <div class="card-title">Алексей чистый доход</div>
@@ -911,18 +1023,18 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-    with k4:
+    with s7:
         st.markdown(f"""
         <div class="card">
-            <div class="card-title">Расходы</div>
-            <div class="card-value value-red">{format_money(expenses)} ₸</div>
+            <div class="card-title">Средний чек</div>
+            <div class="card-value">{format_money(avg_check)} ₸</div>
         </div>
         """, unsafe_allow_html=True)
 
     # =========================
-    # ПРИБЫЛЬ ПО ДНЯМ
+    # ГРАФИК
     # =========================
-    st.subheader("Прибыль по дням")
+    st.markdown("### Динамика прибыли")
 
     if not df.empty:
         daily_df = (
@@ -936,20 +1048,20 @@ with tab1:
 
             fig, ax = plt.subplots(figsize=(10, 4))
             fig.patch.set_facecolor("#151922")
-            ax.set_facecolor("#151922")
+            ax.set_facecolor("#1d2330")
 
             ax.plot(
                 daily_df["Дата"],
                 daily_df["Прибыль"],
                 marker="o",
                 color="#34d399",
-                linewidth=2
+                linewidth=2.5
             )
 
-            ax.set_xlabel("Дата", color="#cbd5e1")
-            ax.set_ylabel("Прибыль", color="#cbd5e1")
+            ax.set_xlabel("")
+            ax.set_ylabel("")
             ax.tick_params(colors="#cbd5e1")
-            ax.grid(True, alpha=0.2, color="#2f3747")
+            ax.grid(True, alpha=0.18, color="#2f3747")
 
             for spine in ax.spines.values():
                 spine.set_color("#2f3747")
@@ -965,9 +1077,9 @@ with tab1:
         st.info("Нет данных для графика.")
 
     # =========================
-    # ТОП-5
+    # ТОП ТОВАРОВ
     # =========================
-    st.subheader("Топ-5 товаров по прибыли")
+    st.markdown("### Топ-5 товаров")
 
     if not df.empty:
         top_df = (
@@ -978,117 +1090,92 @@ with tab1:
         )
 
         if not top_df.empty:
-            fig, ax = plt.subplots(figsize=(10, 5))
-            fig.patch.set_facecolor("#151922")
-            ax.set_facecolor("#151922")
-
-            names = top_df["Наименование"].apply(
-                lambda x: x[:28] + "..." if len(str(x)) > 28 else str(x)
-            )
-
-            ax.bar(names, top_df["Прибыль"], color="#60a5fa")
-
-            ax.set_xlabel("Товар", color="#cbd5e1")
-            ax.set_ylabel("Прибыль", color="#cbd5e1")
-            ax.tick_params(colors="#cbd5e1")
-            ax.grid(True, axis="y", alpha=0.2, color="#2f3747")
-
-            for spine in ax.spines.values():
-                spine.set_color("#2f3747")
-
-            plt.xticks(rotation=45, ha="right")
-            plt.tight_layout()
-            st.pyplot(fig, use_container_width=True)
+            for _, row in top_df.iterrows():
+                st.markdown(f"""
+                <div class="section-box">
+                    <div style="font-size:16px; font-weight:700; color:#f3f4f6; margin-bottom:6px;">
+                        {row["Наименование"]}
+                    </div>
+                    <div style="font-size:14px; color:#aab2bf;">
+                        Прибыль: <span style="color:#60a5fa; font-weight:700;">{format_money(row["Прибыль"])} ₸</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
         else:
             st.info("Нет данных по товарам.")
     else:
         st.info("Нет данных по товарам.")
 
     # =========================
-    # БЫСТРЫЙ ОТЧЕТ
+    # ДОП. БЛОКИ
     # =========================
+    e1, e2, e3 = st.columns(3)
+
     start_date_text = date_from.strftime("%d.%m.%Y")
     end_date_text = date_to.strftime("%d.%m.%Y")
 
-    with st.expander("Быстрый отчет"):
-        st.markdown(
-            f"""
-            <div class="section-box">
-            <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
-                Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
-            </div>
-
-            <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
-                Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span style="color:#aab2bf;">Стас чистый доход</span>
-                <span style="color:#34d399; font-weight:600;">{format_money(my_net)} ₸</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span style="color:#aab2bf;">Алексей чистый доход</span>
-                <span style="color:#60a5fa; font-weight:600;">{format_money(alex_net)} ₸</span>
-            </div>
-
-            <hr style="border:0; border-top:1px solid #2f3747; margin:12px 0;">
-
-            <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:700;">
-                <span style="color:#f3f4f6;">Итого</span>
-                <span style="color:#34d399;">{format_money(total_net)} ₸</span>
-            </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-
-    # =========================
-    # ПРОДАЖИ
-    # =========================
-    with st.expander("Продажи"):
-        st.markdown(f"""
-        <div class="section-box">
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                <span style="color:#aab2bf;">Количество продаж</span>
-                <span style="font-weight:700;">{sales_count}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                <span style="color:#aab2bf;">Средний чек</span>
-                <span style="font-weight:700; color:#34d399;">{format_money(avg_check)} ₸</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-                <span style="color:#aab2bf;">Средняя маржа</span>
-                <span style="font-weight:700; color:#60a5fa;">{margin_percent:.1f}%</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # =========================
-    # РАСХОДЫ
-    # =========================
-    with st.expander("Расходы"):
-        st.markdown(f"""
-        <div class="section-box">
-            <div style="font-size:14px; color:#aab2bf;">Общие расходы</div>
-            <div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(expenses)} ₸</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if not exp.empty and {"Дата_рус", "Тип расхода", "Сумма"}.issubset(exp.columns):
-            recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
-
-            st.markdown("**Последние расходы**")
-
-            for _, row in recent_exp.iterrows():
-                st.markdown(f"""
+    with e1:
+        with st.expander("Быстрый отчет"):
+            st.markdown(
+                f"""
                 <div class="section-box">
-                    <div style="font-size:13px; color:#aab2bf;">{row["Дата_рус"]}</div>
-                    <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
-                    <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
+                    <div style="font-size:14px; color:#aab2bf; margin-bottom:10px;">
+                        Период: <span style="color:#34d399;">{start_date_text} — {end_date_text}</span>
+                    </div>
+                    <div style="font-size:14px; color:#aab2bf; margin-bottom:12px;">
+                        Канал: <span style="color:#f3f4f6;">{selected_channel}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span style="color:#aab2bf;">Итого</span>
+                        <span style="color:#34d399; font-weight:700;">{format_money(total_net)} ₸</span>
+                    </div>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+                unsafe_allow_html=True,
+            )
+
+    with e2:
+        with st.expander("Продажи"):
+            st.markdown(f"""
+            <div class="section-box">
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                    <span style="color:#aab2bf;">Количество продаж</span>
+                    <span style="font-weight:700;">{sales_count}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                    <span style="color:#aab2bf;">Средний чек</span>
+                    <span style="font-weight:700; color:#34d399;">{format_money(avg_check)} ₸</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:#aab2bf;">Средняя маржа</span>
+                    <span style="font-weight:700; color:#60a5fa;">{margin_percent:.1f}%</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with e3:
+        with st.expander("Расходы"):
+            st.markdown(f"""
+            <div class="section-box">
+                <div style="font-size:14px; color:#aab2bf;">Общие расходы</div>
+                <div style="font-size:28px; font-weight:700; color:#f87171;">{format_money(expenses)} ₸</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            if not exp.empty and {"Дата_рус", "Тип расхода", "Сумма"}.issubset(exp.columns):
+                recent_exp = exp[["Дата_рус", "Тип расхода", "Сумма"]].tail(3).copy()
+
+                st.markdown("**Последние расходы**")
+
+                for _, row in recent_exp.iterrows():
+                    st.markdown(f"""
+                    <div class="section-box">
+                        <div style="font-size:13px; color:#aab2bf;">{row["Дата_рус"]}</div>
+                        <div style="font-size:15px; color:#f3f4f6;">{row["Тип расхода"]}</div>
+                        <div style="font-size:16px; font-weight:700; color:#f87171;">{format_money(row["Сумма"])} ₸</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
 
 # =========================
 # СОЗДАНИЕ ЗАКАЗА
