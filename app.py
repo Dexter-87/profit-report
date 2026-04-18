@@ -89,19 +89,20 @@ h1, h2, h3 {
 
 /* ЗАГОЛОВКИ */
 .main-title {
-    font-size: 40px;
+    font-size: 34px;
     font-weight: 800;
     color: #f9fafb;
     margin-top: 0;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     line-height: 1.05;
 }
 
 .sub-title {
-    font-size: 16px;
-    color: #aab2bf;
+    font-size: 15px;
+    color: #8fa3bf;
     margin-bottom: 18px;
 }
+
 
 /* КАРТОЧКИ */
 .section-box {
