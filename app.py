@@ -59,6 +59,8 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     ws.append_rows(rows, value_input_option="USER_ENTERED")
 
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
+if "nav" not in st.session_state:
+    st.session_state["nav"] = "home"
 
 # =========================
 # СТИЛИ
