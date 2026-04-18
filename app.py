@@ -61,6 +61,120 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
 if "nav" not in st.session_state:
     st.session_state["nav"] = "home"
+if st.session_state["nav"] == "home":
+    st.markdown('<div class="main-title">Привет, Стас!</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-title">Панель управления бизнесом</div>', unsafe_allow_html=True)
+
+    st.text_input("🔍 Поиск по товарам и заказам", key="global_search")
+
+    st.markdown("### Быстрые действия")
+
+    row1_col1, row1_col2 = st.columns(2)
+    row2_col1, row2_col2 = st.columns(2)
+
+    with row1_col1:
+        st.markdown("""
+        <div style="
+            background:#1f3a8a;
+            border-radius:20px;
+            padding:18px;
+            height:160px;
+            margin-bottom:14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        ">
+            <div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Добавить новый заказ</div>
+                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
+                    Создать заказ
+                </div>
+            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
+                Оформить накладную
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("Открыть заказ", use_container_width=True, key="go_order"):
+            st.session_state["nav"] = "order"
+            st.rerun()
+
+    with row1_col2:
+        st.markdown("""
+        <div style="
+            background:#0f6b4b;
+            border-radius:20px;
+            padding:18px;
+            height:160px;
+            margin-bottom:14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        ">
+            <div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Проверить склад</div>
+                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
+                    Остатки
+                </div>
+            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
+                Наличие товаров
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with row2_col1:
+        st.markdown("""
+        <div style="
+            background:#6d28d9;
+            border-radius:20px;
+            padding:18px;
+            height:160px;
+            margin-bottom:14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        ">
+            <div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Смотреть данные</div>
+                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
+                    Продажи
+                </div>
+            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
+                История продаж
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with row2_col2:
+        st.markdown("""
+        <div style="
+            background:#a64b0f;
+            border-radius:20px;
+            padding:18px;
+            height:160px;
+            margin-bottom:14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        ">
+            <div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Графики и отчёты</div>
+                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
+                    Аналитика
+                </div>
+            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
+                Прибыль и динамика
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # =========================
 # СТИЛИ
