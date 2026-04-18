@@ -59,122 +59,91 @@ def append_opt_sales_to_gsheet(df: pd.DataFrame):
     ws.append_rows(rows, value_input_option="USER_ENTERED")
 
 st.set_page_config(page_title="Финансовая сводка", layout="wide")
-if "nav" not in st.session_state:
-    st.session_state["nav"] = "home"
 if st.session_state["nav"] == "home":
+
     st.markdown('<div class="main-title">Привет, Стас!</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Панель управления бизнесом</div>', unsafe_allow_html=True)
 
-    st.text_input("🔍 Поиск по товарам и заказам", key="global_search")
+    st.text_input("🔍 Поиск по товарам и заказам", key="global_search_main")
 
     st.markdown("### Быстрые действия")
 
-    row1_col1, row1_col2 = st.columns(2)
-    row2_col1, row2_col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-    with row1_col1:
+    # ===== РЯД 1 =====
+    with col1:
+        if st.button("Создать заказ", key="btn_order", use_container_width=True):
+            st.session_state["nav"] = "order"
+            st.rerun()
+
         st.markdown("""
         <div style="
             background:#1f3a8a;
             border-radius:20px;
-            padding:18px;
-            height:160px;
-            margin-bottom:14px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
-            display:flex;
-            flex-direction:column;
-            justify-content:space-between;
+            padding:16px;
+            margin-top:-70px;
+            height:140px;
+            pointer-events:none;
         ">
-            <div>
-                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Добавить новый заказ</div>
-                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
-                    Создать заказ
-                </div>
-            </div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
-                Оформить накладную
-            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Добавить новый</div>
+            <div style="font-size:22px; font-weight:800; color:white;">Создать заказ</div>
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("Открыть заказ", use_container_width=True, key="go_order"):
-            st.session_state["nav"] = "order"
-            st.rerun()
+    with col2:
+        st.button("Остатки", key="btn_stock", use_container_width=True)
 
-    with row1_col2:
         st.markdown("""
         <div style="
             background:#0f6b4b;
             border-radius:20px;
-            padding:18px;
-            height:160px;
-            margin-bottom:14px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
-            display:flex;
-            flex-direction:column;
-            justify-content:space-between;
+            padding:16px;
+            margin-top:-70px;
+            height:140px;
+            pointer-events:none;
         ">
-            <div>
-                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Проверить склад</div>
-                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
-                    Остатки
-                </div>
-            </div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
-                Наличие товаров
-            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Проверить склад</div>
+            <div style="font-size:22px; font-weight:800; color:white;">Остатки</div>
         </div>
         """, unsafe_allow_html=True)
 
-    with row2_col1:
+    col3, col4 = st.columns(2)
+
+    # ===== РЯД 2 =====
+    with col3:
+        st.button("Продажи", key="btn_sales", use_container_width=True)
+
         st.markdown("""
         <div style="
             background:#6d28d9;
             border-radius:20px;
-            padding:18px;
-            height:160px;
-            margin-bottom:14px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
-            display:flex;
-            flex-direction:column;
-            justify-content:space-between;
+            padding:16px;
+            margin-top:-70px;
+            height:140px;
+            pointer-events:none;
         ">
-            <div>
-                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Смотреть данные</div>
-                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
-                    Продажи
-                </div>
-            </div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
-                История продаж
-            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Смотреть данные</div>
+            <div style="font-size:22px; font-weight:800; color:white;">Продажи</div>
         </div>
         """, unsafe_allow_html=True)
 
-    with row2_col2:
+    with col4:
+        st.button("Аналитика", key="btn_analytics", use_container_width=True)
+
         st.markdown("""
         <div style="
             background:#a64b0f;
             border-radius:20px;
-            padding:18px;
-            height:160px;
-            margin-bottom:14px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.30);
-            display:flex;
-            flex-direction:column;
-            justify-content:space-between;
+            padding:16px;
+            margin-top:-70px;
+            height:140px;
+            pointer-events:none;
         ">
-            <div>
-                <div style="font-size:14px; color:rgba(255,255,255,0.78);">Графики и отчёты</div>
-                <div style="font-size:28px; font-weight:800; margin-top:10px; color:white;">
-                    Аналитика
-                </div>
-            </div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.72);">
-                Прибыль и динамика
-            </div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.7);">Графики и отчёты</div>
+            <div style="font-size:22px; font-weight:800; color:white;">Аналитика</div>
         </div>
         """, unsafe_allow_html=True)
+
 
 # =========================
 # СТИЛИ
