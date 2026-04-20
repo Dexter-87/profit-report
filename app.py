@@ -466,13 +466,7 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     )
 
     df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
-    df["Плюс"] = (
-    df["Комментарий"]
-    .fillna("")
-    .astype(str)
-    .str.strip()
-    .eq("+")
-)
+    df["Плюс"] = df["Комментарий"].astype(str).str.contains(r"\+", na=False)
 
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
