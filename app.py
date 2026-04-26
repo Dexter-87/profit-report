@@ -465,7 +465,10 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
         .fillna(0)
     )
 
-    df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
+    df["Это Ariston"] = (
+    df["Наименование"].str.lower().str.contains("ariston", na=False)
+    | df["Наименование"].str.lower().str.contains("аристон", na=False)
+    )
     df["Плюс"] = df["Комментарий"].astype(str).str.contains(r"\+", na=False)
     st.write("Всего строк:", len(df))
     st.write("Ariston строк:", df["Это Ariston"].sum())
