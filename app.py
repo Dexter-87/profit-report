@@ -735,6 +735,8 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
 sales_raw, expenses_raw = load_data()
 
 base_df = load_sales_dataframe(sales_raw)
+st.write("Колонки продаж:", list(df.columns))
+st.write(df.tail(5))
 base_exp = load_expenses_dataframe(expenses_raw)
 
 if base_df is None or base_df.empty:
