@@ -411,7 +411,19 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     )
 
     # 🔥 ГЛАВНОЕ ИСПРАВЛЕНИЕ
-    df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
+    name_source = df["Наименование"].astype(str)
+
+    if name_source.str.strip().eq("").all() and len(df.columns) >= 3:
+        name_source = df.iloc[:, 2].astype(str)
+        df["Наименование"] = name_source
+    
+    df["Это Ariston"] = (
+        name_source.str.lower().str.contains("ariston", na=False)
+        | name_source.str.lower().str.contains("аристон", na=False)
+    )
+    
+    df["Плюс"] = df["Комментарий"].astype(str).str.contains(r"\+", na=False)
+    
 
     # 🔥 ПЛЮС ЧЕРЕЗ contains
     df["Плюс"] = df["Комментарий"].astype(str).str.contains(r"\+", na=False)
