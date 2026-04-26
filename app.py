@@ -467,6 +467,13 @@ def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
     df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
     df["Плюс"] = df["Комментарий"].astype(str).str.contains(r"\+", na=False)
+    st.write("Всего строк:", len(df))
+    st.write("Ariston строк:", df["Это Ariston"].sum())
+    st.write("Плюс строк:", df["Плюс"].sum())
+    st.write("Сумма прибыли Ariston:", df.loc[df["Это Ariston"], "Прибыль"].sum())
+    st.write("Сумма прибыли PLUS:", df.loc[df["Плюс"], "Прибыль"].sum())
+    st.write(df[["Дата", "Наименование", "Прибыль", "Комментарий", "Это Ariston", "Плюс"]].tail(20))
+
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
 
     return df
