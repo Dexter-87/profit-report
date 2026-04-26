@@ -367,117 +367,59 @@ def load_data():
     expenses_df = pd.read_csv(EXPENSES_URL)
     return normalize_columns(sales_df), normalize_columns(expenses_df)
 
+
 def load_sales_dataframe(data: pd.DataFrame) -> pd.DataFrame:
     df = normalize_columns(data)
 
-    date_col = find_column(df, ["Дата", "дата"])
-    channel_col = find_column(df, ["Канал", "канал"])
-    name_col = find_column(df, ["Наименование", "наименование"])
-    order_col = find_column(df, ["Номер заказа", "номер заказа"])
-    cost_col = find_column(df, ["Себестоимость", "себестоимость"])
-    rrc_col = find_column(df, ["РРЦ", "ррц"])
-    kaspi_col = find_column(df, ["Комиссия Kaspi", "комиссия kaspi"])
-    profit_col = find_column(df, ["Чистая прибыль", "чистая прибыль"])
-    comment_col = find_column(df, ["Комментарий", "комментарий", "Комментарии", "комментарии"])
-    kaspiy_marker_col = find_column(df, ["Каспий", "каспий"])
+    # --- ПОИСК КОЛОНОК ---
+    date_col = find_column(df, ["Дата"])
+    channel_col = find_column(df, ["Канал"])
+    name_col = find_column(df, ["Наименование"])
+    order_col = find_column(df, ["Номер заказа"])
+    cost_col = find_column(df, ["Себестоимость"])
+    rrc_col = find_column(df, ["РРЦ"])
+    kaspi_col = find_column(df, ["Комиссия Kaspi"])
+    profit_col = find_column(df, ["Чистая прибыль"])
+    comment_col = find_column(df, ["Комментарий"])
 
-    if date_col is None:
-        st.error("В таблице продаж не найден столбец 'Дата'.")
-        st.write("Найденные столбцы:", list(df.columns))
-        st.stop()
+    # 🔥 ЕСЛИ "Наименование" НЕ НАЙДЕНО — БЕРЁМ 3-Й СТОЛБЕЦ
+    if name_col is None and len(df.columns) >= 3:
+        name_col = df.columns[2]
 
-    if channel_col is None:
-        df["Канал"] = ""
-        channel_col = "Канал"
-
-    if name_col is None:
-        df["Наименование"] = ""
-        name_col = "Наименование"
-
-    if order_col is None:
-        df["Номер заказа"] = ""
-        order_col = "Номер заказа"
-
-    if cost_col is None:
-        df["Себестоимость"] = 0
-        cost_col = "Себестоимость"
-
-    if rrc_col is None:
-        df["РРЦ"] = 0
-        rrc_col = "РРЦ"
-
-    if kaspi_col is None:
-        df["Комиссия Kaspi"] = 0
-        kaspi_col = "Комиссия Kaspi"
-
-    if comment_col is None:
-        df["Комментарий"] = ""
-        comment_col = "Комментарий"
-
-    if kaspiy_marker_col is None:
-        df["Каспий"] = 0
-        kaspiy_marker_col = "Каспий"
-
+    # --- БАЗОВЫЕ ПОЛЯ ---
     df["Дата"] = parse_mixed_dates(df[date_col])
-    df["Канал"] = df[channel_col].fillna("").astype(str).str.strip()
-    df["Наименование"] = df[name_col].fillna("").astype(str).str.strip()
-    df["Номер заказа"] = df[order_col].fillna("").astype(str).str.strip()
-    df["Себестоимость"] = pd.to_numeric(df[cost_col], errors="coerce").fillna(0)
-    df["РРЦ"] = pd.to_numeric(df[rrc_col], errors="coerce").fillna(0)
-    df["Комиссия Kaspi"] = pd.to_numeric(df[kaspi_col], errors="coerce").fillna(0)
+    df["Канал"] = df[channel_col].fillna("").astype(str).str.strip() if channel_col else ""
+    df["Наименование"] = df[name_col].fillna("").astype(str).str.strip() if name_col else ""
 
-    df["Комментарий"] = df[comment_col].fillna("").astype(str)
-    df["Комментарий"] = df["Комментарий"].str.replace("\xa0", "", regex=False)
-    df["Комментарий"] = df["Комментарий"].str.strip()
+    df["Себестоимость"] = pd.to_numeric(df[cost_col], errors="coerce").fillna(0) if cost_col else 0
+    df["РРЦ"] = pd.to_numeric(df[rrc_col], errors="coerce").fillna(0) if rrc_col else 0
+    df["Комиссия Kaspi"] = pd.to_numeric(df[kaspi_col], errors="coerce").fillna(0) if kaspi_col else 0
 
-    df["Каспий_маркер"] = pd.to_numeric(df[kaspiy_marker_col], errors="coerce").fillna(0)
+    df["Комментарий"] = df[comment_col].fillna("").astype(str).str.strip() if comment_col else ""
 
-    # Автоопределение канала, если колонка пустая
-    if df["Канал"].eq("").all():
-        kaspi_mask = pd.Series(False, index=df.index)
-
-        if "Комиссия Kaspi" in df.columns:
-            kaspi_mask = kaspi_mask | (
-                pd.to_numeric(df["Комиссия Kaspi"], errors="coerce").fillna(0) > 0
-            )
-
-        if "Номер заказа" in df.columns:
-            kaspi_mask = kaspi_mask | (
-                df["Номер заказа"].fillna("").astype(str).str.strip() != ""
-            )
-
-        if "Каспий_маркер" in df.columns:
-            kaspi_mask = kaspi_mask | (
-                pd.to_numeric(df["Каспий_маркер"], errors="coerce").fillna(0) > 0
-            )
-
-        df.loc[kaspi_mask, "Канал"] = "Каспий"
-        df.loc[~kaspi_mask, "Канал"] = "ОПТ"
-
-    if profit_col is not None:
+    # --- ПРИБЫЛЬ ---
+    if profit_col:
         df["Прибыль"] = pd.to_numeric(df[profit_col], errors="coerce").fillna(0)
     else:
         df["Прибыль"] = df["РРЦ"] - df["Себестоимость"] - df["Комиссия Kaspi"]
 
+    # --- МАРЖА ---
     df["Маржа %"] = (
         (df["Прибыль"] / df["РРЦ"] * 100)
         .replace([float("inf"), -float("inf")], 0)
         .fillna(0)
     )
 
-    df["Это Ariston"] = (
-    df["Наименование"].str.lower().str.contains("ariston", na=False)
-    | df["Наименование"].str.lower().str.contains("аристон", na=False)
-    )
+    # 🔥 ГЛАВНОЕ ИСПРАВЛЕНИЕ
+    df["Это Ariston"] = df["Наименование"].str.lower().str.contains("ariston", na=False)
+
+    # 🔥 ПЛЮС ЧЕРЕЗ contains
     df["Плюс"] = df["Комментарий"].astype(str).str.contains(r"\+", na=False)
-    st.write("Всего строк:", len(df))
-    st.write("Ariston строк:", df["Это Ariston"].sum())
-    st.write("Плюс строк:", df["Плюс"].sum())
-    st.write("Сумма прибыли Ariston:", df.loc[df["Это Ariston"], "Прибыль"].sum())
-    st.write("Сумма прибыли PLUS:", df.loc[df["Плюс"], "Прибыль"].sum())
-    st.write(df[["Дата", "Наименование", "Прибыль", "Комментарий", "Это Ariston", "Плюс"]].tail(20))
 
     df["Дата_рус"] = df["Дата"].dt.strftime("%d.%m.%Y")
+
+    return df
+
 
     return df
 
