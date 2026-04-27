@@ -670,7 +670,7 @@ def build_invoice_pdf(invoice_df: pd.DataFrame) -> bytes:
     ]))
 
     elements = [
-        Paragraph("Королевство бойлеров", title_style),
+        Paragraph("TechnoOpt", title_style),
         Paragraph(f"Накладная от {pd.Timestamp.today().strftime('%d.%m.%Y')}", sub_style),
         Spacer(1, 4),
         table,
